@@ -20,9 +20,8 @@
   "scripts": {
     "compile": "babel src -d dist",
     "test": "npm run eslint && npm run tsc-test && npm run jest",
-    "eslint": "eslint --ext .js,.ts,.tsx --ignore-pattern dist .",
+    "lint": "eslint --ext .js,.ts,.tsx --ignore-pattern dist .",
     "jest": "jest",
-    "tsc-test": "tsc --project . --noEmit",
     "examples:minimal": "DIR=01_minimal EXT=js webpack-dev-server",
     "examples:typescript": "DIR=02_typescript webpack-dev-server",
     "examples:deep": "DIR=03_deep webpack-dev-server",
@@ -43,17 +42,11 @@
     "pure"
   ],
   "license": "MIT",
-  "dependencies": {
-    "proxyequal": "^2.0.3"
-  },
   "devDependencies": {
     "@babel/cli": "^7.2.3",
     "@babel/core": "^7.3.3",
     "@babel/preset-env": "^7.3.1",
     "@babel/preset-react": "^7.0.0",
-    "@types/react": "^16.8.3",
-    "@types/react-dom": "^16.8.2",
-    "@types/redux-logger": "^3.0.7",
     "@typescript-eslint/eslint-plugin": "^1.3.0",
     "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^10.0.1",
@@ -64,15 +57,14 @@
     "eslint-plugin-jsx-a11y": "^6.2.1",
     "eslint-plugin-react": "^7.12.4",
     "html-webpack-plugin": "^3.2.0",
-    "immer": "^2.0.0",
+    "immer": "^2.1.3",
     "jest": "^24.1.0",
     "react": "^16.8.2",
     "react-dom": "^16.8.2",
-    "react-testing-library": "^5.8.0",
     "redux": "^4.0.1",
     "redux-thunk": "^2.3.0",
     "ts-loader": "^5.3.3",
-    "typescript": "^3.3.3",
+    "typescript": "^3.3.3333",
     "webpack": "^4.29.4",
     "webpack-cli": "^3.2.3",
     "webpack-dev-server": "^3.1.14"
@@ -86,5 +78,8 @@
       "@babel/preset-env",
       "@babel/preset-react"
     ]
+  },
+  "dependencies": {
+    "remixx": "^1.3.0"
   }
 }
