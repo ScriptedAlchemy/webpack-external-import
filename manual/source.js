@@ -18,8 +18,9 @@ class TestTwo extends Component {
       })}>test</button>
     );
   }
-};
+}
 
+// currently doesnt work
 const TestThree = () => (
   <button onClick={() => dispatch({
     type: 'fake',
