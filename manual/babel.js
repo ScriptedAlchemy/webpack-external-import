@@ -1,6 +1,7 @@
 /* eslint-disable */
 
 const { transform } = require('@babel/core');
+const fs = require('fs')
 const plugin = require('../dist/babel');
 const { readFileSync } = require('fs');
 
@@ -9,12 +10,15 @@ const source = readFileSync('manual/source.js', 'utf8');
 
 const result = transform(source, {
   plugins: [
-    [plugin, {}],
+    [plugin, {
+
+    }],
+    '@babel/plugin-transform-react-jsx'
   ],
 });
 
-
-console.log('######################');
-console.log('######################');
-
-console.log(result.code);
+fs.writeFile("manual/result.js", result.code, function(err) {
+  if(err) {
+    return console.log(err);
+  }
+});
