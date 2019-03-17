@@ -26,4 +26,12 @@ class TestTwo extends Component {
 }
 
 ;
-export { TestTwo, Test };
+
+const TestThree = () => React.createElement("button", {
+  onClick: () => dispatch({
+    type: 'fake',
+    payload: 'nothin'
+  })
+}, "test");
+
+export { TestTwo, Test, TestThree };
