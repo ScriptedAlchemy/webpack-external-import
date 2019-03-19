@@ -1,26 +1,14 @@
 import React, { Component } from 'react';
 
-const Test = () => {
-  return (
-    <button onClick={() => dispatch({
-      type: 'fake',
-      payload: 'nothin'
-    })}>test</button>
-  );
+const Test = (props, state, actions) => {
+  return <div>{state.title}</div>;
 };
 
-class TestTwo extends Component {
-  render() {
-    return (
-      <button onClick={() => dispatch({
-        type: 'fake',
-        payload: 'nothin'
-      })}>test</button>
-    );
-  }
-}
+const TestTwo = (props, state, actions) => {
+  return <div>{state.title}</div>;
+};
 
-// currently doesnt work
+
 const TestThree = () => (
   <button onClick={() => dispatch({
     type: 'fake',
@@ -29,4 +17,4 @@ const TestThree = () => (
 );
 
 
-export { TestTwo, Test, TestThree };
+export { Test, TestTwo, TestThree };
