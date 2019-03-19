@@ -1,4 +1,6 @@
-const doesReturnJSX = (node) => {
+import path from 'path';
+
+export const doesReturnJSX = (node) => {
   if (node.isJSXElement()) {
     return true;
   }
@@ -34,4 +36,62 @@ const doesReturnJSX = (node) => {
   return false;
 };
 
-export default doesReturnJSX;
+
+export const getTypesFromFilename = (
+  t,
+  { basename, filename },
+) => {
+  // ./{module name}/index.js
+  const name = t.toBindingIdentifierName(
+    basename === 'index' ?
+      path.basename(path.dirname(filename)) :
+      basename,
+  );
+
+  return {
+    identifier: t.identifier(name),
+    name,
+  };
+};
+
+
+export const isWrappedComponentSet = (
+  statement,
+  displayName,
+) => {
+  const displayNameSetInExpr = (sibling) => {
+    const expression = sibling.get('expression');
+    const member = sibling.get('expression.left');
+    return !!((
+      expression.isAssignmentExpression() &&
+      member.get('object')
+        .isIdentifier({ name: `const ${displayName}` })
+    ) || member.get('object')
+      .isIdentifier({ name: `const ${displayName}` }));
+  };
+
+  for (let i = statement.container.length; i > -1; i -= 1) {
+    const sibling = statement.getSibling(i);
+    if (sibling.isExpressionStatement() && displayNameSetInExpr(sibling)) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
+
+export const makeWrappedComponent = (t, displayName) =>
+  t.expressionStatement(
+    t.assignmentExpression(
+      '=',
+      t.identifier(`const ${displayName}`),
+      t.identifier(`(props) => {
+      const state = _Remixx.useReduxState();
+      const dispatch = _Remixx.useReduxDispatch();
+      const actions = _Remixx.useReduxActions();
+     
+      return Wrapped${displayName}(props, state, _Remixx.bindActionCreators(dispatch, actions))
+}`),
+    ),
+  );
