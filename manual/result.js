@@ -1,37 +1,42 @@
+import _Remixx from "remixx";
 import React, { Component } from 'react';
 
-const Test = () => {
-  const state = useReduxState();
-  const dispatch = useReduxDispatch();
-  return React.createElement("button", {
-    onClick: () => dispatch({
-      type: 'fake',
-      payload: 'nothin'
-    })
-  }, "test");
+const WrappedTest = (props, state, actions) => {
+  return React.createElement("div", null, state.title);
 };
 
-class TestTwo extends Component {
-  render() {
-    const state = useReduxState();
-    const dispatch = useReduxDispatch();
-    return React.createElement("button", {
-      onClick: () => dispatch({
-        type: 'fake',
-        payload: 'nothin'
-      })
-    }, "test");
-  }
+const Test = (props) => {
+      const state = _Remixx.useReduxState();
+      const dispatch = _Remixx.useReduxDispatch();
+      const actions = _Remixx.useReduxActions();
+     
+      return WrappedTest(props, state, _Remixx.bindActionCreators(dispatch, actions))
+};
 
-}
+const WrappedTestTwo = (props, state, actions) => {
+  return React.createElement("div", null, state.title);
+};
 
-;
+const TestTwo = (props) => {
+      const state = _Remixx.useReduxState();
+      const dispatch = _Remixx.useReduxDispatch();
+      const actions = _Remixx.useReduxActions();
+     
+      return WrappedTestTwo(props, state, _Remixx.bindActionCreators(dispatch, actions))
+};
 
-const TestThree = () => React.createElement("button", {
+const WrappedTestThree = () => React.createElement("button", {
   onClick: () => dispatch({
     type: 'fake',
     payload: 'nothin'
   })
 }, "test");
 
-export { TestTwo, Test, TestThree };
+const TestThree = (props) => {
+      const state = _Remixx.useReduxState();
+      const dispatch = _Remixx.useReduxDispatch();
+      const actions = _Remixx.useReduxActions();
+     
+      return WrappedTestThree(props, state, _Remixx.bindActionCreators(dispatch, actions))
+};
+export { Test, TestTwo, TestThree };

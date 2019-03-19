@@ -83,6 +83,6 @@
     ]
   },
   "dependencies": {
-    "babel-template": "^6.26.0"
+    "@babel/helper-module-imports": "^7.0.0"
   }
 }

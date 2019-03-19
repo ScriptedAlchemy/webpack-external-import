@@ -1,68 +1,110 @@
-import template from 'babel-template';
+import {
+  doesReturnJSX,
+  getTypesFromFilename,
+  isWrappedComponentSet,
+  makeWrappedComponent,
+} from './helpers';
+import { addDefault } from "@babel/helper-module-imports";
 
-const util = require('util');
 
-function generateTemplate(className) {
-  return template(`
-    const state = useReduxState();
-    const dispatch = useReduxDispatch();
-`)();
-}
+export default ({ types: t }) => ({
+  visitor: {
+    Program(path,{file,opts}) {
+      addDefault(path, 'remixx', {nameHint:'Remixx'});
+    },
+    ExportDefaultDeclaration(
+      path,
+      { file: { opts } },
+    ) {
+      const node = path.get('declaration');
+      const arrow = node.isArrowFunctionExpression();
 
-function testPlugin(babel) {
-  return {
-    visitor: {
-      JSXElement(path, opts) {
-        if (!path.findParent((path) => path.isClassMethod())) {
-          const returnParent = path.findParent((path) => path.isBlockStatement());
-          if (returnParent) {
-            returnParent.getFunctionParent()
-              .get('body')
-              .unshiftContainer('body', generateTemplate());
-          }
-        }
-      },
-      ClassMethod(path, opts) {
-        //console.log(util.inspect(opts))
-        if (opts.filename && !!~opts.filename.indexOf('node_modules')) {
-          return;
-        }
-
-        if (path.node.key && path.node.key.name === 'render') {
-          const classPath = path.findParent(path => path.isClassDeclaration());
-          if (
-            classPath.node.superClass &&
-            classPath.node.superClass.type === 'Identifier' &&
-            classPath.node.superClass.name === 'Component'
-          ) {
-
-            path
-              .get('body')
-              .unshiftContainer('body', generateTemplate());
-          }
-        }
-      },
-      FunctionExpression(path, opts) {
-        if (opts.filename && !!~opts.filename.indexOf('node_modules')) {
-          return;
-        }
-
-        if (path.node.id && path.node.id.name === 'render') {
-          const pathLocation = path.getPathLocation();
-          const callExpressionPath = path.findParent(path =>
-            path.isCallExpression()
-          );
-          if (!callExpressionPath) {
-            return;
-          }
-
-          path
-            .get('body')
-            .unshiftContainer('body', generateTemplate());
-        }
+      if (
+        !node.isArrowFunctionExpression() &&
+        !node.isFunctionDeclaration()
+      ) {
+        return;
       }
-    }
-  };
-};
 
-export default testPlugin;
+      if (!doesReturnJSX(node.get('body'))) {
+        return;
+      }
+
+      const { name: functionName } = node.node.id || {};
+      const { identifier, name } = arrow ?
+        getTypesFromFilename(t, opts) :
+        ({
+          identifier: t.identifier(functionName),
+          name: functionName,
+        });
+
+      // sets display name
+      node.node.id = identifier;
+
+      const { body, id, params } = node.node;
+      // checks to see if we need to convert `export default function () {}`
+      const init = arrow ?
+        node.node :
+        t.functionExpression(id, params, body);
+
+      const variable = t.variableDeclaration('const', [
+        t.variableDeclarator(identifier, init),
+      ]);
+      const assignment = isDisplayNameSet(path.getStatementParent(), name) ?
+        undefined :
+        makeDisplayName(t, name);
+      const exporter = t.exportDefaultDeclaration(identifier);
+
+      path.replaceWithMultiple([
+        variable,
+        assignment,
+        exporter,
+        // filter out possibly undefined assignment
+      ].filter((replacement) => !!replacement));
+    },
+    JSXElement(path) {
+      const { parentPath: parent } = path;
+
+      // avoids traversing assigning jsx to variable
+      if (!(parent.isReturnStatement() || parent.isArrowFunctionExpression())) {
+        return;
+      }
+
+      const variable = path.find((node) =>
+        node.isVariableDeclarator() || node.isExportDefaultDeclaration() ||
+        node.isJSXExpressionContainer(),
+      );
+
+      // Ignore JSX elements inside JSX expression blocks
+      if (t.isJSXExpressionContainer(variable)) {
+        return;
+      }
+
+      const name = (() => {
+        try {
+          return variable.get('id.name').node;
+        } catch (errr) {
+          return undefined;
+        }
+      })();
+
+      if (name) {
+        variable.node.id.name = `Wrapped${name}`;
+      }
+
+      if (name == null) {
+        return;
+      }
+
+      const statement = variable.getStatementParent();
+
+
+      // check to make sure we don't set displayName when already set
+      if (isWrappedComponentSet(statement, name)) {
+        return;
+      }
+
+      statement.insertAfter(makeWrappedComponent(t, name));
+    },
+  },
+})
