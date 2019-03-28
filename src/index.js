@@ -4,10 +4,19 @@ import {
   useReduxState,
   useReduxStateSimple,
 } from 'remixx';
-import {bindActionCreators} from 'redux'
+import { bindActionCreators } from 'redux';
+
 const useReduxActions = () => {
-  console.log('actionsGoHere')
-}
+  console.log('actionsGoHere');
+};
+
+const useRespond = (module) => {
+
+  return {
+    state: useReduxState(),
+    actions: useReduxActions()
+  };
+};
 
 export default {
   ReduxProvider,
@@ -15,5 +24,6 @@ export default {
   useReduxState,
   useReduxStateSimple,
   useReduxActions,
-  bindActionCreators
+  bindActionCreators,
+  useRespond
 };

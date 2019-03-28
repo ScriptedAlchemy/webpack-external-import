@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import SomeComponent from './someDir/SomeComponent'
 
 const Test = (props, state, actions) => {
   return <div>{state.title}</div>;
