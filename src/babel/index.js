@@ -3,67 +3,17 @@ import {
   getTypesFromFilename,
   isWrappedComponentSet,
   makeWrappedComponent,
-  resolveImport,
-  encipherImport
 } from './helpers';
 import { addDefault } from '@babel/helper-module-imports';
 
-const util = require('util');
 
-
-const hasImports = {};
-const visitedNodes = new Map();
-const importMap = new Set();
-
-const templateOptions = {
-  placeholderPattern: /^([A-Z0-9]+)([A-Z0-9_]+)$/,
-};
-
-export default ({ types: t, template }) => {
+export default ({ types: t }) => {
 
   return {
     visitor: {
-      // Program: {
-      //   enter(programPath, { file }) {
-      //
-      //     programPath.traverse({
-      //
-      //       ImportDeclaration(path) {
-      //         const { parentPath } = path;
-      //         if (visitedNodes.has(parentPath.node)) {
-      //           return;
-      //         }
-      //         const localFile = file.opts.filename;
-      //         const newImport = path.node;
-      //         const importName = path.node.source.value;
-      //
-      //
-      //         if (!importName) {
-      //           return;
-      //         }
-      //         const requiredFileHash = encipherImport(resolveImport(importName, localFile));
-      //         let replace = null;
-      //
-      //         // hasImports[localFile] = true;
-      //         visitedNodes.set(newImport, true);
-      //         importMap.add(resolveImport(importName));
-      //       }
-      //     });
-      //   },
-      //
-      //   exit({ node }, { file }) {
-      //     console.log(importMap);
-      //
-      //     if (!hasImports[file.opts.filename]) return;
-      //     node.body.unshift(t.expressionStatement(
-      //       t.assignmentExpression(
-      //         '=',
-      //         t.identifier(`const fileMap`),
-      //         t.identifier(`{[__filename]:map}`),
-      //       )));
-      //   }
-      // },
-
+      Program(path, state) {
+        addDefault(path, 'remixx', { nameHint: 'Remixx' });
+      },
       ExportDefaultDeclaration(
         path,
         { file: { opts } },
