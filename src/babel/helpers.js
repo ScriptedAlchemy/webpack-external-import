@@ -89,7 +89,7 @@ export const makeWrappedComponent = (t, displayName) =>
       t.identifier(`const ${displayName}`),
       t.identifier(`(props) => {
       const dispatch = _Remixx.useReduxDispatch();
-       const { state, actions } = _Remixx.useRespond(module.id)
+       const { state, actions } = _Remixx.useRespond('__respond_pending_chunk_id__')
       return Wrapped${displayName}(props, state, _Remixx.bindActionCreators(dispatch, actions))
 }`),
     ),
@@ -101,8 +101,3 @@ export const resolveImport = (importName, file = '') => {
   }
   return importName;
 };
-
-
-export const encipherImport = string => crc32.str(string).toString(32);
-
-
