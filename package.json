@@ -20,7 +20,7 @@
   "scripts": {
     "compile": "babel src -d dist",
     "test": "npm run eslint && npm run tsc-test && npm run jest",
-    "lint": "eslint --ext .js,.ts,.tsx --ignore-pattern dist .",
+    "lint": "eslint --ext .js,.ts,.tsx --ignore-pattern dist . --fix",
     "jest": "jest",
     "manual": "yarn compile && node manual/babel.js",
     "examples:minimal": "DIR=01_minimal EXT=js webpack-dev-server",
