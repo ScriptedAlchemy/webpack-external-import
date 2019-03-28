@@ -71,7 +71,7 @@ export default ({ types: t }) => ({
       }
 
       const variable = path.find(node => node.isVariableDeclarator() || node.isExportDefaultDeclaration()
-          || node.isJSXExpressionContainer());
+          || node.isJSXExpressionContainer() || node.isFunctionDeclaration());
 
       // Ignore JSX elements inside JSX expression blocks
       if (t.isJSXExpressionContainer(variable)) {
