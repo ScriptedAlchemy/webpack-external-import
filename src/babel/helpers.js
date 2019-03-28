@@ -1,4 +1,5 @@
 import path from 'path';
+import crc32 from 'crc-32';
 
 export const doesReturnJSX = (node) => {
   if (node.isJSXElement()) {
@@ -87,11 +88,21 @@ export const makeWrappedComponent = (t, displayName) =>
       '=',
       t.identifier(`const ${displayName}`),
       t.identifier(`(props) => {
-      const state = _Remixx.useReduxState();
       const dispatch = _Remixx.useReduxDispatch();
-      const actions = _Remixx.useReduxActions();
-     
+       const { state, actions } = _Remixx.useRespond(module.id)
       return Wrapped${displayName}(props, state, _Remixx.bindActionCreators(dispatch, actions))
 }`),
     ),
   );
+
+export const resolveImport = (importName, file = '') => {
+  if (importName.charAt(0) === '.') {
+    return path.relative(process.cwd(), path.resolve(path.dirname(file), importName));
+  }
+  return importName;
+};
+
+
+export const encipherImport = string => crc32.str(string).toString(32);
+
+
