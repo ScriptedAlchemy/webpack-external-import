@@ -1,0 +1,17 @@
+{
+    "presets": [
+        "@babel/preset-react",
+        [
+            "@babel/preset-env",
+            {
+                "targets": {
+                    "node": true
+                }
+            }
+        ]
+    ],
+    "plugins": [
+        "../dist/babel/index.js",
+        "@babel/plugin-syntax-dynamic-import"
+    ]
+}
