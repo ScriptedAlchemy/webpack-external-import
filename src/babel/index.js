@@ -18,7 +18,7 @@ const visited = Symbol('visited')
 
 const IMPORT_UNIVERSAL_DEFAULT = {
   id: Symbol('scout'),
-  source: 'webpack-scout',
+  source: 'webpack-external-import',
 }
 
 const IMPORT_PATH_DEFAULT = {
