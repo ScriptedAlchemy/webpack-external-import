@@ -1,11 +1,14 @@
 const webpack = require('webpack');
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-
+const external = require.resolve('../../dist/scout')
 const commonPaths = require('./paths');
-
 module.exports = {
   mode: 'development',
+  entry: {
+    main: require.resolve('../src/index.jsx'),
+    other: require.resolve('../src/anoterEntry.js'),
+  },
   output: {
     filename: '[name].js',
     path: commonPaths.outputPath,
@@ -38,12 +41,13 @@ module.exports = {
   },
   resolve: {
     alias: {
-      'webpack-external-import': path.resolve(__dirname, '../../dist/scout.js'),
+      'webpack-external-import': external,
     }
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, '../src/template.html')
+      template: path.resolve(__dirname, '../src/template.html'),
+      inject: false
     }),
     new webpack.HotModuleReplacementPlugin()
   ],

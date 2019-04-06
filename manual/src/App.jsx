@@ -2,6 +2,11 @@ import React, { Component } from 'react';
 import { hot } from 'react-hot-loader';
 import HelloWorld from './components/hello-world';
 
+import('http://localhost:8080/other.js').then(({externalFunction}) => {
+  externalFunction();
+});
+
+//import('./utils').then(console.log)
 class App extends Component {
   constructor(props) {
     super(props);
@@ -9,7 +14,7 @@ class App extends Component {
   }
 
   render() {
-    return <HelloWorld title="Hello from React webpack" />;
+    return <HelloWorld title="Hello from React webpack"/>;
   }
 }
 
