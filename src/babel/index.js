@@ -1,108 +1,234 @@
-import { addDefault } from '@babel/helper-module-imports';
-import {
-  doesReturnJSX,
-  getTypesFromFilename,
-  isWrappedComponentSet,
-  makeWrappedComponent,
-} from './helpers';
+'use-strict'
 
+const validMagicStrings = [
+  'webpackMode',
+  // 'webpackMagicChunkName' gets dealt with current implementation & naming/renaming strategy
+  'webpackInclude',
+  'webpackExclude',
+  'webpackIgnore',
+  'webpackPreload',
+  'webpackPrefetch'
+]
 
-export default ({ types: t }) => ({
-  visitor: {
-    Program(path, state) {
-      addDefault(path, 'remixx', { nameHint: 'Remixx' });
-    },
-    ExportDefaultDeclaration(
-      path,
-      { file: { opts } },
-    ) {
-      const node = path.get('declaration');
-      const arrow = node.isArrowFunctionExpression();
+const { addDefault } = require('@babel/helper-module-imports')
 
-      if (
-        !node.isArrowFunctionExpression()
-          && !node.isFunctionDeclaration()
-      ) {
-        return;
-      }
+const path = require('path')
 
-      if (!doesReturnJSX(node.get('body'))) {
-        return;
-      }
+const visited = Symbol('visited')
 
-      const { name: functionName } = node.node.id || {};
-      const { identifier, name } = arrow
-        ? getTypesFromFilename(t, opts)
-        : ({
-          identifier: t.identifier(functionName),
-          name: functionName,
-        });
+const IMPORT_UNIVERSAL_DEFAULT = {
+  id: Symbol('scout'),
+  source: 'webpack-scout',
+}
 
-      // sets display name
-      node.node.id = identifier;
+const IMPORT_PATH_DEFAULT = {
+  id: Symbol('pathId'),
+  source: 'path',
+  nameHint: 'path'
+}
+function getImportArgPath(p) {
+  return p.parentPath.get('arguments')[0]
+}
 
-      const { body, id, params } = node.node;
-      // checks to see if we need to convert `export default function () {}`
-      const init = arrow
-        ? node.node
-        : t.functionExpression(id, params, body);
+function trimChunkNameBaseDir(baseDir) {
+  return baseDir.replace(/^[./]+|(\.js$)/g, '')
+}
 
-      const variable = t.variableDeclaration('const', [
-        t.variableDeclarator(identifier, init),
-      ]);
-      const assignment = isDisplayNameSet(path.getStatementParent(), name)
-        ? undefined
-        : makeDisplayName(t, name);
-      const exporter = t.exportDefaultDeclaration(identifier);
+function getImport(p, { source, nameHint }) {
+  return addDefault(p, source, { nameHint })
+}
 
-      path.replaceWithMultiple([
-        variable,
-        assignment,
-        exporter,
-        // filter out possibly undefined assignment
-      ].filter(replacement => !!replacement));
-    },
-    JSXElement(path) {
-      const { parentPath: parent } = path;
+function createTrimmedChunkName(t, importArgNode) {
 
-      // avoids traversing assigning jsx to variable
-      if (!(parent.isReturnStatement() || parent.isArrowFunctionExpression())) {
-        return;
-      }
+  if (importArgNode.quasis) {
+    let quasis = importArgNode.quasis.slice(0)
+    const baseDir = trimChunkNameBaseDir(quasis[0].value.cooked)
+    quasis[0] = Object.assign({}, quasis[0], {
+      value: { raw: baseDir, cooked: baseDir }
+    })
 
-      const variable = path.find(node => node.isVariableDeclarator() || node.isExportDefaultDeclaration()
-          || node.isJSXExpressionContainer() || node.isFunctionDeclaration());
+    quasis = quasis.map((quasi, i) => (i > 0 ? prepareQuasi(quasi) : quasi))
 
-      // Ignore JSX elements inside JSX expression blocks
-      if (t.isJSXExpressionContainer(variable)) {
-        return;
-      }
+    return Object.assign({}, importArgNode, {
+      quasis
+    })
+  }
 
-      const name = (() => {
-        try {
-          return variable.get('id.name').node;
-        } catch (errr) {
-          return undefined;
+  const moduleName = trimChunkNameBaseDir(importArgNode.value)
+  return t.stringLiteral(moduleName)
+}
+
+function prepareQuasi(quasi) {
+  return Object.assign({}, quasi, {
+    value: { raw: quasi.value.cooked, cooked: quasi.value.cooked }
+  })
+}
+
+function getMagicWebpackComments(importArgNode) {
+  const { leadingComments } = importArgNode
+  const results = []
+  if (leadingComments && leadingComments.length) {
+    leadingComments.forEach(comment => {
+      try {
+        const validMagicString = validMagicStrings.filter(str =>
+          new RegExp(`${str}\\w*:`).test(comment.value)
+        )
+        // keep this comment if we found a match
+        if (validMagicString && validMagicString.length === 1) {
+          results.push(comment)
         }
-      })();
-
-      if (name) {
-        variable.node.id.name = `Wrapped${name}`;
       }
-
-      if (name == null) {
-        return;
+      catch (e) {
+        // eat the error, but don't give up
       }
+    })
+  }
+  return results
+}
 
-      const statement = variable.getStatementParent();
+function getMagicCommentChunkName(importArgNode) {
+  const { quasis, expressions } = importArgNode
+  if (!quasis) return trimChunkNameBaseDir(importArgNode.value)
+
+  const baseDir = quasis[0].value.cooked
+  const hasExpressions = expressions.length > 0
+  const chunkName = baseDir + (hasExpressions ? '[request]' : '')
+  return trimChunkNameBaseDir(chunkName)
+}
+
+function getComponentId(t, importArgNode) {
+  const { quasis, expressions } = importArgNode
+  if (!quasis) return importArgNode.value
+
+  return quasis.reduce((str, quasi, i) => {
+    const q = quasi.value.cooked
+    const id = expressions[i] && expressions[i].name
+    str += id ? `${q}\${${id}}` : q
+    return str
+  }, '')
+}
+
+function existingMagicCommentChunkName(importArgNode) {
+  const { leadingComments } = importArgNode
+  if (
+    leadingComments &&
+    leadingComments.length &&
+    leadingComments[0].value.indexOf('webpackChunkName') !== -1
+  ) {
+    try {
+      return leadingComments[0].value
+        .split('webpackChunkName:')[1]
+        .replace(/["']/g, '')
+        .trim()
+    }
+    catch (e) {
+      return null
+    }
+  }
+  return null
+}
+
+function idOption(t, importArgNode) {
+  const id = getComponentId(t, importArgNode)
+  return  t.stringLiteral(id)
+}
+
+function fileOption(t, p) {
+  return t.objectProperty(
+    t.identifier('file'),
+    t.stringLiteral(
+      path.relative(__dirname, p.hub.file.opts.filename || '') || ''
+    )
+  )
+}
+
+function loadOption(t, loadTemplate, p, importArgNode) {
+  const argPath = getImportArgPath(p)
+  const generatedChunkName = getMagicCommentChunkName(importArgNode)
+  const otherValidMagicComments = getMagicWebpackComments(importArgNode)
+  console.log(otherValidMagicComments)
+  const existingChunkName = t.existingChunkName
+  const chunkName = existingChunkName || generatedChunkName
+
+  delete argPath.node.leadingComments
+  argPath.addComment('leading', ` webpackChunkName: '${chunkName}' `)
+  otherValidMagicComments.forEach(validLeadingComment =>
+    argPath.addComment('leading', validLeadingComment.value)
+  )
+
+  const load = loadTemplate({
+    IMPORT: argPath.parent
+  }).expression
+
+  return t.objectProperty(t.identifier('load'), load)
+}
+
+function pathOption(t, pathTemplate, p, importArgNode) {
+  const path = pathTemplate({
+    PATH: getImport(p, IMPORT_PATH_DEFAULT),
+    MODULE: importArgNode
+  }).expression
+
+  return t.objectProperty(t.identifier('path'), path)
+}
+
+function resolveOption(t, resolveTemplate, importArgNode) {
+  const resolve = resolveTemplate({
+    MODULE: importArgNode
+  }).expression
+
+  return t.objectProperty(t.identifier('resolve'), resolve)
+}
+
+function chunkNameOption(t, chunkNameTemplate, importArgNode) {
+  const existingChunkName = t.existingChunkName
+  const generatedChunk = createTrimmedChunkName(t, importArgNode)
+  const trimmedChunkName = existingChunkName
+    ? t.stringLiteral(existingChunkName)
+    : generatedChunk
+
+  const chunkName = chunkNameTemplate({
+    MODULE: trimmedChunkName
+  }).expression
+
+  return t.objectProperty(t.identifier('chunkName'), chunkName)
+}
+
+module.exports = function universalImportPlugin({ types: t, template }) {
+  return {
+    name: 'universal-import',
+    visitor: {
+      Import(p) {
+        if (p[visited]) return
+        p[visited] = true
+
+        const importArgNode = getImportArgPath(p).node
+        t.existingChunkName = existingMagicCommentChunkName(importArgNode)
+        // no existing chunkname, no problem - we will reuse that for fixing nested chunk names
+
+        const universalImport = getImport(p, IMPORT_UNIVERSAL_DEFAULT)
+
+        // if being used in an await statement, return load() promise
+        if (
+          p.parentPath.parentPath.isYieldExpression() || // await transformed already
+          t.isAwaitExpression(p.parentPath.parentPath.node) // await not transformed already
+        ) {
+          const func = t.callExpression(universalImport, [
+            loadOption(t, loadTemplate, p, importArgNode).value,
+            t.booleanLiteral(false)
+          ])
+
+          p.parentPath.replaceWith(func)
+          return
+        }
+
+        const options = idOption(t, importArgNode)
 
 
-      // check to make sure we don't set displayName when already set
-      if (isWrappedComponentSet(statement, name)) {
-        return;
+        const func = t.callExpression(universalImport, [options])
+        delete t.existingChunkName
+        p.parentPath.replaceWith(func)
       }
-
-      statement.insertAfter(makeWrappedComponent(t, name));
-    },
-  },
-});
+    }
+  }
+}

@@ -1,26 +1,8 @@
-import {
-  ReduxProvider,
-  useReduxDispatch,
-  useReduxState,
-  useReduxStateSimple,
-} from 'remixx';
-import { bindActionCreators } from 'redux';
+import scout from './scout';
 
-const useReduxActions = () => {
-  console.log('actionsGoHere');
-};
+const exportMap = new Map();
 
-const useRespond = module => ({
-  state: useReduxState(),
-  actions: useReduxActions(),
-});
-
-export default {
-  ReduxProvider,
-  useReduxDispatch,
-  useReduxState,
-  useReduxStateSimple,
-  useReduxActions,
-  bindActionCreators,
-  useRespond,
+export {
+  scout,
+  exportMap
 };
