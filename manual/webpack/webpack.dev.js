@@ -38,7 +38,7 @@ module.exports = {
   },
   resolve: {
     alias: {
-      'webpack-scout': path.resolve(__dirname, '../../dist/scout.js'),
+      'webpack-external-import': path.resolve(__dirname, '../../dist/scout.js'),
     }
   },
   plugins: [
