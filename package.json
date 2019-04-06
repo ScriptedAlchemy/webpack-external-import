@@ -1,10 +1,10 @@
 {
-    "name": "webpack-scout",
+    "name": "webpack-external-import",
     "description": "dynamic import() external urls!",
-    "version": "0.0.0-development",
+    "version": "0.0.1-beta.1",
     "repository": {
         "type": "git",
-        "url": "https://github.com/faceyspacey/remixx.git"
+        "url": "https://github.com/ScriptedAlchemy/webpack-external-import.git"
     },
     "author": "Zack Jackson <zack@ScriptedAlchemy.com> (https://github.com/ScriptedAlchemy)",
     "files": [
