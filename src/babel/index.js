@@ -243,7 +243,25 @@ module.exports = function universalImportPlugin(babel) {
 
               if (splitComment[0] === 'externalize') {
                 const functionToExport = splitComment[1].trim();
-                const header = `if (typeof document !== "undefined") { document.globalManifest = document.globalManifest || {}; document.globalManifest["${functionToExport}"] = ${functionToExport} }`;
+                // const header = `if (typeof document !== "undefined") { document.globalManifest = document.globalManifest || {}; document.globalManifest["${functionToExport}"] = ${functionToExport} }`;
+                const header =
+                  ` if (typeof document !== 'undefined') {
+                  const exportmod = module.__proto__.exports           
+                  window.webpackJsonp.push([
+                   [],
+                    {
+                      'fakemodule': function(module, __webpack_exports__, __webpack_require__) {
+                     // __webpack_exports__[]
+              
+                     module.exports = exportmod
+                  }
+                   
+                    },
+                      ['fakemodule']
+                  ]);
+                }`;
+
+
                 node.pushContainer(
                   'body',
                   babel.parse(header).program.body[0]

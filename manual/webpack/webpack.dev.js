@@ -1,10 +1,12 @@
 const webpack = require('webpack');
 const path = require('path');
+const WriteFilePlugin = require('write-file-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const external = require.resolve('../../dist/scout')
 const commonPaths = require('./paths');
 module.exports = {
   mode: 'development',
+  devtool: 'source-map',
   entry: {
     main: require.resolve('../src/index.jsx'),
     other: require.resolve('../src/anoterEntry.js'),
@@ -34,6 +36,11 @@ module.exports = {
       },
     ],
   },
+  optimization: {
+    runtimeChunk: {
+      name: "manifest",
+    },
+  },
   devServer: {
     contentBase: commonPaths.outputPath,
     compress: true,
@@ -45,6 +52,7 @@ module.exports = {
     }
   },
   plugins: [
+    new WriteFilePlugin(),
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, '../src/template.html'),
       inject: false
