@@ -291,21 +291,26 @@ module.exports = function universalImportPlugin(babel) {
                 path.node.params.forEach(node => {
                   if (node.type === 'ObjectPattern') {
                     node.properties.forEach(property => {
+
                       if (!moduleMaps.has(property.key.name)) moduleMaps.add(property.key.name);
                     });
+                    node.properties.length=0
                   }
                 });
               }
 
               const injectedDepencency = Array.from(moduleMaps)
                 .map(moduleName => {
-                  return  t.assignmentExpression(
-                      '=',
-                      t.identifier(`const ${moduleName}`),
-                      t.identifier(`__webpack_require__("${moduleName}")`),
-                    )
+                  return t.assignmentExpression(
+                    '=',
+                    t.identifier(`const ${moduleName}`),
+                    t.identifier(`__webpack_require__("${moduleName}")`),
+                  );
                 });
-              path.get('body').node.body.unshift(...injectedDepencency)
+              path.get('body')
+                .node
+                .body
+                .unshift(...injectedDepencency);
 
             }
 

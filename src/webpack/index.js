@@ -8,7 +8,7 @@ function ManifestPlugin(opts) {
   this.opts = _.assign({
     publicPath: null,
     basePath: '',
-    fileName: 'manifest.js',
+    fileName: 'manifest.json',
     transformExtensions: /^(gz|map)$/i,
     writeToFileEmit: false,
     seed: null,
