@@ -10,7 +10,7 @@
     "Zack Jackson <zack@ScriptedAlchemy.com> (https://github.com/ScriptedAlchemy)"
   ],
   "scripts": {
-    "manual": "cross-env NODE_ENV=development webpack-dev-server --open",
+    "manual": "cross-env NODE_ENV=development webpack-dev-server",
     "babel": " babel src -d babeloutput"
   },
   "devDependencies": {

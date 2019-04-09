@@ -10,6 +10,10 @@ const validMagicStrings = [
   'webpackPrefetch'
 ];
 
+import * as babylon from 'babylon';
+import traverse from 'babel-traverse';
+
+
 var protocolAndDomainRE = /^(?:\w+:)?\/\/(\S+)$/;
 
 var localhostDomainRE = /^localhost[\:?\d]*(?:[^\:?\d]\S*)?$/;
@@ -179,7 +183,6 @@ function loadOption(t, loadTemplate, p, importArgNode) {
   const argPath = getImportArgPath(p);
   const generatedChunkName = getMagicCommentChunkName(importArgNode);
   const otherValidMagicComments = getMagicWebpackComments(importArgNode);
-  console.log(otherValidMagicComments);
   const existingChunkName = t.existingChunkName;
   const chunkName = existingChunkName || generatedChunkName;
 
@@ -231,7 +234,7 @@ function chunkNameOption(t, chunkNameTemplate, importArgNode) {
 module.exports = function universalImportPlugin(babel) {
   const t = babel.types;
   return {
-    name: 'universal-import',
+    name: 'dynamic-url-imports',
     visitor: {
       Program: {
         enter: function (node, parent) {
@@ -272,10 +275,51 @@ module.exports = function universalImportPlugin(babel) {
 
         },
       },
-      // Program(p) {
-      //   enter: {}
+      Identifier(p) {
+        // only care about promise callbacks
+        if (!p.isIdentifier({ name: 'then' })) {
+          return;
+        }
+        const parentPath = p.findParent((path) => path.isCallExpression());
+        const arrowFunction = p.findParent((path) => path.isArrowFunctionExpression());
 
-      // },
+        const moduleMaps = new Set();
+        traverse(parentPath.node, {
+          enter(path) {
+            if (path.isArrowFunctionExpression()) {
+              if (path.node.params) {
+                path.node.params.forEach(node => {
+                  if (node.type === 'ObjectPattern') {
+                    node.properties.forEach(property => {
+                      if (!moduleMaps.has(property.key.name)) moduleMaps.add(property.key.name);
+                    });
+                  }
+                });
+              }
+
+              const injectedDepencency = Array.from(moduleMaps)
+                .map(moduleName => {
+                  return  t.assignmentExpression(
+                      '=',
+                      t.identifier(`const ${moduleName}`),
+                      t.identifier(`__webpack_require__("${moduleName}")`),
+                    )
+                });
+              path.get('body').node.body.unshift(...injectedDepencency)
+
+            }
+
+          }
+        }, parentPath.scope);
+
+
+        const { value: importValue } = p.parent.object.arguments.find(arg => arg.type === 'StringLiteral');
+        if (!isUrl(importValue)) return;
+
+
+// const importArgNode = getImportArgPath(p).node;
+// console.log(importArgNode)
+      },
       Import(p) {
         if (p[visited]) return;
         p[visited] = true;
@@ -286,6 +330,8 @@ module.exports = function universalImportPlugin(babel) {
         if (!isUrl(importArgNode.value)) {
           return;
         }
+
+        //.get('arguments')[0];
         const universalImport = getImport(p, IMPORT_UNIVERSAL_DEFAULT);
 
         // if being used in an await statement, return load() promise
@@ -310,5 +356,7 @@ module.exports = function universalImportPlugin(babel) {
         p.parentPath.replaceWith(func);
       }
     }
-  };
-};
+  }
+    ;
+}
+;

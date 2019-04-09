@@ -12,7 +12,7 @@
         "dist"
     ],
     "scripts": {
-        "compile": "babel src/babel -d dist/babel && babel src/scout.js -d dist &&  babel src/index.js -d dist ",
+        "compile": "babel src -d dist ",
         "test": "npm run eslint && npm run tsc-test && npm run jest",
         "lint": "eslint --ext .js,.ts,.tsx --ignore-pattern dist . --fix",
         "jest": "jest",
@@ -68,8 +68,11 @@
     },
     "dependencies": {
         "@babel/helper-module-imports": "^7.0.0",
+        "babel-traverse": "^6.26.0",
+        "babylon": "^6.18.0",
         "cacache": "^11.3.2",
         "find-cache-dir": "^2.1.0",
+        "fs-extra": "^7.0.1",
         "source-map": "^0.7.3"
     }
 }

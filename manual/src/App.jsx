@@ -2,10 +2,10 @@ import React, { Component } from 'react';
 import { hot } from 'react-hot-loader';
 import HelloWorld from './components/hello-world';
 
-import('http://localhost:8080/other.js').then(()=>{
-  const func = __webpack_require__("fakemodule")
-  console.log(func)
-  func.default()
+import('http://localhost:8080/other.js').then(({fakemodule})=>{
+
+  console.log(fakemodule)
+   fakemodule.default()
 })
 
 //import('./utils').then(console.log)

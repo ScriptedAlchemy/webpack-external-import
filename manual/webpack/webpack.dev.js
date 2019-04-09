@@ -3,6 +3,7 @@ const path = require('path');
 const WriteFilePlugin = require('write-file-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const external = require.resolve('../../dist/scout')
+const ManifestPlugin = require("../../dist/webpack")
 const commonPaths = require('./paths');
 module.exports = {
   mode: 'development',
@@ -52,6 +53,7 @@ module.exports = {
     }
   },
   plugins: [
+    new ManifestPlugin(),
     new WriteFilePlugin(),
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, '../src/template.html'),
