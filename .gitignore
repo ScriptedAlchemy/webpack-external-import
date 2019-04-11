@@ -4,3 +4,7 @@ node_modules
 .idea
 dist
 .idea
+dist
+manual/babeloutput
+manual/build
+

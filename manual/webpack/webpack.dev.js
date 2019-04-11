@@ -3,8 +3,10 @@ const path = require('path');
 const WriteFilePlugin = require('write-file-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const external = require.resolve('../../dist/scout')
-const ManifestPlugin = require("../../dist/webpack")
+const URLImportPlugin = require("../../dist/webpack")
 const commonPaths = require('./paths');
+
+console.log(URLImportPlugin)
 module.exports = {
   mode: 'development',
   devtool: 'source-map',
@@ -53,7 +55,9 @@ module.exports = {
     }
   },
   plugins: [
-    new ManifestPlugin(),
+    new URLImportPlugin({
+      manifestName: 'demo-build'
+    }),
     new WriteFilePlugin(),
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, '../src/template.html'),

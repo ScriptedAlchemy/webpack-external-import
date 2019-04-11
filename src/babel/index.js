@@ -10,9 +10,7 @@ const validMagicStrings = [
   'webpackPrefetch'
 ];
 
-import * as babylon from 'babylon';
 import traverse from 'babel-traverse';
-
 
 var protocolAndDomainRE = /^(?:\w+:)?\/\/(\S+)$/;
 
@@ -151,13 +149,11 @@ function existingMagicCommentChunkName(importArgNode) {
   if (
     leadingComments &&
     leadingComments.length &&
-    leadingComments[0].value.indexOf('webpackChunkName') !== -1
+    leadingComments[0].value.indexOf('importUrl') !== -1
   ) {
+
     try {
-      return leadingComments[0].value
-        .split('webpackChunkName:')[1]
-        .replace(/["']/g, '')
-        .trim();
+      return leadingComments[0].value.trim();
     } catch (e) {
       return null;
     }
@@ -166,7 +162,13 @@ function existingMagicCommentChunkName(importArgNode) {
 }
 
 function idOption(t, importArgNode) {
+  // if its an expression, then pass it through
+  if (t.isBinaryExpression(importArgNode)) {
+    return importArgNode;
+  }
+
   const id = getComponentId(t, importArgNode);
+
   return t.stringLiteral(id);
 }
 
@@ -199,40 +201,9 @@ function loadOption(t, loadTemplate, p, importArgNode) {
   return t.objectProperty(t.identifier('load'), load);
 }
 
-function pathOption(t, pathTemplate, p, importArgNode) {
-  const path = pathTemplate({
-    PATH: getImport(p, IMPORT_PATH_DEFAULT),
-    MODULE: importArgNode
-  }).expression;
-
-  return t.objectProperty(t.identifier('path'), path);
-}
-
-function resolveOption(t, resolveTemplate, importArgNode) {
-  const resolve = resolveTemplate({
-    MODULE: importArgNode
-  }).expression;
-
-  return t.objectProperty(t.identifier('resolve'), resolve);
-}
-
-function chunkNameOption(t, chunkNameTemplate, importArgNode) {
-  const existingChunkName = t.existingChunkName;
-  const generatedChunk = createTrimmedChunkName(t, importArgNode);
-  const trimmedChunkName = existingChunkName
-    ? t.stringLiteral(existingChunkName)
-    : generatedChunk;
-
-  const chunkName = chunkNameTemplate({
-    MODULE: trimmedChunkName
-  }).expression;
-
-  return t.objectProperty(t.identifier('chunkName'), chunkName);
-}
-
-
-module.exports = function universalImportPlugin(babel) {
+module.exports = function dynamicUrlImportPlugin(babel) {
   const t = babel.types;
+  const importWhitelist = {};
   return {
     name: 'dynamic-url-imports',
     visitor: {
@@ -246,21 +217,20 @@ module.exports = function universalImportPlugin(babel) {
 
               if (splitComment[0] === 'externalize') {
                 const functionToExport = splitComment[1].trim();
-                // const header = `if (typeof document !== "undefined") { document.globalManifest = document.globalManifest || {}; document.globalManifest["${functionToExport}"] = ${functionToExport} }`;
+                console.log(functionToExport)
                 const header =
                   ` if (typeof document !== 'undefined') {
                   const exportmod = module.__proto__.exports           
                   window.webpackJsonp.push([
                    [],
                     {
-                      'fakemodule': function(module, __webpack_exports__, __webpack_require__) {
-                     // __webpack_exports__[]
+                      '${functionToExport}': function(module, __webpack_exports__, __webpack_require__) {
               
                      module.exports = exportmod
                   }
                    
                     },
-                      ['fakemodule']
+                      ['${functionToExport}']
                   ]);
                 }`;
 
@@ -281,11 +251,17 @@ module.exports = function universalImportPlugin(babel) {
           return;
         }
         const parentPath = p.findParent((path) => path.isCallExpression());
-        const arrowFunction = p.findParent((path) => path.isArrowFunctionExpression());
-
         const moduleMaps = new Set();
         traverse(parentPath.node, {
           enter(path) {
+
+            const importExpression = p.parent.object.arguments[0];
+
+            const importValue = importExpression.value;
+
+            if (importValue && (!isUrl(importValue) || !importWhitelist[importValue])) return;
+            if (!importValue && t.existingChunkName !== 'importUrl') return;
+
             if (path.isArrowFunctionExpression()) {
               if (path.node.params) {
                 path.node.params.forEach(node => {
@@ -294,7 +270,7 @@ module.exports = function universalImportPlugin(babel) {
 
                       if (!moduleMaps.has(property.key.name)) moduleMaps.add(property.key.name);
                     });
-                    node.properties.length=0
+                    node.properties.length = 0;
                   }
                 });
               }
@@ -314,17 +290,11 @@ module.exports = function universalImportPlugin(babel) {
 
             }
 
+
           }
         }, parentPath.scope);
-
-
-        const { value: importValue } = p.parent.object.arguments.find(arg => arg.type === 'StringLiteral');
-        if (!isUrl(importValue)) return;
-
-
-// const importArgNode = getImportArgPath(p).node;
-// console.log(importArgNode)
       },
+
       Import(p) {
         if (p[visited]) return;
         p[visited] = true;
@@ -332,13 +302,16 @@ module.exports = function universalImportPlugin(babel) {
         const importArgNode = getImportArgPath(p).node;
         t.existingChunkName = existingMagicCommentChunkName(importArgNode);
         // no existing chunkname, no problem - we will reuse that for fixing nested chunk names
-        if (!isUrl(importArgNode.value)) {
-          return;
-        }
 
-        //.get('arguments')[0];
+
+        if (importArgNode.value && !isUrl(importArgNode.value)) return;
+
+        if (!importArgNode.value && t.existingChunkName !== 'importUrl') return;
+
+        if (importArgNode.value) Object.assign(importWhitelist, { [importArgNode.value]: null });
+
+
         const universalImport = getImport(p, IMPORT_UNIVERSAL_DEFAULT);
-
         // if being used in an await statement, return load() promise
         if (
           p.parentPath.parentPath.isYieldExpression() || // await transformed already
@@ -359,9 +332,10 @@ module.exports = function universalImportPlugin(babel) {
         const func = t.callExpression(universalImport, [options]);
         delete t.existingChunkName;
         p.parentPath.replaceWith(func);
+
       }
     }
-  }
-    ;
-}
-;
+  };
+};
+
+

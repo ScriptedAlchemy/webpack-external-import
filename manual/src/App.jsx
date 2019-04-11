@@ -2,12 +2,11 @@ import React, { Component } from 'react';
 import { hot } from 'react-hot-loader';
 import HelloWorld from './components/hello-world';
 
-import('http://localhost:8080/other.js').then(({fakemodule})=>{
-
-  console.log(fakemodule)
-   fakemodule.default()
-})
-
+import('http://localhost:8080/importManifest.js')
+import(/* importUrl */'http://localhost:8080/' + window.entryManifest['demo-build']['other.js']).then(({ fakemodule }) => {
+  console.log(fakemodule);
+  fakemodule.default();
+});
 //import('./utils').then(console.log)
 class App extends Component {
   constructor(props) {

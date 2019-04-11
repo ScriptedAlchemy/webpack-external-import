@@ -1,68 +1,74 @@
-var path = require('path');
-var fse = require('fs-extra');
-var _ = require('lodash');
+const path = require('path');
+const fse = require('fs-extra');
 
 const emitCountMap = new Map();
 
-function ManifestPlugin(opts) {
-  this.opts = _.assign({
-    publicPath: null,
-    basePath: '',
-    fileName: 'manifest.json',
-    transformExtensions: /^(gz|map)$/i,
-    writeToFileEmit: false,
-    seed: null,
-    filter: null,
-    map: null,
-    generate: null,
-    sort: null,
-    serialize: function(manifest) {
-      return JSON.stringify(manifest, null, 2);
-    },
-  }, opts || {});
-}
-
-ManifestPlugin.prototype.getFileType = function(str) {
-  str = str.replace(/\?.*/, '');
-  var split = str.split('.');
-  var ext = split.pop();
-  if (this.opts.transformExtensions.test(ext)) {
-    ext = split.pop() + '.' + ext;
-  }
-  return ext;
-};
-
-ManifestPlugin.prototype.apply = function(compiler) {
-  var moduleAssets = {};
-
-  var outputFolder = compiler.options.output.path;
-  var outputFile = path.resolve(outputFolder, this.opts.fileName);
-  var outputName = path.relative(outputFolder, outputFile);
-
-  var moduleAsset = function (module, file) {
-    if (module.userRequest) {
-      moduleAssets[file] = path.join(
-        path.dirname(file),
-        path.basename(module.userRequest)
-      );
+class URLImportPlugin {
+  constructor(opts) {
+    if (!opts.manifestName) {
+      throw new Error('URLImportPlugin: You MUST specify a manifestName in your options. Something unique. Like {manifestName: my-special-build}');
     }
-  };
+    this.opts = Object.assign({
+      publicPath: null,
+      basePath: '',
+      manifestName: 'unknown-project',
+      fileName: 'importManifest.js',
+      transformExtensions: /^(gz|map)$/i,
+      writeToFileEmit: false,
+      seed: null,
+      filter: null,
+      map: null,
+      generate: null,
+      sort: null,
+      serialize: manifest => `if(!window.entryManifest) {window.entryManifest = {}}; window.entryManifest["${opts.manifestName}"] = ${JSON.stringify(
+        manifest,
+        null,
+        2
+      )}`,
+    }, opts || {});
+  }
 
-  var emit = function(compilation, compileCallback) {
-    const emitCount = emitCountMap.get(outputFile) - 1
-    emitCountMap.set(outputFile, emitCount);
+  getFileType(str) {
+    str = str.replace(/\?.*/, '');
+    const split = str.split('.');
+    let ext = split.pop();
+    if (this.opts.transformExtensions.test(ext)) {
+      ext = `${split.pop()}.${ext}`;
+    }
+    return ext;
+  }
 
-    var seed = this.opts.seed || {};
+  apply(compiler) {
+    const moduleAssets = {};
 
-    var publicPath = this.opts.publicPath != null ? this.opts.publicPath : compilation.options.output.publicPath;
-    var stats = compilation.getStats().toJson();
+    const outputFolder = compiler.options.output.path;
+    const outputFile = path.resolve(outputFolder, this.opts.fileName);
+    const outputName = path.relative(outputFolder, outputFile);
 
-    var files = compilation.chunks.reduce(function(files, chunk) {
-      return chunk.files.reduce(function (files, path) {
-        var name = chunk.name ? chunk.name : null;
+    const moduleAsset = ({ userRequest }, file) => {
+      if (userRequest) {
+        moduleAssets[file] = path.join(
+          path.dirname(file),
+          path.basename(userRequest)
+        );
+      }
+    };
+
+    const emit = (compilation, compileCallback) => {
+      const emitCount = emitCountMap.get(outputFile) - 1;
+      emitCountMap.set(outputFile, emitCount);
+
+      const seed = this.opts.seed || {};
+
+      const publicPath = this.opts.publicPath != null ? this.opts.publicPath : compilation.options.output.publicPath;
+      const stats = compilation.getStats()
+        .toJson();
+
+      let files = compilation.chunks.reduce((files, chunk) => chunk.files.reduce((files, path) => {
+        let name = chunk.name ? chunk.name : null;
 
         if (name) {
-          name = name + '.' + this.getFileType(path);
+          name = `${name}.${this.getFileType(path)}`;
         } else {
           // For nameless chunks, just map the files directly.
           name = path;
@@ -72,166 +78,169 @@ ManifestPlugin.prototype.apply = function(compiler) {
         // Webpack 3: .isInitial()
         // Webpack 1/2: .initial
         return files.concat({
-          path: path,
-          chunk: chunk,
-          name: name,
+          path,
+          chunk,
+          name,
           isInitial: chunk.isOnlyInitial ? chunk.isOnlyInitial() : (chunk.isInitial ? chunk.isInitial() : chunk.initial),
           isChunk: true,
           isAsset: false,
           isModuleAsset: false
         });
-      }.bind(this), files);
-    }.bind(this), []);
+      }, files), []);
 
-    // module assets don't show up in assetsByChunkName.
-    // we're getting them this way;
-    files = stats.assets.reduce(function (files, asset) {
-      var name = moduleAssets[asset.name];
-      if (name) {
+      // module assets don't show up in assetsByChunkName.
+      // we're getting them this way;
+      files = stats.assets.reduce((files, asset) => {
+        const name = moduleAssets[asset.name];
+        if (name) {
+          return files.concat({
+            path: asset.name,
+            name,
+            isInitial: false,
+            isChunk: false,
+            isAsset: true,
+            isModuleAsset: true
+          });
+        }
+
+        const isEntryAsset = asset.chunks.length > 0;
+        if (isEntryAsset) {
+          return files;
+        }
+
         return files.concat({
           path: asset.name,
-          name: name,
+          name: asset.name,
           isInitial: false,
           isChunk: false,
           isAsset: true,
-          isModuleAsset: true
+          isModuleAsset: false
+        });
+      }, files);
+
+      files = files.filter(file => {
+        // Don't add hot updates to manifest
+        const isUpdateChunk = file.path.includes('hot-update');
+        // Don't add manifest from another instance
+        const isManifest = emitCountMap.get(path.join(outputFolder, file.name)) !== undefined;
+
+        return !isUpdateChunk && !isManifest;
+      });
+
+      // Append optional basepath onto all references.
+      // This allows output path to be reflected in the manifest.
+      if (this.opts.basePath) {
+        files = files.map(file => {
+          file.name = this.opts.basePath + file.name;
+          return file;
         });
       }
 
-      var isEntryAsset = asset.chunks.length > 0;
-      if (isEntryAsset) {
-        return files;
+      if (publicPath) {
+        // Similar to basePath but only affects the value (similar to how
+        // output.publicPath turns require('foo/bar') into '/public/foo/bar', see
+        // https://github.com/webpack/docs/wiki/configuration#outputpublicpath
+        files = files.map(file => {
+          file.path = publicPath + file.path;
+          return file;
+        });
       }
 
-      return files.concat({
-        path: asset.name,
-        name: asset.name,
-        isInitial: false,
-        isChunk: false,
-        isAsset: true,
-        isModuleAsset: false
+      files = files.map(file => {
+        file.name = file.name.replace(/\\/g, '/');
+        file.path = file.path.replace(/\\/g, '/');
+        return file;
       });
-    }, files);
 
-    files = files.filter(function (file) {
-      // Don't add hot updates to manifest
-      var isUpdateChunk = file.path.indexOf('hot-update') >= 0;
-      // Don't add manifest from another instance
-      var isManifest = emitCountMap.get(path.join(outputFolder, file.name)) !== undefined;
+      if (this.opts.filter) {
+        files = files.filter(this.opts.filter);
+      }
 
-      return !isUpdateChunk && !isManifest;
-    });
+      if (this.opts.map) {
+        files = files.map(this.opts.map);
+      }
 
-    // Append optional basepath onto all references.
-    // This allows output path to be reflected in the manifest.
-    if (this.opts.basePath) {
-      files = files.map(function(file) {
-        file.name = this.opts.basePath + file.name;
-        return file;
-      }.bind(this));
-    }
+      if (this.opts.sort) {
+        files = files.sort(this.opts.sort);
+      }
 
-    if (publicPath) {
-      // Similar to basePath but only affects the value (similar to how
-      // output.publicPath turns require('foo/bar') into '/public/foo/bar', see
-      // https://github.com/webpack/docs/wiki/configuration#outputpublicpath
-      files = files.map(function(file) {
-        file.path = publicPath + file.path;
-        return file;
-      }.bind(this));
-    }
+      let manifest;
+      if (this.opts.generate) {
+        manifest = this.opts.generate(seed, files);
+      } else {
+        manifest = files.reduce((manifest, file) => {
+          manifest[file.name] = file.path;
+          return manifest;
+        }, seed);
+      }
 
-    files = files.map(file => {
-      file.name = file.name.replace(/\\/g, '/');
-      file.path = file.path.replace(/\\/g, '/');
-      return file;
-    });
+      const isLastEmit = emitCount === 0;
+      if (isLastEmit) {
+        const cleanedManifest = Object.entries(manifest)
+          .reduce((acc, [key, asset]) => {
+            if (!asset.includes('.map')) {
+              return Object.assign(acc, { [key]: asset });
+            }
+            return acc;
+          }, {});
 
-    if (this.opts.filter) {
-      files = files.filter(this.opts.filter);
-    }
+        const output = this.opts.serialize(cleanedManifest);
 
-    if (this.opts.map) {
-      files = files.map(this.opts.map);
-    }
+        compilation.assets[outputName] = {
+          source() {
+            return output;
+          },
+          size() {
+            return output.length;
+          }
+        };
 
-    if (this.opts.sort) {
-      files = files.sort(this.opts.sort);
-    }
-
-    var manifest;
-    if (this.opts.generate) {
-      manifest = this.opts.generate(seed, files);
-    } else {
-      manifest = files.reduce(function (manifest, file) {
-        manifest[file.name] = file.path;
-        return manifest;
-      }, seed);
-    }
-
-    const isLastEmit = emitCount === 0
-    if (isLastEmit) {
-      var output = this.opts.serialize(manifest);
-      Object.entries(manifest).reduce((acc,[key,asset])=>{
-        if(!asset.includes(".map")){
-          return Object.assign(acc,{[key]:asset})
+        if (this.opts.writeToFileEmit) {
+          fse.outputFileSync(outputFile, output);
         }
-        return acc
-      },{});
-      compilation.assets[outputName] = {
-        source: function() {
-          return output;
-        },
-        size: function() {
-          return output.length;
-        }
-      };
+      }
 
-      if (this.opts.writeToFileEmit) {
-        fse.outputFileSync(outputFile, output);
+      if (compiler.hooks) {
+        compiler.hooks.webpackURLImportPluginAfterEmit.call(manifest);
+      } else {
+        compilation.applyPluginsAsync('webpack-manifest-plugin-after-emit', manifest, compileCallback);
+      }
+    };
+
+    function beforeRun(compiler, callback) {
+      let emitCount = emitCountMap.get(outputFile) || 0;
+      emitCountMap.set(outputFile, emitCount + 1);
+
+      if (callback) {
+        callback();
       }
     }
 
     if (compiler.hooks) {
-      compiler.hooks.webpackManifestPluginAfterEmit.call(manifest);
+      const SyncWaterfallHook = require('tapable').SyncWaterfallHook;
+      const pluginOptions = {
+        name: 'URLImportPlugin',
+        stage: Infinity
+      };
+      compiler.hooks.webpackURLImportPluginAfterEmit = new SyncWaterfallHook(['manifest']);
+
+      compiler.hooks.compilation.tap(pluginOptions, ({ hooks }) => {
+        hooks.moduleAsset.tap(pluginOptions, moduleAsset);
+      });
+      compiler.hooks.emit.tap(pluginOptions, emit);
+
+      compiler.hooks.run.tap(pluginOptions, beforeRun);
+      compiler.hooks.watchRun.tap(pluginOptions, beforeRun);
     } else {
-      compilation.applyPluginsAsync('webpack-manifest-plugin-after-emit', manifest, compileCallback);
-    }
-  }.bind(this);
+      compiler.plugin('compilation', compilation => {
+        compilation.plugin('module-asset', moduleAsset);
+      });
+      compiler.plugin('emit', emit);
 
-  function beforeRun (compiler, callback) {
-    let emitCount = emitCountMap.get(outputFile) || 0;
-    emitCountMap.set(outputFile, emitCount + 1);
-
-    if (callback) {
-      callback();
+      compiler.plugin('before-run', beforeRun);
+      compiler.plugin('watch-run', beforeRun);
     }
   }
+}
 
-  if (compiler.hooks) {
-    const SyncWaterfallHook = require('tapable').SyncWaterfallHook;
-    const pluginOptions = {
-      name: 'ManifestPlugin',
-      stage: Infinity
-    };
-    compiler.hooks.webpackManifestPluginAfterEmit = new SyncWaterfallHook(['manifest']);
-
-    compiler.hooks.compilation.tap(pluginOptions, function (compilation) {
-      compilation.hooks.moduleAsset.tap(pluginOptions, moduleAsset);
-    });
-    compiler.hooks.emit.tap(pluginOptions, emit);
-
-    compiler.hooks.run.tap(pluginOptions, beforeRun);
-    compiler.hooks.watchRun.tap(pluginOptions, beforeRun);
-  } else {
-    compiler.plugin('compilation', function (compilation) {
-      compilation.plugin('module-asset', moduleAsset);
-    });
-    compiler.plugin('emit', emit);
-
-    compiler.plugin('before-run', beforeRun);
-    compiler.plugin('watch-run', beforeRun);
-  }
-};
-
-module.exports = ManifestPlugin;
+module.exports = URLImportPlugin;

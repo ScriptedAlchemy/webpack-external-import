@@ -16,7 +16,8 @@
         "test": "npm run eslint && npm run tsc-test && npm run jest",
         "lint": "eslint --ext .js,.ts,.tsx --ignore-pattern dist . --fix",
         "jest": "jest",
-        "manual": "npm run compile && cd manual && npm run manual"
+        "manual": "npm run compile && cd manual && npm run manual",
+        "babel": "npm run compile && cd manual && npm run babel"
     },
     "license": "MIT",
     "devDependencies": {
