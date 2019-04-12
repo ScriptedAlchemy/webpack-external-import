@@ -11,7 +11,7 @@
   ],
   "scripts": {
     "manual": "cross-env NODE_ENV=development webpack-dev-server",
-    "babel": " babel src -d babeloutput"
+    "babel": " babel src -d babelOutput"
   },
   "devDependencies": {
     "@babel/cli": "^7.4.3",
