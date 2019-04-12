@@ -217,6 +217,7 @@ module.exports = function dynamicUrlImportPlugin(babel) {
 
               if (splitComment[0] === 'externalize') {
                 const functionToExport = splitComment[1].trim();
+                // props use this instead of module proto to actually export out the one single function
                 console.log(functionToExport)
                 const header =
                   ` if (typeof document !== 'undefined') {
