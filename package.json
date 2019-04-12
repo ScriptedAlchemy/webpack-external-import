@@ -1,14 +1,13 @@
 {
     "name": "webpack-external-import",
     "description": "dynamic import() external urls!",
-    "version": "0.0.1-beta.1",
+    "version": "0.0.1-beta.3",
     "repository": {
         "type": "git",
         "url": "https://github.com/ScriptedAlchemy/webpack-external-import.git"
     },
     "author": "Zack Jackson <zack@ScriptedAlchemy.com> (https://github.com/ScriptedAlchemy)",
     "files": [
-        "src",
         "dist"
     ],
     "scripts": {
@@ -17,7 +16,8 @@
         "lint": "eslint --ext .js,.ts,.tsx --ignore-pattern dist . --fix",
         "jest": "jest",
         "manual": "npm run compile && cd manual && npm run manual",
-        "babel": "npm run compile && cd manual && npm run babel"
+        "babel": "npm run compile && cd manual && npm run babel",
+        "prepare": "npm run compile"
     },
     "license": "MIT",
     "devDependencies": {

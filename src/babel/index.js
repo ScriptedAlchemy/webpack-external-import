@@ -40,7 +40,7 @@ function isUrl(string) {
   return false;
 }
 
-const { addDefault } = require('@babel/helper-module-imports');
+const {addDefault} = require('@babel/helper-module-imports');
 
 const path = require('path');
 
@@ -65,8 +65,8 @@ function trimChunkNameBaseDir(baseDir) {
   return baseDir.replace(/^[./]+|(\.js$)/g, '');
 }
 
-function getImport(p, { source, nameHint }) {
-  return addDefault(p, source, { nameHint });
+function getImport(p, {source, nameHint}) {
+  return addDefault(p, source, {nameHint});
 }
 
 function createTrimmedChunkName(t, importArgNode) {
@@ -102,7 +102,7 @@ function prepareQuasi(quasi) {
 }
 
 function getMagicWebpackComments(importArgNode) {
-  const { leadingComments } = importArgNode;
+  const {leadingComments} = importArgNode;
   const results = [];
   if (leadingComments && leadingComments.length) {
     leadingComments.forEach(comment => {
@@ -123,7 +123,7 @@ function getMagicWebpackComments(importArgNode) {
 }
 
 function getMagicCommentChunkName(importArgNode) {
-  const { quasis, expressions } = importArgNode;
+  const {quasis, expressions} = importArgNode;
   if (!quasis) return trimChunkNameBaseDir(importArgNode.value);
 
   const baseDir = quasis[0].value.cooked;
@@ -133,7 +133,7 @@ function getMagicCommentChunkName(importArgNode) {
 }
 
 function getComponentId(t, importArgNode) {
-  const { quasis, expressions } = importArgNode;
+  const {quasis, expressions} = importArgNode;
   if (!quasis) return importArgNode.value;
 
   return quasis.reduce((str, quasi, i) => {
@@ -145,7 +145,7 @@ function getComponentId(t, importArgNode) {
 }
 
 function existingMagicCommentChunkName(importArgNode) {
-  const { leadingComments } = importArgNode;
+  const {leadingComments} = importArgNode;
   if (
     leadingComments &&
     leadingComments.length &&
@@ -248,7 +248,7 @@ module.exports = function dynamicUrlImportPlugin(babel) {
       },
       Identifier(p) {
         // only care about promise callbacks
-        if (!p.isIdentifier({ name: 'then' })) {
+        if (!p.isIdentifier({name: 'then'})) {
           return;
         }
         const parentPath = p.findParent((path) => path.isCallExpression());
@@ -256,8 +256,11 @@ module.exports = function dynamicUrlImportPlugin(babel) {
         traverse(parentPath.node, {
           enter(path) {
 
-            const importExpression = p.parent.object.arguments[0];
+            if (!p.parent.object || !p.parent.object.arguments) {
+              return
+            }
 
+            const importExpression = p.parent.object.arguments[0];
             const importValue = importExpression.value;
 
             if (importValue && (!isUrl(importValue) || !importWhitelist[importValue])) return;
@@ -309,7 +312,7 @@ module.exports = function dynamicUrlImportPlugin(babel) {
 
         if (!importArgNode.value && t.existingChunkName !== 'importUrl') return;
 
-        if (importArgNode.value) Object.assign(importWhitelist, { [importArgNode.value]: null });
+        if (importArgNode.value) Object.assign(importWhitelist, {[importArgNode.value]: null});
 
 
         const universalImport = getImport(p, IMPORT_UNIVERSAL_DEFAULT);
