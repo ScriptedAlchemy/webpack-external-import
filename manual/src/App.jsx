@@ -8,25 +8,6 @@ import(/* importUrl */'http://localhost:8080/' + window.entryManifest['demo-buil
   fakemodule.default();
 });
 
-const withCleanup = answer => {
-  ReactDOM.unmountComponentAtNode(modal);
-  document.body.removeChild(modal);
-  if (!answer) {
-    const save = global.saveChanges();
-    if (save instanceof Promise) {
-      save
-        .then(() => {
-          callback(true);
-        })
-        .catch(() => {
-          callback(false);
-        });
-    }
-  }
-  callback(answer);
-};
-
-//import('./utils').then(console.log)
 class App extends Component {
   constructor(props) {
     super(props);

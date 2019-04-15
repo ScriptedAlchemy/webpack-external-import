@@ -253,16 +253,6 @@ module.exports = function dynamicUrlImportPlugin(babel) {
         }
 
         const parentPath = p.findParent((path) => path.isCallExpression());
-        p.findParent((path) => {
-          if (t.isMemberExpression(path)) {
-            console.log('########')
-            const sibling = path.getSibling(0);
-            // console.log(path.object)
-
-            // console.log(JSON.stringify(sibling.parent,null,4))
-          }
-        })
-
 
         const moduleMaps = new Set();
         traverse(parentPath.node, {
