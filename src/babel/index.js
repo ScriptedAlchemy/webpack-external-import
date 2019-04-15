@@ -251,10 +251,25 @@ module.exports = function dynamicUrlImportPlugin(babel) {
         if (!p.isIdentifier({name: 'then'})) {
           return;
         }
+
         const parentPath = p.findParent((path) => path.isCallExpression());
+        p.findParent((path) => {
+          if (t.isMemberExpression(path)) {
+            console.log('########')
+            const sibling = path.getSibling(0);
+            // console.log(path.object)
+
+            // console.log(JSON.stringify(sibling.parent,null,4))
+          }
+        })
+
+
         const moduleMaps = new Set();
         traverse(parentPath.node, {
           enter(path) {
+            if(!path.node.object || !path.node.object.isDynamic) {
+              return
+            }
 
             if (!p.parent.object || !p.parent.object.arguments) {
               return
@@ -327,6 +342,7 @@ module.exports = function dynamicUrlImportPlugin(babel) {
           ]);
 
           p.parentPath.replaceWith(func);
+          p.parentPath.node.isDynamic = true
           return;
         }
 
@@ -336,7 +352,7 @@ module.exports = function dynamicUrlImportPlugin(babel) {
         const func = t.callExpression(universalImport, [options]);
         delete t.existingChunkName;
         p.parentPath.replaceWith(func);
-
+        p.parentPath.node.isDynamic = true
       }
     }
   };

@@ -1,9 +1,10 @@
 # Webpack Scout
 
+### This is currenly under active development
 Load stuff from external sources. 
 
 
-How to start (usiing the demo)
+How to start (using the demo)
 
 1) npm install
 2) npm run manual, or npm run babel
