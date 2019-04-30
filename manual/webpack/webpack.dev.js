@@ -1,11 +1,19 @@
 const webpack = require('webpack');
 const path = require('path');
+const WriteFilePlugin = require('write-file-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-
+const external = require.resolve('../../dist/scout')
+const URLImportPlugin = require("../../dist/webpack")
 const commonPaths = require('./paths');
 
+console.log(URLImportPlugin)
 module.exports = {
   mode: 'development',
+  devtool: 'source-map',
+  entry: {
+    main: require.resolve('../src/index.jsx'),
+    other: require.resolve('../src/anoterEntry.js'),
+  },
   output: {
     filename: '[name].js',
     path: commonPaths.outputPath,
@@ -31,6 +39,11 @@ module.exports = {
       },
     ],
   },
+  optimization: {
+    runtimeChunk: {
+      name: "manifest",
+    },
+  },
   devServer: {
     contentBase: commonPaths.outputPath,
     compress: true,
@@ -38,12 +51,17 @@ module.exports = {
   },
   resolve: {
     alias: {
-      'webpack-external-import': path.resolve(__dirname, '../../dist/scout.js'),
+      'webpack-external-import': external,
     }
   },
   plugins: [
+    new URLImportPlugin({
+      manifestName: 'demo-build'
+    }),
+    new WriteFilePlugin(),
     new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, '../src/template.html')
+      template: path.resolve(__dirname, '../src/template.html'),
+      inject: false
     }),
     new webpack.HotModuleReplacementPlugin()
   ],

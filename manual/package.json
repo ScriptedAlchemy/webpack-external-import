@@ -10,8 +10,8 @@
     "Zack Jackson <zack@ScriptedAlchemy.com> (https://github.com/ScriptedAlchemy)"
   ],
   "scripts": {
-    "manual": "cross-env NODE_ENV=development webpack-dev-server --open",
-    "babel": " babel source.js -d dist"
+    "manual": "cross-env NODE_ENV=development webpack-dev-server",
+    "babel": " babel src -d babelOutput"
   },
   "devDependencies": {
     "@babel/cli": "^7.4.3",
@@ -25,7 +25,8 @@
     "react-hot-loader": "^4.8.3",
     "webpack": "^4.29.6",
     "webpack-cli": "^3.3.0",
-    "webpack-dev-server": "^3.2.1"
+    "webpack-dev-server": "^3.2.1",
+    "write-file-webpack-plugin": "^4.5.0"
   },
   "peerDependencies": {
     "react": ">=16.8.0",
