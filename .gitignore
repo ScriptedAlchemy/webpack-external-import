@@ -8,3 +8,4 @@ dist
 manual/babelOutput
 manual/build
 manual/yarn.lock
+package-lock.json
