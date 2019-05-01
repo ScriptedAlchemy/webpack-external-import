@@ -30,6 +30,5 @@ const TestFive = function (props, state, actions) {
 export { Test, TestTwo, TestThree };
 
 export default (props) => {
-
   return (<div>zack</div>);
 }

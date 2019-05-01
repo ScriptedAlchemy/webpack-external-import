@@ -10,8 +10,10 @@
     "Zack Jackson <zack@ScriptedAlchemy.com> (https://github.com/ScriptedAlchemy)"
   ],
   "scripts": {
-    "manual": "cross-env NODE_ENV=development webpack-dev-server",
-    "babel": " babel src -d babelOutput"
+    "manual": "npm run manual:websiteOne | npm run manual:websiteTwo",
+    "manual:websiteOne": "cd Website1; cross-env NODE_ENV=development MFE=1 webpack-dev-server",
+    "manual:websiteTwo": "cd Website2; cross-env NODE_ENV=development MFE=2 webpack-dev-server",
+    "babel": "cd Website1; babel src -d babelOutput"
   },
   "devDependencies": {
     "@babel/cli": "^7.4.3",
