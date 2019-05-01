@@ -11,6 +11,8 @@ describe('external script', () => {
   
     it('should console.log', async () => {
         await page.goto('http://localhost:8080');
+        // await page.waitFor(10000);
+        await page.waitFor(() => false);
         expect(logs).toContain('some function thats externalized');
     })
 });
