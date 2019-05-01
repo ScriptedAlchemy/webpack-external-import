@@ -218,7 +218,6 @@ module.exports = function dynamicUrlImportPlugin(babel) {
               if (splitComment[0] === 'externalize') {
                 const functionToExport = splitComment[1].trim();
                 // props use this instead of module proto to actually export out the one single function
-                console.log(functionToExport)
                 const header =
                   ` if (typeof document !== 'undefined') {
                   const exportmod = module.__proto__.exports           
@@ -253,30 +252,14 @@ module.exports = function dynamicUrlImportPlugin(babel) {
         }
 
         const parentPath = p.findParent((path) => path.isCallExpression());
-
-        const moduleMaps = new Set();
         traverse(parentPath.node, {
-          enter(path) {
-            if(!path.node.object || !path.node.object.isDynamic) {
-              return
-            }
-
-            if (!p.parent.object || !p.parent.object.arguments) {
-              return
-            }
-
-            const importExpression = p.parent.object.arguments[0];
-            const importValue = importExpression.value;
-
-            if (importValue && (!isUrl(importValue) || !importWhitelist[importValue])) return;
-            if (!importValue && t.existingChunkName !== 'importUrl') return;
-
+          ArrowFunctionExpression(path) {
+            const moduleMaps = new Set()
             if (path.isArrowFunctionExpression()) {
               if (path.node.params) {
                 path.node.params.forEach(node => {
                   if (node.type === 'ObjectPattern') {
                     node.properties.forEach(property => {
-
                       if (!moduleMaps.has(property.key.name)) moduleMaps.add(property.key.name);
                     });
                     node.properties.length = 0;
@@ -289,7 +272,7 @@ module.exports = function dynamicUrlImportPlugin(babel) {
                   return t.assignmentExpression(
                     '=',
                     t.identifier(`const ${moduleName}`),
-                    t.identifier(`__webpack_require__("${moduleName}")`),
+                    t.identifier(`__webpack_require__("${moduleName}").default`),
                   );
                 });
               path.get('body')
@@ -302,6 +285,7 @@ module.exports = function dynamicUrlImportPlugin(babel) {
 
           }
         }, parentPath.scope);
+
       },
 
       Import(p) {
