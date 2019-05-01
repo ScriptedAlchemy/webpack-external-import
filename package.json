@@ -74,6 +74,8 @@
         "cacache": "^11.3.2",
         "find-cache-dir": "^2.1.0",
         "fs-extra": "^7.0.1",
+        "jest-haste-map": "^24.7.1",
+        "jest-resolve": "^24.7.1",
         "source-map": "^0.7.3"
     }
 }
