@@ -1,5 +1,3 @@
-const puppeteer = require('puppeteer');
-
 describe('external script', () => {
     let logs = [];
 
@@ -16,12 +14,3 @@ describe('external script', () => {
         expect(logs).toContain('some function thats externalized');
     })
 });
-
-// (async () => {
-//   const browser = await puppeteer.launch();
-//   const page = await browser.newPage();
-//   page.on('console', msg => console.log('PAGE LOG:', msg.text()));
-//   await page.goto('http://localhost:8080');
-
-//   await browser.close();
-// })();
