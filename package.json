@@ -13,7 +13,6 @@
     "scripts": {
         "compile": "babel src -d dist ",
         "test": "npm run eslint && npm run tsc-test && npm run jest",
-        "test:watch": "npm run jest -c test/jest.config.js",
         "lint": "eslint --ext .js,.ts,.tsx --ignore-pattern dist . --fix",
         "jest": "jest",
         "manual": "npm run compile && cd manual && npm run manual",
