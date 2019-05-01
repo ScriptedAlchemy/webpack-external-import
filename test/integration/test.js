@@ -1,12 +1,13 @@
 describe('external script', () => {
     let logs = [];
 
-    beforeAll(async () => {
+    beforeEach(() => {
         page.on('console', msg => logs.push(msg.text()));
     });
 
     afterEach(() => {
         logs = [];
+        page.removeAllListeners();
     });
   
     it('should console.log', async () => {
