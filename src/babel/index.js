@@ -254,17 +254,6 @@ module.exports = function dynamicUrlImportPlugin(babel) {
         const parentPath = p.findParent((path) => path.isCallExpression());
         traverse(parentPath.node, {
           ArrowFunctionExpression(path) {
-            // if(!path.node.object || !path.node.object.isDynamic) {
-            //   return
-            // }
-            //
-            // if (!p.parent.object || !p.parent.object.arguments) {
-            //   return
-            // }
-            //
-            // const importExpression = p.parent.object.arguments[0];
-            // const importValue = importExpression.value;
-
             const moduleMaps = new Set()
             if (path.isArrowFunctionExpression()) {
               if (path.node.params) {
