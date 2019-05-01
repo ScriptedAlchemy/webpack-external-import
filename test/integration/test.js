@@ -3,16 +3,16 @@ describe('external script', () => {
 
     beforeAll(async () => {
         page.on('console', msg => logs.push(msg.text()));
-    })
+    });
 
     afterEach(() => {
         logs = [];
-    })
+    });
   
     it('should console.log', async () => {
         await page.goto('http://localhost:8080');
-        // await page.waitFor(10000);
-        await page.waitFor(() => false);
+        await page.waitForResponse('http://localhost:8080/other.js');
+        await page.waitFor(() => window.wasExternalFunctionCalled);
         expect(logs).toContain('some function thats externalized');
-    })
+    });
 });

@@ -1,4 +1,5 @@
 const externalFunction = () => {
+  window.wasExternalFunctionCalled = true;
   console.log('some function thats externalized')
 };
 
