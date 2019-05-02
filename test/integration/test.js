@@ -1,3 +1,9 @@
+import server from '../../manual/src/server';
+
+beforeAll(async () => {
+    await server.start();
+});
+
 describe('external script', () => {
     let logs = [];
 
