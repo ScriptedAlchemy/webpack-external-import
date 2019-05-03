@@ -219,8 +219,10 @@ module.exports = function dynamicUrlImportPlugin(babel) {
                 const functionToExport = splitComment[1].trim();
                 // props use this instead of module proto to actually export out the one single function
                 const header =
-                  ` if (typeof document !== 'undefined') {
-                  const exportmod = module.__proto__.exports           
+                  `
+                   if (typeof document !== 'undefined') {
+                  const exportmod = module.__proto__.exports 
+                       
                   window.webpackJsonp.push([
                    [],
                     {
@@ -232,7 +234,9 @@ module.exports = function dynamicUrlImportPlugin(babel) {
                     },
                       ['${functionToExport}']
                   ]);
-                }`;
+                }
+ 
+                `;
 
 
                 node.pushContainer(
@@ -272,7 +276,7 @@ module.exports = function dynamicUrlImportPlugin(babel) {
                   return t.assignmentExpression(
                     '=',
                     t.identifier(`const ${moduleName}`),
-                    t.identifier(`__webpack_require__("${moduleName}").default`),
+                    t.identifier(`'lol'`),
                   );
                 });
               path.get('body')

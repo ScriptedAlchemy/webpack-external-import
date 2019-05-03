@@ -1,16 +1,28 @@
 const scout = require('scriptjs');
 
+const diff = (obj,obj2)=> Object.keys(obj).reduce((diff, key) => {
+  if (obj[key] === obj2[key]) return diff
+  return {
+    ...diff,
+    [key]: obj2[key]
+  }
+}, {})
+
+const initialModules = new Set(Object.keys(__webpack_modules__))
+
 module.exports = async (url) => {
   const promise = await new Promise((resolve, reject) => {
-    console.log('url to fetch', url);
     scout(url, url);
+
     scout.ready(url, function () {
-       if (typeof document !== "undefined") { document.__webpack_modules__ = document.__webpack_modules__ || {};
-                 Object.assign(document.__webpack_modules__,__webpack_modules__ )
-                 Object.assign(__webpack_modules__,document.__webpack_modules__ )
-                }
+      console.log('url to fetch', url);
+      if (typeof document !== "undefined") {
+        document.__webpack_modules__ = document.__webpack_modules__ || {};
+        Object.assign(document.__webpack_modules__, __webpack_modules__)
+        Object.assign(__webpack_modules__, document.__webpack_modules__)
+      }
       resolve(__webpack_modules__);
     });
-  });
+  })
   return promise;
 };

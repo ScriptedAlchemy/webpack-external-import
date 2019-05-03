@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 
 import('https://code.jquery.com/jquery-3.3.1.min.js');
+
 const Test = (props, state, actions) => <div>{state.title}</div>;
 
 const TestTwo = (props, state, actions) => {
@@ -12,7 +13,7 @@ export const externalFunction = () => {
   console.log('some function thats externalized')
 };
 
-/*externalize: externalFunction*/
+/*externalize: externalHelloWorld */
 
 const TestThree = (props, state, actions) => (
   <button onClick={() => dispatch({
@@ -36,5 +37,7 @@ export { Test, TestTwo, TestThree };
 
 export default (props) => {
 
-  return (<div>zack</div>);
+  return (<div>DYNAMICALLY LOADED</div>);
 }
+
+

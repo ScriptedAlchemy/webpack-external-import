@@ -53,7 +53,10 @@ class URLImportPlugin {
         );
       }
     };
-
+const moduleModifier = (compilation,modules) => {
+  console.log(modules)
+  console.log('zack')
+}
     const emit = (compilation, compileCallback) => {
       const emitCount = emitCountMap.get(outputFile) - 1;
       emitCountMap.set(outputFile, emitCount);
@@ -224,7 +227,39 @@ class URLImportPlugin {
       };
       compiler.hooks.webpackURLImportPluginAfterEmit = new SyncWaterfallHook(['manifest']);
 
-      compiler.hooks.compilation.tap(pluginOptions, ({ hooks }) => {
+      compiler.hooks.compilation.tap('URLImportPlugin', compilation => {
+        const usedIds = new Set();
+        compilation.hooks.beforeModuleIds.tap(
+          'URLImportPlugin',
+          modules => {
+            for (const module of modules) {
+              if(module.rawRequest === './components/hello-world') {
+               if(module._source._value.includes('externalize')) {
+                console.log( module._source._value.split('module._source._value'))
+        module.id = 'someFunction'
+               }
+              }
+              // if (module.id === null && module.libIdent) {
+              //   const id = module.libIdent({
+              //     context: this.options.context || compiler.options.context
+              //   });
+              //   const hash = createHash(options.hashFunction);
+              //   hash.update(id);
+              //   const hashId = hash.digest(options.hashDigest);
+              //   let len = options.hashDigestLength;
+              //   while (usedIds.has(hashId.substr(0, len))) len++;
+              //
+              //   module.id = hashId.substr(0, len);
+              //   module._source._value = module._source._value.replace('__respond_pending_chunk_id__', module.id)
+              //   usedIds.add(module.id);
+              // }
+            }
+          }
+        );
+      });
+
+
+        compiler.hooks.compilation.tap(pluginOptions, ({ hooks }) => {
         hooks.moduleAsset.tap(pluginOptions, moduleAsset);
       });
       compiler.hooks.emit.tap(pluginOptions, emit);
