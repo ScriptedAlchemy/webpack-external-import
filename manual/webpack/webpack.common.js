@@ -19,6 +19,12 @@ module.exports = {
         test: /\.(js|jsx)$/,
         loader: 'babel-loader',
         exclude: /(node_modules)/,
+        options: {
+          babelrcRoots: [
+            '.',
+            __dirname,
+          ],
+        },
       },
       {
         test: /\.(png|jpg|gif|svg)$/,
