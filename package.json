@@ -15,6 +15,7 @@
         "test": "npm run eslint && npm run tsc-test && npm run jest",
         "lint": "eslint --ext .js,.ts,.tsx --ignore-pattern dist . --fix",
         "jest": "jest",
+        "jest:ci": "cross-env NODE_ENV=development jest --forceExit",
         "manual": "npm run compile && cd manual && npm run manual",
         "babel": "npm run compile && cd manual && npm run babel",
         "prepare": "npm run compile && cd manual && npm install"
@@ -31,6 +32,7 @@
         "babel-eslint": "^10.0.1",
         "babel-loader": "^8.0.5",
         "babel-watch": "^7.0.0",
+        "cross-env": "^5.2.0",
         "eslint": "^5.14.0",
         "eslint-config-airbnb": "^17.1.0",
         "eslint-plugin-import": "^2.16.0",

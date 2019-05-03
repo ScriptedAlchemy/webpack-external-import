@@ -4,6 +4,10 @@ beforeAll(async () => {
     await server.start();
 });
 
+afterAll(() => {
+    server.stop();
+});
+
 describe('external script', () => {
     let logs = [];
 
