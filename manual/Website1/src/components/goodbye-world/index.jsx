@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 
-import('https://code.jquery.com/jquery-3.3.1.min.js');
 const Test = (props, state, actions) => <div>{state.title}</div>;
 
 const TestTwo = (props, state, actions) => {

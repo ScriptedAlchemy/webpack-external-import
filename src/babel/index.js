@@ -220,21 +220,7 @@ module.exports = function dynamicUrlImportPlugin(babel) {
                 // props use this instead of module proto to actually export out the one single function
                 const header =
                   `
-                   if (typeof document !== 'undefined') {
-                  const exportmod = module.__proto__.exports 
-                       
-                  window.webpackJsonp.push([
-                   [],
-                    {
-                      '${functionToExport}': function(module, __webpack_exports__, __webpack_require__) {
-              
-                     module.exports = exportmod
-                  }
-                   
-                    },
-                      ['${functionToExport}']
-                  ]);
-                }
+                 
  
                 `;
 

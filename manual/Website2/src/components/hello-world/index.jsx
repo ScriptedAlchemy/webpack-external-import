@@ -13,7 +13,7 @@ export const externalFunction = () => {
   console.log('some function thats externalized')
 };
 
-/*externalize: externalHelloWorld */
+/*externalize: someFunction */
 
 const TestThree = (props, state, actions) => (
   <button onClick={() => dispatch({

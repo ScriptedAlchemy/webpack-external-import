@@ -23,6 +23,6 @@ module.exports = async (url) => {
       }
       resolve(__webpack_modules__);
     });
-  })
+  });
   return promise;
 };
