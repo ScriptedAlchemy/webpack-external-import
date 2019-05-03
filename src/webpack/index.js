@@ -230,13 +230,11 @@ class URLImportPlugin {
           'URLImportPlugin',
           modules => {
             for (const module of modules) {
-              if(module.rawRequest === './components/hello-world') {
-                if (module._source && module._source._value.includes('externalize')) {
-                  try {
-                    module.id = module._source._value.match(/\/\*\s*externalize\s*:\s*(\S+)\s*\*\//)[1]
-                  } catch (error) {
+              if (module._source && module._source._value.includes('externalize')) {
+                try {
+                  module.id = module._source._value.match(/\/\*\s*externalize\s*:\s*(\S+)\s*\*\//)[1]
+                } catch (error) {
 
-                  }
                 }
               }
               // if (module.id === null && module.libIdent) {
