@@ -262,7 +262,7 @@ module.exports = function dynamicUrlImportPlugin(babel) {
                   return t.assignmentExpression(
                     '=',
                     t.identifier(`const ${moduleName}`),
-                    t.identifier(`'lol'`),
+                    t.identifier(`__webpack_require__("${moduleName}")`),
                   );
                 });
               path.get('body')
