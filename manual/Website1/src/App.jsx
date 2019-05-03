@@ -2,13 +2,6 @@ import React, {Component} from 'react';
 import {hot} from 'react-hot-loader';
 import HelloWorld from './components/goodbye-world';
 
-import('http://localhost:3002/importManifest.js').then(() => {
-  import(/* importUrl */'http://localhost:3002/' + window.entryManifest['website-two']['hello-world.js']).then(() => {
-    // console.log('Webpack Modules:',__webpack_modules__);
-    __webpack_require__('someFunction').externalFunction()
-  });
-})
-
 
 class App extends Component {
   constructor(props) {
@@ -16,8 +9,27 @@ class App extends Component {
     this.state = {};
   }
 
+  componentDidMount() {
+    import('http://localhost:3002/importManifest.js').then(() => {
+      import(/* importUrl */'http://localhost:3002/' + window.entryManifest['website-two']['hello-world.js']).then(() => {
+        // console.log('Webpack Modules:',__webpack_modules__);
+        console.log('got module, will render it in 2 seconds')
+        __webpack_require__('someFunction').externalFunction()
+        setTimeout(() => {
+          this.setState({loaded: true})
+
+        }, 2000)
+      });
+    })
+
+  }
+
   render() {
-    return <HelloWorld title="Hello from React webpack"/>;
+
+    if (this.state.loaded) {
+      return __webpack_require__('someFunction').default()
+    }
+    return <HelloWorld/>;
   }
 }
 
