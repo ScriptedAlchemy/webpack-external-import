@@ -39,9 +39,9 @@
     "crc-32": "^1.2.0",
     "cross-env": "^5.2.0",
     "html-webpack-plugin": "^3.2.0",
-    "scriptjs": "^2.5.9",
-    "webpack-merge": "^4.2.1",
     "react": "^16.8.6",
-    "react-dom": "^16.8.6"
+    "react-dom": "^16.8.6",
+    "scriptjs": "^2.5.9",
+    "webpack-merge": "^4.2.1"
   }
 }
