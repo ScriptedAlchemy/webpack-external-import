@@ -1,4 +1,4 @@
-import server from '../../manual/src/server';
+import server from '../../manual/server';
 
 beforeAll(async () => {
     await server.start();
