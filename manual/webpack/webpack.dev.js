@@ -1,9 +1,5 @@
 const webpack = require('webpack');
-const path = require('path');
-const WriteFilePlugin = require('write-file-webpack-plugin')
-const HtmlWebpackPlugin = require('html-webpack-plugin')
 const external = require.resolve('../../dist/scout')
-const URLImportPlugin = require("../../dist/webpack")
 const commonPaths = require('./paths');
 
 module.exports = {
@@ -69,14 +65,6 @@ module.exports = {
     }
   },
   plugins: [
-    new URLImportPlugin({
-      manifestName: process.env.MFE === 1 ? 'website-one' : 'website-two'
-    }),
-    // new WriteFilePlugin(),
-    new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, `../Website${process.env.MFE}/template.html`),
-      inject: true
-    }),
     new webpack.HotModuleReplacementPlugin()
   ],
 };

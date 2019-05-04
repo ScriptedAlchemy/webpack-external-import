@@ -10,6 +10,8 @@ const TestTwo = (props, state, actions) => {
 };
 
 export const externalFunction = () => {
+  window.wasExternalFunctionCalled = true;
+
   console.log('some function thats externalized')
 };
 

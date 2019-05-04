@@ -19,10 +19,12 @@ describe('external script', () => {
         logs = [];
         page.removeAllListeners();
     });
-  
+
     it('should console.log', async () => {
-        await page.goto('http://localhost:8080');
-        await page.waitForResponse('http://localhost:8080/other.js');
+        await page.goto('http://localhost:3001');
+
+        await page.waitForResponse('http://localhost:3002/hello-world.js');
+
         await page.waitFor(() => window.wasExternalFunctionCalled);
         expect(logs).toContain('some function thats externalized');
     });
