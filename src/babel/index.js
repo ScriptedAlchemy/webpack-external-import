@@ -163,6 +163,9 @@ function existingMagicCommentChunkName(importArgNode) {
 
 function idOption(t, importArgNode) {
   // if its an expression, then pass it through
+  if(t.isIdentifier(importArgNode)) {
+    return importArgNode
+  }
   if (t.isBinaryExpression(importArgNode)) {
     return importArgNode;
   }
@@ -219,20 +222,10 @@ module.exports = function dynamicUrlImportPlugin(babel) {
                 const functionToExport = splitComment[1].trim();
                 // props use this instead of module proto to actually export out the one single function
                 const header =
-                  ` if (typeof document !== 'undefined') {
-                  const exportmod = module.__proto__.exports           
-                  window.webpackJsonp.push([
-                   [],
-                    {
-                      '${functionToExport}': function(module, __webpack_exports__, __webpack_require__) {
-              
-                     module.exports = exportmod
-                  }
-                   
-                    },
-                      ['${functionToExport}']
-                  ]);
-                }`;
+                  `
+                 
+ 
+                `;
 
 
                 node.pushContainer(
@@ -272,7 +265,7 @@ module.exports = function dynamicUrlImportPlugin(babel) {
                   return t.assignmentExpression(
                     '=',
                     t.identifier(`const ${moduleName}`),
-                    t.identifier(`__webpack_require__("${moduleName}").default`),
+                    t.identifier(`__webpack_require__("${moduleName}")`),
                   );
                 });
               path.get('body')
@@ -298,7 +291,6 @@ module.exports = function dynamicUrlImportPlugin(babel) {
 
 
         if (importArgNode.value && !isUrl(importArgNode.value)) return;
-
         if (!importArgNode.value && t.existingChunkName !== 'importUrl') return;
 
         if (importArgNode.value) Object.assign(importWhitelist, {[importArgNode.value]: null});

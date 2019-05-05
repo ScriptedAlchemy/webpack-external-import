@@ -5,7 +5,8 @@ node_modules
 dist
 .idea
 dist
-manual/babelOutput
+manual/Website1/babelOutput
+manual/Website2/babelOutput
 manual/build
 manual/yarn.lock
 package-lock.json

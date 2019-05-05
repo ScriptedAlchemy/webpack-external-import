@@ -45,7 +45,7 @@ class URLImportPlugin {
     const outputFile = path.resolve(outputFolder, this.opts.fileName);
     const outputName = path.relative(outputFolder, outputFile);
 
-    const moduleAsset = ({ userRequest }, file) => {
+    const moduleAsset = ({userRequest}, file) => {
       if (userRequest) {
         moduleAssets[file] = path.join(
           path.dirname(file),
@@ -179,7 +179,7 @@ class URLImportPlugin {
         const cleanedManifest = Object.entries(manifest)
           .reduce((acc, [key, asset]) => {
             if (!asset.includes('.map')) {
-              return Object.assign(acc, { [key]: asset });
+              return Object.assign(acc, {[key]: asset});
             }
             return acc;
           }, {});
@@ -224,7 +224,26 @@ class URLImportPlugin {
       };
       compiler.hooks.webpackURLImportPluginAfterEmit = new SyncWaterfallHook(['manifest']);
 
-      compiler.hooks.compilation.tap(pluginOptions, ({ hooks }) => {
+      compiler.hooks.compilation.tap('URLImportPlugin', compilation => {
+        const usedIds = new Set();
+        compilation.hooks.beforeModuleIds.tap(
+          'URLImportPlugin',
+          modules => {
+            for (const module of modules) {
+              if (module._source && module._source._value.includes('externalize')) {
+                try {
+                  module.id = module._source._value.match(/\/\*\s*externalize\s*:\s*(\S+)\s*\*\//)[1]
+                } catch (error) {
+
+                }
+              }
+            }
+          }
+        );
+      });
+
+
+      compiler.hooks.compilation.tap(pluginOptions, ({hooks}) => {
         hooks.moduleAsset.tap(pluginOptions, moduleAsset);
       });
       compiler.hooks.emit.tap(pluginOptions, emit);
