@@ -1,0 +1,83 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Babel Transform Integrity mixed-expression-url should compile to the expected result 1`] = `
+"\\"use strict\\";
+
+var _webpackExternalImport = _interopRequireDefault(require(\\"webpack-external-import\\"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+(0, _webpackExternalImport.default)(
+/* importUrl */
+'http://localhost:3002/' + window.entryManifest['website-two']['hello-world.js']);
+const someUrl = 'http://something.com';
+(0, _webpackExternalImport.default)(
+/*importUrl */
+someUrl); // import(/*importUrl */ ()=> 'http://thing.com/js/index.js')"
+`;
+
+exports[`Babel Transform Integrity module-extraction should compile to the expected result 1`] = `
+"\\"use strict\\";
+
+var _webpackExternalImport = _interopRequireDefault(require(\\"webpack-external-import\\"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+(0, _webpackExternalImport.default)(
+/* importUrl */
+'http://localhost:3002/' + window.entryManifest['website-two']['hello-world.js']).then(({}) => {
+  const exportedModule = __webpack_require__(\\"exportedModule\\")
+  exportedModule.externalFunction();
+});"
+`;
+
+exports[`Babel Transform Integrity non-module-extracting-promise should compile to the expected result 1`] = `
+"\\"use strict\\";
+
+var _webpackExternalImport = _interopRequireDefault(require(\\"webpack-external-import\\"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+(0, _webpackExternalImport.default)(\\"http://localhost:3002/importManifest.js\\").then(() => {
+  console.log('this has been loaded');
+});"
+`;
+
+exports[`Babel Transform Integrity normal-dynamic-import should compile to the expected result 1`] = `
+"\\"use strict\\";
+
+import('./someDir/someFile.js');"
+`;
+
+exports[`Babel Transform Integrity react-importer-component should compile to the expected result 1`] = `
+"\\"use strict\\";
+
+var _webpackExternalImport = _interopRequireDefault(require(\\"webpack-external-import\\"));
+
+var _react = _interopRequireDefault(require(\\"react\\"));
+
+var _index = require(\\"../../../../dist/index\\");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+const helloWorldUrl = 'http://test.com';
+
+const component = () => _react.default.createElement(_index.ExternalComponent, {
+  src: (0, _webpackExternalImport.default)(
+  /* importUrl */
+  helloWorldUrl),
+  module: \\"TitleComponent\\",
+  export: \\"Title\\",
+  title: 'Some Heading'
+});"
+`;
+
+exports[`Babel Transform Integrity string-url-import should compile to the expected result 1`] = `
+"\\"use strict\\";
+
+var _webpackExternalImport = _interopRequireDefault(require(\\"webpack-external-import\\"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+(0, _webpackExternalImport.default)(\\"http://localhost:3002/importManifest.js\\");"
+`;

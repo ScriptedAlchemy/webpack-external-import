@@ -14,7 +14,7 @@
         "compile": "babel src -d dist ",
         "test": "npm run eslint && npm run tsc-test && npm run jest",
         "lint": "eslint --ext .js,.ts,.tsx --ignore-pattern dist . --fix",
-        "jest": "jest",
+        "jest": "NODE_ENV=development jest",
         "jest:ci": "cross-env NODE_ENV=development jest --forceExit",
         "manual": "npm run compile && cd manual && npm run manual",
         "babel": "npm run compile && cd manual && npm run babel",
@@ -24,6 +24,8 @@
     "devDependencies": {
         "@babel/cli": "^7.2.3",
         "@babel/core": "^7.3.3",
+        "@babel/plugin-proposal-class-properties": "^7.4.4",
+        "@babel/plugin-syntax-dynamic-import": "^7.2.0",
         "@babel/plugin-transform-react-jsx": "^7.3.0",
         "@babel/preset-env": "^7.3.1",
         "@babel/preset-react": "^7.0.0",
@@ -83,6 +85,7 @@
         "fs-extra": "^7.0.1",
         "jest-haste-map": "^24.7.1",
         "jest-resolve": "^24.7.1",
+        "prop-types": "^15.7.2",
         "source-map": "^0.7.3"
     }
 }

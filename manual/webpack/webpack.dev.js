@@ -1,19 +1,11 @@
 const webpack = require('webpack');
-const path = require('path');
-const WriteFilePlugin = require('write-file-webpack-plugin')
-const HtmlWebpackPlugin = require('html-webpack-plugin')
-const external = require.resolve('../../dist/scout')
-const URLImportPlugin = require("../../dist/webpack")
+const external = require.resolve('../../dist')
 const commonPaths = require('./paths');
 
-console.log(URLImportPlugin)
 module.exports = {
   mode: 'development',
   devtool: 'source-map',
-  entry: {
-    main: require.resolve('../src/index.jsx'),
-    other: require.resolve('../src/anoterEntry.js'),
-  },
+  entry: commonPaths[process.env.MFE],
   output: {
     filename: '[name].js',
     path: commonPaths.outputPath,
@@ -43,11 +35,29 @@ module.exports = {
     runtimeChunk: {
       name: "manifest",
     },
+    splitChunks: {
+      chunks: 'all',
+      maxInitialRequests: Infinity,
+      minSize: 0,
+      cacheGroups: {
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          name(module) {
+            // get the name. E.g. node_modules/packageName/not/this/part.js
+            // or node_modules/packageName
+            const packageName = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/)[1];
+            // npm package names are URL-safe, but some servers don't like @ symbols
+            return `npm.${packageName.replace('@', '')}`;
+          },
+        },
+      },
+    },
   },
   devServer: {
     contentBase: commonPaths.outputPath,
     compress: true,
     hot: true,
+    port: `300${process.env.MFE}`,
   },
   resolve: {
     alias: {
@@ -55,14 +65,6 @@ module.exports = {
     }
   },
   plugins: [
-    new URLImportPlugin({
-      manifestName: 'demo-build'
-    }),
-    new WriteFilePlugin(),
-    new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, '../src/template.html'),
-      inject: false
-    }),
     new webpack.HotModuleReplacementPlugin()
   ],
 };

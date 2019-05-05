@@ -3,7 +3,6 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const commonPaths = require('./paths');
 
 module.exports = {
-  entry: commonPaths.entryPath,
   module: {
     rules: [
       // {
@@ -58,13 +57,10 @@ module.exports = {
     open: true,
   },
   resolve: {
-    modules: ['src', 'node_modules'],
+    modules: ['node_modules'],
     extensions: ['*', '.js', '.jsx', '.css', '.scss'],
   },
   plugins: [
     new webpack.ProgressPlugin(),
-    new HtmlWebpackPlugin({
-      template: commonPaths.templatePath,
-    })
   ],
 };
