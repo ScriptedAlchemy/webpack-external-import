@@ -36,6 +36,7 @@
   },
   "dependencies": {
     "@babel/helper-module-imports": "^7.0.0",
+    "@babel/plugin-proposal-class-properties": "^7.4.4",
     "crc-32": "^1.2.0",
     "cross-env": "^5.2.0",
     "html-webpack-plugin": "^3.2.0",

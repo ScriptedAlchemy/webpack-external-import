@@ -163,6 +163,9 @@ function existingMagicCommentChunkName(importArgNode) {
 
 function idOption(t, importArgNode) {
   // if its an expression, then pass it through
+  if(t.isIdentifier(importArgNode)) {
+    return importArgNode
+  }
   if (t.isBinaryExpression(importArgNode)) {
     return importArgNode;
   }
@@ -288,7 +291,6 @@ module.exports = function dynamicUrlImportPlugin(babel) {
 
 
         if (importArgNode.value && !isUrl(importArgNode.value)) return;
-
         if (!importArgNode.value && t.existingChunkName !== 'importUrl') return;
 
         if (importArgNode.value) Object.assign(importWhitelist, {[importArgNode.value]: null});

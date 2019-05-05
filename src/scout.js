@@ -8,7 +8,7 @@ const diff = (obj,obj2)=> Object.keys(obj).reduce((diff, key) => {
   }
 }, {})
 
-const initialModules = new Set(Object.keys(__webpack_modules__))
+const initialModules = new Set()
 
 module.exports = async (url) => {
   const promise = await new Promise((resolve, reject) => {
