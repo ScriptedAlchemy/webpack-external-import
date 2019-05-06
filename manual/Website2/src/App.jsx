@@ -1,6 +1,14 @@
 import React, {Component} from 'react';
 import {hot} from 'react-hot-loader';
 
+// import('http://localhost:8080/importManifest.js').then(() => {
+//   import(/* importUrl */'http://localhost:8080/' + window.entryManifest['demo-build']['other.js']).then(({externalFunction}) => {
+//     console.log('Webpack Modules:', __webpack_modules__);
+//     console.log('Require Statement:', __webpack_require__('externalFunction'))
+//     __webpack_require__('externalFunction').default()
+//   });
+// })
+
 
 class App extends Component {
   constructor(props) {
@@ -11,10 +19,8 @@ class App extends Component {
   }
 
   componentDidMount() {
-    // Easy way to code-split files you want to use on other applications
-    // I also rename the chunk with webpackChunkName, so i can reference it by a custom name in window.entryManifest
     import(/* webpackChunkName: "Title"*/ './components/Title');
-    import(/* webpackChunkName: "hello-worl-chunk"*/ './components/hello-world').then((HelloWorld) => {
+    import(/* webpackChunkName: "hello-world"*/ './components/hello-world').then((HelloWorld) => {
       this.setState({component: HelloWorld.default})
     })
   }
