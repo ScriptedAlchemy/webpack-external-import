@@ -2,11 +2,11 @@
 
 #### This is currency under active development, but stable
 
-##What it does?
+## What it does?
 
 This tool will allow you to `import()` external modules from other webpack builds, CDNs, or files hosted elsewhere, as if they were part of your current application the whole time. 
 
-##Basic Setup
+## Basic Setup
 **The basic setup will allow you to import URLs**
 
 For example: `import('https://code.jquery.com/jquery-3.3.1.min.js');`
@@ -25,7 +25,7 @@ Add the babel plugin to you're babelrc. `webpack-external-import/babel`
 }
 ```
 
-##Advanced Setup - frontend orchestration - Micro Frontend Architecture 
+## Advanced Setup - frontend orchestration - Micro Frontend Architecture 
 This setup allows for injection of webpack modules from another build into your build. 
 
 
@@ -58,7 +58,7 @@ Add the babel plugin to babelrc
 }
 ```
 
-##Usage
+## Usage
 Here's some examples:
 Pretend we have two separate builds - for two separate apps with their own _independent_ build
 
@@ -98,7 +98,7 @@ import('http://website1.com/js/theExampleFile.js').then(({ExampleModule})=>{
 }
 ```
 
-###The entry manifest
+### The entry manifest
 
 Each webpack build using the webpack plugin will output a manifest file to your build output directory 
 
@@ -125,7 +125,7 @@ In this file, i am importing code from another website and build. My application
 
 ```
 
-##Full Example
+## Full Example
 
 ```js
 // WEBSITE-ONE
@@ -221,7 +221,7 @@ export const Title = ({title}) => {
 
 ```
 
-##Options
+## Options
 
 **Webpack Plugin**
 ```js
