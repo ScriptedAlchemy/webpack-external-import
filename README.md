@@ -1,6 +1,6 @@
 # Webpack Scout
 
-#### This is currency under active development, but stable
+#### This is currently under active development, but stable
 
 ## What it does?
 
