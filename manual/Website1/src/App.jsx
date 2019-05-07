@@ -12,9 +12,9 @@ class App extends Component {
   componentDidMount() {
     import('http://localhost:3002/importManifest.js').then(() => {
       this.setState({manifestLoaded: true})
-      import(/* importUrl */'http://localhost:3002/' + window.entryManifest['website-two']['hello-world.js']).then(({someFunction}) => {
+      import(/* importUrl */'http://localhost:3002/' + window.entryManifest['website-two']['hello-world.js']).then(({SomeExternalModule}) => {
         console.log('got module, will render it in 2 seconds')
-        someFunction.externalFunction()
+        SomeExternalModule.externalFunction()
         setTimeout(() => {
           this.setState({loaded: true})
 
@@ -26,7 +26,7 @@ class App extends Component {
   renderDynamic = () => {
     const {loaded} = this.state
     if (!loaded) return null
-    return this.state.loaded && __webpack_require__('someFunction').default()
+    return this.state.loaded && __webpack_require__('SomeExternalModule').default()
   }
 
   render() {
