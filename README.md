@@ -16,6 +16,10 @@ This tool will allow you to `import()` external modules from other webpack build
 - Want to load components over the wire
 
 ## Basic Setup
+```bash
+npm install webpack-external-import --save
+```
+
 **The basic setup will allow you to import URLs**
 
 For example: `import('https://code.jquery.com/jquery-3.3.1.min.js');`
