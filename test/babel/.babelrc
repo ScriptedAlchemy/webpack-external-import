@@ -11,7 +11,7 @@
         ]
     ],
     "plugins": [
-        "../../dist/babel/index.js",
+        "../../babel/index.js",
         "@babel/plugin-syntax-dynamic-import",
         "@babel/plugin-proposal-class-properties"
     ]

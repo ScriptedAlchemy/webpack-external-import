@@ -2,7 +2,7 @@
 
 const { transform } = require('@babel/core');
 const fs = require('fs');
-const plugin = require('../dist/babel');
+const plugin = require('../babel');
 const { readFileSync } = require('fs');
 
 const source = readFileSync('manual/source.js', 'utf8');

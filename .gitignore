@@ -10,3 +10,7 @@ manual/Website2/babelOutput
 manual/build
 manual/yarn.lock
 package-lock.json
+webpack
+babel
+index.js
+scout.js

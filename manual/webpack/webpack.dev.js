@@ -1,5 +1,5 @@
 const webpack = require('webpack');
-const external = require.resolve('../../dist')
+const external = require.resolve('../../')
 const commonPaths = require('./paths');
 
 module.exports = {
