@@ -6,6 +6,14 @@
 
 This tool will allow you to `import()` external modules from other webpack builds, CDNs, or files hosted elsewhere, as if they were part of your current application the whole time. 
 
+#### Why would you want to do this?
+- Remove code duplication from multiple apps
+- Implementation of micro-frontend architecture. Where each frontend is able to operate standalone, causing general code duplication when moving to another micro-frontend (MFE). 
+- If you want to have multiple webpack builds work as if they were bundeled together. SPA on the frontend, multiple webpack builds on the back
+- You want to manage common js / vendor files automatically. This is useful, instead of dealing with peer dependencies, externals, or anything else. You can just load the component from a remote source. 
+- LOSA Style frontend architecture: When you run multiple apps on a single page.
+- Want to load components over the wire
+
 ## Basic Setup
 **The basic setup will allow you to import URLs**
 
