@@ -1,6 +1,7 @@
 # Webpack Scout
 
 #### This is currently under active development, but stable
+**On npm as webpack-external-import@0.0.1-beta.7**
 
 ## What it does?
 
