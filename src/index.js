@@ -28,7 +28,7 @@ class ExternalComponent extends Component {
     const {loaded} = this.state
     if (!loaded) return <span>loading</span>
 
-    const {srouce, module, ...rest} = this.props
+    const {src, module, ...rest} = this.props
     return (
       <Component {...rest}/>
     )
