@@ -26,7 +26,7 @@ describe('Babel Transform Integrity', () => {
         const output = babel.transformFileSync(testCase,
           {
             "plugins": [
-              require.resolve("../../dist/babel"),
+              require.resolve("../../babel"),
               "@babel/plugin-syntax-dynamic-import",
               "@babel/plugin-proposal-class-properties"
             ]

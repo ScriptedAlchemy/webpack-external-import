@@ -2,7 +2,7 @@ const webpackMerge = require('webpack-merge');
 const common = require('../webpack/webpack.common');
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-const URLImportPlugin = require("../../dist/webpack")
+const URLImportPlugin = require("../../webpack")
 
 const envs = {
   development: 'dev',
