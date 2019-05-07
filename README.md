@@ -252,4 +252,5 @@ How to start (using the demo)
 1) `npm install` then `cd manual; npm install`
 2) `npm run manual` from the root directory
 
-this will run the compile command to build a new copy of the plugin as well as start the little manual demo project
+this will run the compile command to build a new copy of the plugin as well as start the little manual [demo project](https://github.com/ScriptedAlchemy/webpack-external-import/tree/master/manual)
+
