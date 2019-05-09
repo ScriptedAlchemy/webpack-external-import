@@ -7,7 +7,7 @@ const commonPaths = require('./paths');
 
 module.exports = {
   mode: 'production',
-  entry: commonPaths[process.env.MFE],
+  entry: commonPaths.entry,
   output: {
     filename: `${commonPaths.jsFolder}/[name].[hash].js`,
     path: commonPaths.outputPath,
