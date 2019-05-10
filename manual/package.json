@@ -11,6 +11,9 @@
   ],
   "scripts": {
     "manual": "npm run manual:websiteOne | npm run manual:websiteTwo",
+    "manual:prod": "npm run manual:prod:websiteOne | npm run manual:prod:websiteTwo",
+    "manual:prod:websiteOne": "cd Website1; cross-env NODE_ENV=production MFE=1 webpack-dev-server --config webpack.config.prod.js",
+    "manual:prod:websiteTwo": "cd Website2; cross-env NODE_ENV=production MFE=2 webpack-dev-server --config webpack.config.prod.js",
     "manual:websiteOne": "cd Website1; cross-env NODE_ENV=development MFE=1 webpack-dev-server",
     "manual:websiteTwo": "cd Website2; cross-env NODE_ENV=development MFE=2 webpack-dev-server",
     "babel": "cd Website1; babel src -d babelOutput"
@@ -37,9 +40,12 @@
   "dependencies": {
     "@babel/helper-module-imports": "^7.0.0",
     "@babel/plugin-proposal-class-properties": "^7.4.4",
+    "clean-webpack-plugin": "^2.0.2",
     "crc-32": "^1.2.0",
     "cross-env": "^5.2.0",
     "html-webpack-plugin": "^3.2.0",
+    "mini-css-extract-plugin": "^0.6.0",
+    "optimize-css-assets-webpack-plugin": "^5.0.1",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "scriptjs": "^2.5.9",
