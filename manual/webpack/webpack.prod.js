@@ -68,6 +68,12 @@ module.exports = {
       },
     ],
   },
+  devServer: {
+    contentBase: commonPaths.outputPath,
+    compress: true,
+    hot: true,
+    port: `300${process.env.MFE}`,
+  },
   plugins: [
     new CleanWebpackPlugin(),
     new MiniCssExtractPlugin({
