@@ -1,8 +1,7 @@
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const commonPaths = require('./paths');
 
-module.exports = {
+module.exports = (commonPaths) => ({
   module: {
     rules: [
       // {
@@ -50,7 +49,7 @@ module.exports = {
     ],
   },
   serve: {
-    content: commonPaths.entryPath,
+    content: commonPaths.entry,
     dev: {
       publicPath: commonPaths.outputPath,
     },
@@ -63,4 +62,4 @@ module.exports = {
   plugins: [
     new webpack.ProgressPlugin(),
   ],
-};
+});
