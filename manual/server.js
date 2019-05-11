@@ -1,58 +1,79 @@
 const webpack = require('webpack');
-const webpackConfig1 = require('./Website1/webpack.config');
-const webpackConfig2 = require('./Website2/webpack.config');
 const WebpackDevServer = require('webpack-dev-server');
 
-let server, server2;
+const webpackConfig1 = require('./Website1/webpack.config');
+const webpackConfig2 = require('./Website2/webpack.config');
 
+let app, app2;
 
 const options = {
   publicPath: webpackConfig1.output.publicPath,
   hot: false,
-  inline: false,
+  hotOnly: false,
+  inline: true,
   contentBase: 'www',
   stats: {colors: true},
   watchOptions: {
     watch: false,
   },
+  open: false,
+  noInfo: true,
 };
-
 const options2 = Object.assign({}, options, {
   publicPath: webpackConfig2.output.publicPath,
 })
 
 function start() {
   console.log('Starting the dev web server...');
-  const app = new WebpackDevServer(webpack(webpackConfig1), options);
+  app = new WebpackDevServer(webpack(webpackConfig1), options);
+  app2 = new WebpackDevServer(webpack(webpackConfig2), options2);
 
-  const app2 = new WebpackDevServer(webpack(webpackConfig2), options2);
-
-  return new Promise((resolve, reject) => {
-    app.listen(3001, 'localhost', function (err) {
-      server = app.listeningApp;
-      if (err) {
-        console.log(err);
-        reject();
-      }
-      console.log('WebpackDevServer listening at localhost:', 3001);
-
-
-      app2.listen(3002, 'localhost', function (err) {
-        server2 = app2.listeningApp;
+  return Promise.all([
+    new Promise((resolve, reject) => {
+      app.middleware.waitUntilValid(() => {
+        console.log('MFE #1 compilation valid');
+        resolve();
+      })
+    })
+    .then(() => new Promise((resolve, reject) => {
+      app.listen(3001, 'localhost', function (err) {
         if (err) {
           console.log(err);
           reject();
         }
-        console.log('WebpackDevServer listening at localhost:', 3002);
+
+        console.log('WebpackDevServer for MFE #2 listening at localhost:', 3001);
         resolve();
       });
-    });
-  });
+    })),
+    new Promise((resolve, reject) => {
+      app2.middleware.waitUntilValid(() => {
+        console.log('MFE #2 compilation valid');
+        resolve();
+      })
+    })
+    .then(() => new Promise((resolve, reject) => {
+      app2.listen(3002, 'localhost', function (err) {
+        if (err) {
+          console.log(err);
+          reject();
+        }
+
+        console.log('WebpackDevServer for MFE #2 listening at localhost:', 3002);
+        resolve();
+      });
+    })),
+  ]);
 }
 
 function stop() {
-  server.close();
-  server2.close();
+  app.listeningApp.close();
+  app2.listeningApp.close();
+
+  return Promise.all([
+    new Promise((resolve) => app.middleware.close(resolve)),
+    new Promise((resolve) => app2.middleware.close(resolve)),
+  ]);
 }
 
 module.exports = {

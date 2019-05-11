@@ -1,11 +1,10 @@
 const webpack = require('webpack');
 const external = require.resolve('../../')
-const commonPaths = require('./paths');
 
-module.exports = {
+module.exports = (commonPaths) => ({
   mode: 'development',
   devtool: 'source-map',
-  entry: commonPaths[process.env.MFE],
+  entry: commonPaths.entry,
   output: {
     filename: '[name].js',
     path: commonPaths.outputPath,
@@ -57,7 +56,7 @@ module.exports = {
     contentBase: commonPaths.outputPath,
     compress: true,
     hot: true,
-    port: `300${process.env.MFE}`,
+    port: `300${commonPaths.siteId}`,
   },
   resolve: {
     alias: {
@@ -67,4 +66,4 @@ module.exports = {
   plugins: [
     new webpack.HotModuleReplacementPlugin()
   ],
-};
+});
