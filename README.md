@@ -1,30 +1,46 @@
+
 # Webpack Scout
 
-#### This is currently under active development, but stable
-**On npm as webpack-external-import@0.0.1-beta.7**
+**This is currently under active development, but stable**
 
-## What it does?
+**Find it on npm as `webpack-external-import@0.0.1-beta.7`**
 
-This tool will allow you to `import()` external modules from other webpack builds, CDNs, or files hosted elsewhere, as if they were part of your current application the whole time. 
+## What is it?
 
-#### Why would you want to do this?
-- Remove code duplication from multiple apps
-- Implementation of micro-frontend architecture. Where each frontend is able to operate standalone, causing general code duplication when moving to another micro-frontend (MFE). 
-- If you want to have multiple webpack builds work as if they were bundeled together. SPA on the frontend, multiple webpack builds on the back
-- You want to manage common js / vendor files automatically. This is useful, instead of dealing with peer dependencies, externals, or anything else. You can just load the component from a remote source. 
-- LOSA Style frontend architecture: When you run multiple apps on a single page.
-- Want to load components over the wire
+**A tool that allows you to `import()` external modules from other webpack builds, CDNs, or files hosted elsewhere, as if they were part of your current application.**
 
-## Basic Setup
+## What can I do with it?
+
+- **Load components over the wire** - Pull in components at runtime.
+
+- **Build leaner micro-frontends (MFE)** - 
+Micro-frontends can share bundles with one another while still remaining self-contained, removing needless code duplication.
+
+- **Split a large, multi-team app into separate deployables while keeping it as one SPA** - Large apps can be split into separate feature bundles that can be deployed independently, reducing deployment bottlenecks.
+
+- **Manage common js / vendor files automatically.** - Instead of dealing with peer dependencies, externals, or anything else, you can just load the dependency from a remote source.
+
+- **LOSA Style frontend architecture** - Run multiple apps on a single page.
+
+## Setup
+
+### Install
+
+From npm:
 ```bash
 npm install webpack-external-import --save
 ```
 
-**The basic setup will allow you to import URLs**
+or, from yarn:
+```bash
+yarn add webpack-external-import --save
+```
 
-For example: `import('https://code.jquery.com/jquery-3.3.1.min.js');`
+### Basic Setup - Importing URLs only
 
-Add the babel plugin to you're babelrc. `webpack-external-import/babel`
+The basic setup will allow you to import from URLs.  For example: `import('https://code.jquery.com/jquery-3.3.1.min.js');`
+
+Add the `webpack-external-import/babel` plugin to your babelrc:
 
 **.babelrc**
 ```json
@@ -38,18 +54,16 @@ Add the babel plugin to you're babelrc. `webpack-external-import/babel`
 }
 ```
 
-## Advanced Setup - frontend orchestration - Micro Frontend Architecture 
-This setup allows for injection of webpack modules from another build into your build. 
+### Advanced Setup - Injecting Webpack modules from another build
 
+Use the webpack plugin to inject webpack modules from another build into your build. 
+
+_**Important**: Make sure manifestName_ is unique per webpack build.
+If you have multiple builds, they all need to have  their own manifestName
 
 **webpack.config.js**
-
-_Make sure manifestName_ is unique per webpack build.
-
-If you have multiple builds, they all need to have  their own manifestName
- 
 ```js
-require('webpack-external-import/inde')
+require('webpack-external-import/index')
 {
     plugins: [
         new URLImportPlugin({
@@ -58,9 +72,9 @@ require('webpack-external-import/inde')
     ]
 }
 ```
+then add the babel plugin to babelrc:
 
 **.babelrc**
-Add the babel plugin to babelrc
 ```json
 {
     "presets": [],
@@ -71,16 +85,14 @@ Add the babel plugin to babelrc
 }
 ```
 
-## Usage
-Here's some examples:
-Pretend we have two separate builds - for two separate apps with their own _independent_ build
+## Example Usage
+Pretend we have two separate apps that each have their own _independent_ build.  We want to share a module from one of our apps with the other.
 
-I use `externalize` to mark this module (file) so it can be consumed by another name, in this case, another client side app, should be able to retrieve this file as `ExampleModule` 
+To do this, we add an `externalize` comment to the module. This tells the plugin to make the module available externally with the name `ExampleModule`:
 
-**Webpack Build 1**
+**Application A:**
 ```js
-// title.js
-// I want to use this 
+// Title.js
 import React from 'react';
 
 export const Title = ({title}) => {
@@ -88,7 +100,7 @@ export const Title = ({title}) => {
 }
 
 export const alert = (message) => {
-  alert(title)
+  alert(message)
 }
 
 
@@ -96,14 +108,19 @@ export const alert = (message) => {
 
 ```
 
-**Webpack Build 2**
+The `ExampleModule` can now be pulled into our other app using `import`:
 
+**Application B:**
 ```js
 import('http://website1.com/js/theExampleFile.js').then(({ExampleModule})=>{
   ExampleModule.alert('custom alert')
 });
+```
 
-// What about React?
+There is also a React component, `ExternalComponent`, that can be useful for importing React components:
+
+```js
+import {ExternalComponent} from 'webpack-external-import'
 
 ()=>{
   return (
@@ -114,27 +131,27 @@ import('http://website1.com/js/theExampleFile.js').then(({ExampleModule})=>{
 
 ### The entry manifest
 
-Each webpack build using the webpack plugin will output a manifest file to your build output directory 
+Each webpack build using the webpack plugin will output a manifest file to the build output directory.
 
-The manifest is allows you to find a chunk that you want even if the name has been hashed. 
+The manifest allows you to find a chunk that you want, even if the name has been hashed.
 
 Below is an example of using the manifest.
 
-In this file, i am importing code from another website and build. My application is loading Website 2's manifest. Which is automatically added to `window.entryManifest`, under its `manifestName` you set in the webpack plugin. After that, im importing a chunk from website-two, in this case - the chunk is code-split. 
+In this file, I am importing code from another website/build. My application is loading website-two's manifest, which is automatically added to `window.entryManifest` under the `manifestName` I set in the webpack plugin. After that, I'm importing a chunk from website-two, in this case - the chunk is code-split. 
 
 ```js
   componentDidMount() {
     import('http://localhost:3002/importManifest.js').then(() => {
       this.setState({manifestLoaded: true})
-      import(/* importUrl */'http://localhost:3002/' + window.entryManifest['website-two']['hello-world.js']).then(({someModule}) => {
-        console.log('got module, will render it in 2 seconds')
-        someModule.externalFunction()
-        setTimeout(() => {
-          this.setState({loaded: true})
-
-        }, 2000)
-      });
-    })
+      import(/* importUrl */'http://localhost:3002/' + window.entryManifest['website-two']['hello-world.js'])
+        .then(({someModule}) => {
+          console.log('got the module, will render it in 2 seconds..')
+          someModule.externalFunction()
+          setTimeout(() => {
+            this.setState({loaded: true})
+          }, 2000)
+        });
+      })
   }
 
 ```
@@ -147,7 +164,7 @@ In this file, i am importing code from another website and build. My application
 
 import React, {Component} from 'react';
 import {hot} from 'react-hot-loader';
-import HelloWorld from './components/goodbye-world';
+import HelloWorld from './components/hello-world';
 import {ExternalComponent} from 'webpack-external-import'
 
 class App extends Component {
@@ -204,7 +221,7 @@ class App extends Component {
 
   componentDidMount() {
     // Easy way to code-split files you want to use on other applications
-    // I also rename the chunk with webpackChunkName, so i can reference it by a custom name in window.entryManifest
+    // I also rename the chunk with webpackChunkName, so I can reference it by a custom name in window.entryManifest
     import(/* webpackChunkName: "Title"*/ './components/Title');
     import(/* webpackChunkName: "hello-worl-chunk"*/ './components/hello-world').then((HelloWorld) => {
       this.setState({component: HelloWorld.default})
@@ -237,7 +254,7 @@ export const Title = ({title}) => {
 
 ## Options
 
-**Webpack Plugin**
+### **Webpack Plugin**
 ```js
    new URLImportPlugin({
       manifestName: 'unknown-project', //default
@@ -245,6 +262,22 @@ export const Title = ({title}) => {
     })
 ```
 
+### **ExternalComponent**
+React Component
+
+#### **Props**:
+
+**`src`: string** - Import source URL
+
+**`module`: string** - Module name, must match what was declared using /*externalize:ExampleModule*/
+
+**`export`: string** - The named export to use as a component from module being imported
+
+
+#### Usage
+```js
+<ExternalComponent src={import(/* importUrl */ helloWorldUrl)} module="ExampleModule" export='Title' title={'Some Heading'}/>
+```
 
 ## DEMO
 How to start (using the demo)
@@ -252,5 +285,5 @@ How to start (using the demo)
 1) `npm install` then `cd manual; npm install`
 2) `npm run manual` from the root directory
 
-this will run the compile command to build a new copy of the plugin as well as start the little manual [demo project](https://github.com/ScriptedAlchemy/webpack-external-import/tree/master/manual)
+This will run the compile command to build a new copy of the plugin, as well as start the little manual [demo project](https://github.com/ScriptedAlchemy/webpack-external-import/tree/master/manual)
 
