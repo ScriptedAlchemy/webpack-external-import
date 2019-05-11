@@ -3,9 +3,7 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 
-const commonPaths = require('./paths');
-
-module.exports = {
+module.exports = (commonPaths) => ({
   mode: 'production',
   entry: commonPaths.entry,
   output: {
@@ -72,7 +70,7 @@ module.exports = {
     contentBase: commonPaths.outputPath,
     compress: true,
     hot: true,
-    port: `300${process.env.MFE}`,
+    port: `300${commonPaths.siteId}`,
   },
   plugins: [
     new CleanWebpackPlugin(),
@@ -82,4 +80,4 @@ module.exports = {
     }),
   ],
   devtool: 'source-map',
-};
+});
