@@ -1,5 +1,6 @@
 
-# Webpack Scout
+# Webpack Dynamic URL imports 
+
 
 **This is currently under active development, but stable**
 
