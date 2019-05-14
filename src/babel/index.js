@@ -268,11 +268,14 @@ module.exports = function dynamicUrlImportPlugin(babel) {
                     t.identifier(`__webpack_require__("${moduleName}")`),
                   );
                 });
-              path.get('body')
-                .node
-                .body
-                .unshift(...injectedDepencency);
-
+              try {
+                path.get('body')
+                    .node
+                    .body
+                    .unshift(...injectedDepencency);
+              } catch(e) {
+               // something is going wrong here. We need to make sure bad promises are not transformed
+              }
             }
 
 
@@ -323,5 +326,3 @@ module.exports = function dynamicUrlImportPlugin(babel) {
     }
   };
 };
-
-
