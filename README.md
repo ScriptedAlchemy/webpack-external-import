@@ -64,7 +64,7 @@ If you have multiple builds, they all need to have  their own manifestName
 
 **webpack.config.js**
 ```js
-require('webpack-external-import/index')
+const URLImportPlugin = require('webpack-external-import/webpack')
 {
     plugins: [
         new URLImportPlugin({
