@@ -19,7 +19,7 @@
         "lint": "eslint --ext .js,.ts,.tsx --ignore-pattern dist . --fix",
         "jest": "NODE_ENV=development jest",
         "jest:ci": "cross-env NODE_ENV=development jest",
-        "manual": "npm run compile && cd manual && npm run manual:prod",
+        "manual": "npm run compile && cd manual && npm run manual",
         "babel": "npm run compile && cd manual && npm run babel",
         "prepare": "npm run compile && cd manual && npm install"
     },
