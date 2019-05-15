@@ -243,6 +243,9 @@ module.exports = function dynamicUrlImportPlugin(babel) {
         if (!p.isIdentifier({name: 'then'})) {
           return;
         }
+        if(!p.parent || !p.parent.object || !p.parent.object.isDynamic) {
+          return;
+        }
 
         const parentPath = p.findParent((path) => path.isCallExpression());
         traverse(parentPath.node, {
