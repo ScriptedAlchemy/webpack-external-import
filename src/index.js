@@ -1,6 +1,6 @@
-import scout from './scout';
-import React, {Fragment, Component} from 'react';
+import React, {Component} from 'react';
 import PropTypes from 'prop-types'
+import scout from './scout';
 
 class ExternalComponent extends Component {
   constructor(props) {
@@ -15,15 +15,19 @@ class ExternalComponent extends Component {
 
   componentDidMount() {
     const {src, module, export: exportName} = this.props;
-
     src.then(() => {
+      console.log(__webpack_modules__)
       const requiredComponent = __webpack_require__(module)
+      console.log('required', requiredComponent)
       this.Component = requiredComponent.default ? requiredComponent.default : requiredComponent[exportName]
       this.setState({loaded: true})
+    }).catch((e) => {
+      console.log(e.prototype)
     })
   }
 
   render() {
+    console.log('lol')
     const Component = this.Component
     const {loaded} = this.state
     if (!loaded) return <span>loading</span>

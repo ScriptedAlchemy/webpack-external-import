@@ -1,7 +1,7 @@
 {
     "name": "webpack-external-import",
     "description": "dynamic import() external urls!",
-    "version": "0.0.1-beta.12",
+    "version": "0.0.1-beta.14",
     "repository": {
         "type": "git",
         "url": "https://github.com/ScriptedAlchemy/webpack-external-import.git"
@@ -19,7 +19,7 @@
         "lint": "eslint --ext .js,.ts,.tsx --ignore-pattern dist . --fix",
         "jest": "NODE_ENV=development jest",
         "jest:ci": "cross-env NODE_ENV=development jest",
-        "manual": "npm run compile && cd manual && npm run manual",
+        "demo": "npm run compile && npm link && cd manual/Website1 && npm link webpack-external-import && npm run manual:dev | cd ../Website2 && npm link webpack-external-import && npm run manual:dev",
         "babel": "npm run compile && cd manual && npm run babel",
         "prepare": "npm run compile && cd manual && npm install"
     },
@@ -44,17 +44,11 @@
         "eslint-plugin-jsx-a11y": "^6.2.1",
         "eslint-plugin-react": "^7.12.4",
         "html-webpack-plugin": "^3.2.0",
-        "immer": "^2.1.3",
         "jest": "^24.7.1",
         "jest-puppeteer": "^4.1.1",
+        "prop-types": "^15.7.2",
         "puppeteer": "^1.15.0",
-        "react": "^16.8.2",
-        "react-dom": "^16.8.2",
-        "redux": "^4.0.1",
-        "redux-thunk": "^2.3.0",
-        "scriptjs": "^2.5.9",
-        "ts-loader": "^5.3.3",
-        "typescript": "^3.3.3333",
+        "react": "^16.8.6",
         "webpack": "^4.29.4",
         "webpack-cli": "^3.2.3",
         "webpack-dev-server": "^3.1.14"
@@ -88,7 +82,7 @@
         "fs-extra": "^7.0.1",
         "jest-haste-map": "^24.7.1",
         "jest-resolve": "^24.7.1",
-        "prop-types": "^15.7.2",
+        "scriptjs": "^2.5.9",
         "source-map": "^0.7.3"
     }
 }

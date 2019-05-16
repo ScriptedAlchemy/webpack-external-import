@@ -1,14 +1,18 @@
 {
-  "name": "external-import-demo",
+  "name": "remixx",
   "version": "0.0.0-development",
   "repository": {
     "type": "git",
     "url": "https://github.com/faceyspacey/remixx.git"
   },
-  "author": "Zack Jackson <zack@ScriptedAlchemy.com> (https://github.com/ScriptedAlchemy)",
+  "author": "James FaceySpacey Gillmore <james@faceyspacey.com> (http://www.faceyspacey.com)",
+  "contributors": [
+    "Zack Jackson <zack@ScriptedAlchemy.com> (https://github.com/ScriptedAlchemy)"
+  ],
   "scripts": {
-    "manual:prod": "cross-env NODE_ENV=production webpack-dev-server",
-    "manual:dev": "cross-env NODE_ENV=development webpack-dev-server"
+    "manual:prod": "cd ../../ && npm link && cd manual/Website1 && npm link webpack-external-import && cross-env NODE_ENV=production webpack-dev-server",
+    "manual:dev": "cd ../../ && npm link && cd manual/Website1 && npm link webpack-external-import && cross-env NODE_ENV=development webpack-dev-server",
+    "babel": "babel src -d babelOutput"
   },
   "devDependencies": {
     "@babel/cli": "^7.4.3",
@@ -37,7 +41,12 @@
     "cross-env": "^5.2.0",
     "html-webpack-plugin": "^3.2.0",
     "mini-css-extract-plugin": "^0.6.0",
+    "moment": "^2.24.0",
     "optimize-css-assets-webpack-plugin": "^5.0.1",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "scriptjs": "^2.5.9",
+    "webpack-external-import": "0.0.1-beta.12",
     "webpack-merge": "^4.2.1"
   }
 }
