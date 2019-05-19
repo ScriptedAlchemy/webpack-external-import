@@ -108,7 +108,9 @@ Application B
 
 <td>
     <pre>
-        <br/>Provider: Javascript Asset
+    
+        <br/> Provider: Javascript Asset
+
     </pre>
 </td>
 
@@ -129,6 +131,7 @@ Application B
 
 
     /*externalize:ExampleModule*/
+    
 </pre>
 </td>
 
