@@ -146,6 +146,7 @@ js
     <pre><br/><br/><br/>React Example<br/></pre>
 </td>
 <td>
+<td>r</td>
 <pre>
 js
     // Page.js
