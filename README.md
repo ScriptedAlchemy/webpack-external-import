@@ -112,19 +112,20 @@ Application B
 
 <td>
 <pre>
-```// Title.js
-import React from 'react';
-
-export const Title = ({title}) => {
-  return (<h1>{title}</h1>)
-}
-
-export const alert = (message) => {
-  alert(message)
-}
-
-
-/*externalize:ExampleModule*/`````
+js
+    // Title.js
+    import React from 'react';
+    
+    export const Title = ({title}) => {
+      return title
+    }
+    
+    export const alert = (message) => {
+      alert(message)
+    }
+    
+    
+    /*externalize:ExampleModule*/
 </pre>
 </td>
 
