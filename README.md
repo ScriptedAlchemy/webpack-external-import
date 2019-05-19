@@ -133,9 +133,10 @@ Application B
 <tr>
 <td>
     <pre>
-        <br/>Provider:Code-Splits asset into `title-cnk`
+        <br/>Provider: Code-Splits asset into title-cnk
     </pre>
-<td>
+</td>
+
 <td>
 <pre>
 <pre>
