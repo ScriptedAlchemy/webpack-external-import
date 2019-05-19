@@ -170,6 +170,7 @@ componentDidMount() {
 <td><!--        --></td>
 
 <td>
+
 ```js
     
 // App.js
@@ -180,6 +181,7 @@ import('http://website1.com/js/ex-file.js')
 });
     
 ```
+
 </td>
 </tr>
 
