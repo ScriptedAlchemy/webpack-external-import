@@ -129,8 +129,10 @@ Application B
     /*externalize:ExampleModule*/
 </pre>
 </td>
+
 </tr>
 <tr>
+
 <td>
     <pre>
         <br/>Provider: Code-Splits asset into title-cnk
