@@ -111,7 +111,7 @@ Application B
 </td>
 
 <td>
-<pre>
+
     
 ```js
 // Title.js
@@ -131,7 +131,7 @@ export
 
 /*externalize:ExampleModule*/
 ```
-</pre>
+
 </td>
 
 </tr>
