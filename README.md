@@ -1,5 +1,5 @@
 # Webpack External Import
-> **import() urls and other external resources from third parties, or other webpack builds themselves!**
+> **import() URLs and other external resources from third parties, or other webpack builds themselves!**
 
 ```shell
 $ npm i webpack-external-import
@@ -18,9 +18,9 @@ $ yarn add webpack-external-import --save
 ## Getting Started
 
   
-> The basic setup will allow you to import from URLs.  For example: `import('https://code.jquery.com/jquery-3.3.1.min.js');`
-> **Step 1** is all thats needed for simple dunamic url imports()
-> **Step 2** offers more advanced capabalities, like loading modules from another webpack build
+> The basic setup enables a developt to import from URLs.  For example: `import('https://code.jquery.com/jquery-3.3.1.min.js');`
+> **Step 1** is all that's required for simple dynamic URL imports()
+> **Step 2** offers more advanced capabilities, like loading modules from another webpack build
 
 
 1.  Add `webpack-external-import/babel` to your `.babelrc`:
@@ -57,15 +57,15 @@ const URLImportPlugin = require('webpack-external-import/webpack')
 }
 ```
 
-## What can `webpack-external-import` be used for?
+## What is the use of  `webpack-external-import` ?
 
 - **Load components over the wire** - Pull in components at runtime.
 - **Build leaner micro-frontends (MFE)** - 
-Micro-frontends can share bundles with one another while still remaining self-contained, removing needless code duplication.
-- **Split a large, multi-team app into separate deployables while keeping it as one SPA** - Large apps can be split into separate feature bundles that can be deployed independently, reducing deployment bottlenecks.
-- **Manage common js / vendor files automatically.** - Instead of dealing with peer dependencies, externals, or anything else, you can just load the dependency from a remote source.
+Micro-frontends can share bundle chunks and resources with each other while remaining self-contained, removing needless code duplication.
+- **Split a large, multi-team app into separate deployable chunks while keeping it as one SPA** - Large apps can be split into separate feature bundles that can be deployed independently, reducing deployment bottlenecks.
+- **Manage common js/vendor files automatically.** - Instead of dealing with peer dependencies, externals, or anything else, you can load the dependency from a remote source.
 - **LOSA Style frontend architecture** - Run multiple apps on a single page.
-- **FOSA Style frontend orchastration** - Powerful frontend orchastration, self organizing application architecture. Many builds act as one
+- **FOSA Style frontend orchestration** - Powerful frontend orchestration, self-organizing application architecture. Many builds act as one
 
 
 ### Advanced Setup - Injecting Webpack modules from another build
@@ -73,7 +73,7 @@ Micro-frontends can share bundles with one another while still remaining self-co
 Use the webpack plugin to inject webpack modules from another build into your build. 
 
 _**Important**: Make sure manifestName_ is unique per webpack build.
-If you have multiple builds, they all need to have  their own manifestName
+If you have multiple builds, they all need to have a unique manifestName
 
 **webpack.config.js**
 ```js
@@ -86,7 +86,7 @@ const URLImportPlugin = require('webpack-external-import/webpack')
     ]
 }
 ```
-then add the babel plugin to babelrc:
+Then add the babel plugin to babelrc:
 
 **.babelrc**
 ```json
@@ -100,9 +100,9 @@ then add the babel plugin to babelrc:
 ```
 
 ## Example Usage
-Pretend we have two separate apps that each have their own _independent_ build.  We want to share a module from one of our apps with the other.
+Pretend we have two separate apps that each have their _independent_ build.  We want to share a module from one of our apps with the other.
 
-To do this, we add an `externalize` comment to the module. This tells the plugin to make the module available externally with the name `ExampleModule`:
+To do this, we add an `externalize` comment to the module. The Externalize magic comment tells the plugin to make the module available externally with the name `ExampleModule`:
 
 
 <table>
@@ -419,7 +419,7 @@ If set to `true` will emit to build folder and memory in combination with `webpa
 Type: `Object`<br>
 Default: `{}`
 
-A cache of key/value pairs to used to seed the manifest. This may include a set of [custom key/value](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/manifest.json) pairs to include in your manifest, or may be used to combine manifests across compilations in [multi-compiler mode](https://github.com/webpack/webpack/tree/master/examples/multi-compiler). To combine manifests, pass a shared seed object to each compiler's ManifestPlugin instance.
+A cache of key/value pairs to used to seed the manifest. This may include a set of [custom key/value](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/manifest.json) pairs to include in your manifest or may be used to combine manifests across compilations in [multi-compiler mode](https://github.com/webpack/webpack/tree/master/examples/multi-compiler). To combine manifests, pass a shared seed object to each compiler's ManifestPlugin instance.
 
 ### `options.filter`
 
@@ -445,14 +445,14 @@ Sort files before they are passed to `generate`. [FileDescriptor typings](#filed
 Type: `Function(Object, FileDescriptor): Object`<br>
 Default: `(seed, files) => files.reduce((manifest, {name, path}) => ({...manifest, [name]: path}), seed)`
 
-Create the manifest. It can return anything as long as it's serialisable by `JSON.stringify`. [FileDescriptor typings](#filedescriptor)
+Create the manifest. It can return anything as long as it's serializable by `JSON.stringify`. [FileDescriptor typings](#filedescriptor)
 
 ### `options.serialize`
 
 Type: `Function(Object): string`<br>
 Default: `(manifest) => JSON.stringify(manifest, null, 2)`
 
-Output manifest file in different format then json (i.e. yaml).
+Output manifest file in a different format then json (i.e., yaml).
 
 ### **ExternalComponent**
 React Component
@@ -463,7 +463,7 @@ React Component
 
 **`module`: string** - Module name, must match what was declared using /*externalize:ExampleModule*/
 
-**`export`: string** - The named export to use as a component from module being imported
+**`export`: string** - The named export to use as a component from the module being imported
 
 
 #### Usage
@@ -487,13 +487,13 @@ FileDescriptor {
 
 ### The entry manifest
 
-Each webpack build using the webpack plugin will output a manifest file to the build output directory.
+Each webpack build using the webpack plugin emits a manifest file to the build output directory.
 
 The manifest allows you to find a chunk that you want, even if the name has been hashed.
 
 Below is an example of using the manifest.
 
-In this file, I am importing code from another website/build. My application is loading website-two's manifest, which is automatically added to `window.entryManifest` under the `manifestName` I set in the webpack plugin. After that, I'm importing a chunk from website-two, in this case - the chunk is code-split. 
+In this file, I am importing code from another website/build. My application is loading website two's manifest, which is automatically added to `window.entryManifest` under the `manifestName` I set in the webpack plugin. After that, I'm importing a chunk from website-two, in this case - the chunk is code-split. 
 
 ```js
   componentDidMount() {
@@ -518,5 +518,5 @@ How to start (using the demo)
 1) `npm install` then `cd manual; npm install`
 2) `npm run manual` from the root directory
 
-This will run the compile command to build a new copy of the plugin, as well as start the little manual [demo project](https://github.com/ScriptedAlchemy/webpack-external-import/tree/master/manual)
+This comment runs the compile command to build a new copy of the plugin, as well as start the little manual [demo project](https://github.com/ScriptedAlchemy/webpack-external-import/tree/master/manual)
 
