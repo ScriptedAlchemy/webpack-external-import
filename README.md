@@ -195,7 +195,9 @@ import('http://website1.com/js/ex-file.js')
 <td>
 
 ```js
-import {ExternalComponent} from 'webpack-external-import'
+import {
+  ExternalComponent
+} from 'webpack-external-import'
 
 ()=>{
   return (
