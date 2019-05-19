@@ -144,7 +144,6 @@ export
 </td>
 
 <td>
-<pre>
 
 ```js
 
@@ -158,7 +157,6 @@ componentDidMount() {
 }
 ```
 
-</pre>
 <td>
 
 <td>empty<td>
@@ -172,16 +170,16 @@ componentDidMount() {
 <td><!--        --></td>
 
 <td>
-    <pre>
+```js
     
-    // App.js
+// App.js
+
+import('http://website1.com/js/ex-file.js')
+.then(({ExampleModule})=>{
+  ExampleModule.alert('custom alert')
+});
     
-    import('http://website1.com/js/ex-file.js')
-    .then(({ExampleModule})=>{
-      ExampleModule.alert('custom alert')
-    });
-    
-   </pre>
+```
 </td>
 </tr>
 
