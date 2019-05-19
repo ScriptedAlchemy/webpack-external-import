@@ -122,11 +122,13 @@ Application B
 
 import React from 'react';
 
-export const Title = ({title}) => {
+export 
+ const Title = ({title}) => {
   return title
 }
 
-export const alert = (message) => {
+export 
+ const alert = (message) => {
   alert(message)
 }
 
@@ -150,15 +152,16 @@ export const alert = (message) => {
 <td>
 <pre>
 
-    // App.js
-    
-    componentDidMount() {
-    import(
-    /* webpackChunkName: "title-cnk"*/ 
-    './components/Title'
-    );
-    }
-  
+```js
+// App.js
+
+componentDidMount() {
+  import(
+  /* webpackChunkName: "title-cnk"*/ 
+  './components/Title'
+  );
+}
+```  
 </pre>
 <td>
 
