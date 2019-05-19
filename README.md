@@ -152,7 +152,10 @@ Application B
       // App.js
       
       componentDidMount() {
-        import(/* webpackChunkName: "title-cnk"*/ './components/Title');
+        import(
+        /* webpackChunkName: "title-cnk"*/ 
+        './components/Title'
+        );
       }
   
 </pre>
@@ -170,13 +173,15 @@ Application B
 
 <td>
     <pre>
-    js
-        // App.js
-        import('http://website1.com/js/ex-file.js')
-        .then(({ExampleModule})=>{
-          ExampleModule.alert('custom alert')
-        });
-    </pre>
+    
+    // App.js
+    
+    import('http://website1.com/js/ex-file.js')
+    .then(({ExampleModule})=>{
+      ExampleModule.alert('custom alert')
+    });
+    
+   </pre>
 </td>
 </tr>
 
