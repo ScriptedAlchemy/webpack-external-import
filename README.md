@@ -199,7 +199,7 @@ import {
   ExternalComponent
 } from 'webpack-external-import'
 
-()=>{
+const SomeComponent = (props)=>{
   return (
     <ExternalComponent 
     src={
