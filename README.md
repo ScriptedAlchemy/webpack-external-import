@@ -95,6 +95,8 @@ To do this, we add an `externalize` comment to the module. This tells the plugin
 <table>
 <tr>
 <th>
+</th>
+<th>
 Application A
 </th>
 <th>
@@ -106,7 +108,7 @@ Application B
 
 <td>
 <pre>
-<br/><br/><br/>Javascript Asset<br/><br/><br/><br/><br/>Consumer File<br/>
+<br/><br/>Provider: Javascript Asset<br/><br/><br/><br/><br/>Consumer File<br/>
 </pre>
 </td>
 
