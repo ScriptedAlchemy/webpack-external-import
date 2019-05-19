@@ -10,8 +10,8 @@
     "Zack Jackson <zack@ScriptedAlchemy.com> (https://github.com/ScriptedAlchemy)"
   ],
   "scripts": {
-    "manual:prod": "cd ../../ && npm link && cd manual/Website1 && npm link webpack-external-import && cross-env NODE_ENV=production webpack-dev-server",
-    "manual:dev": "cd ../../ && npm link && cd manual/Website1 && npm link webpack-external-import && cross-env NODE_ENV=development webpack-dev-server",
+    "manual:prod": "cross-env NODE_ENV=production webpack-dev-server",
+    "manual:dev": "cross-env NODE_ENV=development webpack-dev-server",
     "babel": "babel src -d babelOutput"
   },
   "devDependencies": {
