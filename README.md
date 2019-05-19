@@ -126,19 +126,35 @@ js
 
 </tr>
 <tr>
-    <td>
-        <pre><br/><br/><br/>Consumer File<br/></pre>
-    </td>
+<td>
+    <pre><br/><br/><br/>Consumer File<br/></pre>
+</td>
 
-    <td>
-        <pre>
-        js
-            // App.js
-            import('http://website1.com/js/theExampleFile.js').then(({ExampleModule})=>{
-              ExampleModule.alert('custom alert')
-            });
-        </pre>
-    </td>
+<td>
+<pre>
+js
+    // App.js
+    
+    import('http://website1.com/js/theExampleFile.js').then(({ExampleModule})=>{
+      ExampleModule.alert('custom alert')
+    });
+</pre>
+</td>
+</tr>
+<tr>
+<td>
+    <pre><br/><br/><br/>React Example<br/></pre>
+</td>
+<td>
+<pre>
+js
+    // Page.js
+    
+    import('http://website1.com/js/theExampleFile.js').then(({ExampleModule})=>{
+      ExampleModule.alert('custom alert')
+    });
+</pre>
+</td>
 </tr>
 </table>
 
