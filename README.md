@@ -128,6 +128,12 @@ Application B
 
     /*externalize:ExampleModule*/
 </pre>
+<pre>
+  // App.js
+  componentDidMount() {
+    import(/* webpackChunkName: "ex-js"*/ './components/Title');
+  }
+</pre>
 </td>
 
 </tr>
@@ -141,7 +147,8 @@ Application B
     <pre>
     js
         // App.js
-        import('http://website1.com/js/theExampleFile.js').then(({ExampleModule})=>{
+        import('http://website1.com/js/ex-file.js')
+        .then(({ExampleModule})=>{
           ExampleModule.alert('custom alert')
         });
     </pre>
