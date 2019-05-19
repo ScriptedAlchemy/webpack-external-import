@@ -109,7 +109,7 @@ Application B
 <td>
     <pre>
     
-        <br/> Provider: Javascript Asset
+        Provider: Javascript Asset
 
    </pre>
 </td>
@@ -140,16 +140,21 @@ Application B
 
 <td>
     <pre>
-        <br/>Provider: Code-Splits asset into title-cnk
-    </pre>
+    
+        Provider: Code-Splits asset into title-cnk
+    
+   </pre>
 </td>
 
 <td>
 <pre>
-  // App.js
-  componentDidMount() {
-    import(/* webpackChunkName: "title-cnk"*/ './components/Title');
-  }
+
+      // App.js
+      
+      componentDidMount() {
+        import(/* webpackChunkName: "title-cnk"*/ './components/Title');
+      }
+  
 </pre>
 <td>
 
