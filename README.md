@@ -94,34 +94,41 @@ To do this, we add an `externalize` comment to the module. This tells the plugin
 
 <table>
 <tr>
-<th><!-- empty --></th>
-<th>Application A</th>
-<th>Application B</th>
+<th>
+<!-- empty -->
+</th>
+<th>
+Application A
+</th>
+<th>
+Application B
+</th>
 </tr>
 <tr>
+
 <td>
-<pre>
-<br/><br/>Provider: Javascript Asset
-</pre>
+    <pre>
+        <br/><br/>Provider: Javascript Asset
+    </pre>
 </td>
 
 <td>
-<pre>
-js
-    // Title.js
-    import React from 'react';
+    <pre>
+    js
+        // Title.js
+        import React from 'react';
 
-    export const Title = ({title}) => {
-      return title
-    }
+        export const Title = ({title}) => {
+          return title
+        }
 
-    export const alert = (message) => {
-      alert(message)
-    }
+        export const alert = (message) => {
+          alert(message)
+        }
 
 
-    /*externalize:ExampleModule*/
-</pre>
+        /*externalize:ExampleModule*/
+    </pre>
 </td>
 
 </tr>
@@ -129,35 +136,39 @@ js
 <td>
     <pre><br/><br/><br/>Consumer File<br/></pre>
 </td>
+<td><!--        --></td>
 
 <td>
-<pre>
-js
-    // App.js
-    
-    import('http://website1.com/js/theExampleFile.js').then(({ExampleModule})=>{
-      ExampleModule.alert('custom alert')
-    });
-</pre>
+    <pre>
+    js
+        // App.js
+        import('http://website1.com/js/theExampleFile.js').then(({ExampleModule})=>{
+          ExampleModule.alert('custom alert')
+        });
+    </pre>
 </td>
 </tr>
+
 <tr>
-<td>
-    <pre><br/><br/><br/>React Example<br/></pre>
-</td>
-<td>
-<td>r</td>
-<pre>
+    <td>
+        <pre><br/><br/><br/>React Example<br/></pre>
+    </td>
+<td><!--        --></td>
+    <td>
+        <pre>
 js
-    // Page.js
-    
-    import('http://website1.com/js/theExampleFile.js').then(({ExampleModule})=>{
-      ExampleModule.alert('custom alert')
-    });
-</pre>
-</td>
+import {ExternalComponent} from 'webpack-external-import'
+
+()=>{
+  return (
+    <ExternalComponent src={import(/* importUrl */ helloWorldUrl)} module="ExampleModule" export='Title' title={'Some Heading'}/>
+  )
+}
+        </pre>
+    </td>
 </tr>
 </table>
+
 
 
 **Application A:**
