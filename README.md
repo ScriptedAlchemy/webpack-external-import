@@ -114,7 +114,9 @@ Application B
 
 <td>
 <pre>
+    
     // Title.js
+    
     import React from 'react';
 
     export const Title = ({title}) => {
@@ -195,6 +197,7 @@ import {ExternalComponent} from 'webpack-external-import'
 **Application A:**
 ```js
 // Title.js
+
 import React from 'react';
 
 export const Title = ({title}) => {
