@@ -139,7 +139,7 @@ export
 
 <td>
     <strong>
-        Provider: Code-Splits asset into title-cnk
+        Provider: <br/>Code-Splits <br/>asset into title-cnk
    </strong>
 </td>
 
