@@ -244,7 +244,13 @@ import {ExternalComponent} from 'webpack-external-import'
 
 ()=>{
   return (
-    <ExternalComponent src={import(/* importUrl */ helloWorldUrl)} module="ExampleModule" export='Title' title={'Some Heading'}/>
+    <ExternalComponent 
+    src={import(
+      /* importUrl */ helloWorldUrl)} 
+      module="ExampleModule"
+       export='Title' 
+       title={'Some Heading'}
+       />
   )
 }
 ```
