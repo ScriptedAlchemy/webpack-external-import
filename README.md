@@ -107,7 +107,7 @@ Application B
 <tr>
 
 <td>
-    **Provider: Javascript Asset**
+  <strong>Provider: Javascript Asset</strong>
 </td>
 
 <td>
@@ -169,7 +169,7 @@ componentDidMount() {
 
 <tr>
 <td>
-    <pre><br/>Consumer File<br/></pre>
+    <strong>Consumer File</strong>
 </td>
 <td><!--        --></td>
 
