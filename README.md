@@ -141,16 +141,17 @@ Application B
 
 <td>
 <pre>
-<pre>
   // App.js
   componentDidMount() {
     import(/* webpackChunkName: "title-cnk"*/ './components/Title');
   }
 </pre>
-</pre>
 <td>
-<td><td>
+
+<td>empty<td>
+
 </tr>
+
 <tr>
 <td>
     <pre><br/>Consumer File<br/></pre>
