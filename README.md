@@ -128,14 +128,25 @@ Application B
 
     /*externalize:ExampleModule*/
 </pre>
+</td>
+</tr>
+<tr>
+<td>
+    <pre>
+        <br/>Provider:Code-Splits asset into `title-cnk`
+    </pre>
+<td>
+<td>
+<pre>
 <pre>
   // App.js
   componentDidMount() {
-    import(/* webpackChunkName: "ex-js"*/ './components/Title');
+    import(/* webpackChunkName: "title-cnk"*/ './components/Title');
   }
 </pre>
-</td>
-
+</pre>
+<td>
+<td><td>
 </tr>
 <tr>
 <td>
