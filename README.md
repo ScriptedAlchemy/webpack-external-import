@@ -186,13 +186,15 @@ import('http://website1.com/js/ex-file.js')
 </tr>
 
 <tr>
-    <td>
-        <strong>React Example</strong>
-    </td>
+<td>
+    <strong>React Example</strong>
+</td>
+    
 <td><!--        --></td>
-    <td>
-        <pre>
-js
+
+<td>
+
+```js
 import {ExternalComponent} from 'webpack-external-import'
 
 ()=>{
@@ -200,8 +202,8 @@ import {ExternalComponent} from 'webpack-external-import'
     <ExternalComponent src={import(/* importUrl */ helloWorldUrl)} module="ExampleModule" export='Title' title={'Some Heading'}/>
   )
 }
-        </pre>
-    </td>
+```
+</td>
 </tr>
 </table>
 
