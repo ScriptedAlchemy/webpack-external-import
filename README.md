@@ -201,7 +201,7 @@ import {ExternalComponent} from 'webpack-external-import'
   return (
     <ExternalComponent 
     src={
-      import(/* importUrl */ helloWorldUrl)
+      import(/* importUrl */ this.state.url)
     } 
     module="ExampleModule"
     export='Title' 
