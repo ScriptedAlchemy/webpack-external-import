@@ -117,21 +117,22 @@ Application B
 <td>
 <pre>
     
-    // Title.js
-    
-    import React from 'react';
+```js
+// Title.js
 
-    export const Title = ({title}) => {
-      return title
-    }
+import React from 'react';
 
-    export const alert = (message) => {
-      alert(message)
-    }
+export const Title = ({title}) => {
+  return title
+}
+
+export const alert = (message) => {
+  alert(message)
+}
 
 
-    /*externalize:ExampleModule*/
-    
+/*externalize:ExampleModule*/
+```
 </pre>
 </td>
 
@@ -149,14 +150,14 @@ Application B
 <td>
 <pre>
 
-      // App.js
-      
-      componentDidMount() {
-        import(
-        /* webpackChunkName: "title-cnk"*/ 
-        './components/Title'
-        );
-      }
+    // App.js
+    
+    componentDidMount() {
+    import(
+    /* webpackChunkName: "title-cnk"*/ 
+    './components/Title'
+    );
+    }
   
 </pre>
 <td>
