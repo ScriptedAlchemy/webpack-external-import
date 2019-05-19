@@ -189,8 +189,8 @@ import('http://website1.com/js/ex-file.js')
     </td>
 <td><!--        --></td>
     <td>
-
-```js
+        <pre>
+js
 import {ExternalComponent} from 'webpack-external-import'
 
 ()=>{
@@ -198,7 +198,7 @@ import {ExternalComponent} from 'webpack-external-import'
     <ExternalComponent src={import(/* importUrl */ helloWorldUrl)} module="ExampleModule" export='Title' title={'Some Heading'}/>
   )
 }
-```
+        </pre>
     </td>
 </tr>
 </table>
