@@ -11,7 +11,7 @@
         ]
     ],
     "plugins": [
-        "../babel/index.js",
+        "webpack-external-import/babel",
         "@babel/plugin-syntax-dynamic-import",
         "@babel/plugin-proposal-class-properties"
     ]

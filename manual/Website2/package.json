@@ -1,14 +1,18 @@
 {
-  "name": "external-import-demo",
+  "name": "remixx",
   "version": "0.0.0-development",
   "repository": {
     "type": "git",
     "url": "https://github.com/faceyspacey/remixx.git"
   },
-  "author": "Zack Jackson <zack@ScriptedAlchemy.com> (https://github.com/ScriptedAlchemy)",
+  "author": "James FaceySpacey Gillmore <james@faceyspacey.com> (http://www.faceyspacey.com)",
+  "contributors": [
+    "Zack Jackson <zack@ScriptedAlchemy.com> (https://github.com/ScriptedAlchemy)"
+  ],
   "scripts": {
-    "manual:prod": "cross-env NODE_ENV=production webpack-dev-server",
-    "manual:dev": "cross-env NODE_ENV=development webpack-dev-server"
+    "manual:prod": "cd ../../ && npm link && cd manual/Website2 && npm link webpack-external-import && cross-env NODE_ENV=production webpack-dev-server",
+    "manual:dev": "cd ../../ && npm link && cd manual/Website2 && npm link webpack-external-import && cross-env NODE_ENV=development webpack-dev-server",
+    "babel": "babel src -d babelOutput"
   },
   "devDependencies": {
     "@babel/cli": "^7.4.3",
@@ -19,10 +23,12 @@
     "babel-core": "^7.0.0-bridge.0",
     "babel-loader": "^8.0.5",
     "eslint-loader": "^2.1.2",
+    "react": "^16.8.6",
     "react-hot-loader": "^4.8.3",
     "webpack": "^4.29.6",
     "webpack-cli": "^3.3.0",
     "webpack-dev-server": "^3.2.1",
+    "webpack-merge": "^4.2.1",
     "write-file-webpack-plugin": "^4.5.0"
   },
   "peerDependencies": {
@@ -37,7 +43,9 @@
     "cross-env": "^5.2.0",
     "html-webpack-plugin": "^3.2.0",
     "mini-css-extract-plugin": "^0.6.0",
+    "moment": "^2.24.0",
     "optimize-css-assets-webpack-plugin": "^5.0.1",
-    "webpack-merge": "^4.2.1"
+    "react-dom": "^16.8.6",
+    "scriptjs": "^2.5.9"
   }
 }

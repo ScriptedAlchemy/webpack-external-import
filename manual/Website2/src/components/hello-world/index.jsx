@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-
 import('https://code.jquery.com/jquery-3.3.1.min.js');
 
 const Test = (props, state, actions) => <div>{state.title}</div>;
@@ -38,8 +37,8 @@ const TestFive = function (props, state, actions) {
 export { Test, TestTwo, TestThree };
 
 export default (props) => {
-
-  return (<div>DYNAMICALLY LOADED</div>);
+  // const timeStamp = moment()
+  return (<div>DYNAMICALLY LOADED:</div>);
 }
 
 
