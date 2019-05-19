@@ -60,7 +60,7 @@ module.exports = (commonPaths) => ({
   },
   resolve: {
     alias: {
-      'webpack-external-import': external,
+      // 'webpack-external-import': external,
     }
   },
   plugins: [
