@@ -1,59 +1,72 @@
+# Webpack External Import
+> **import() urls and other external resources from third parties, or other webpack builds themselves!**
 
-# Webpack Dynamic URL imports 
+```shell
+$ npm i webpack-external-import
+```
+*This project is under active development*
 
 
-**This is currently under active development, but stable**
 
-**Find it on npm as `webpack-external-import@0.0.1-beta.7`**
+# Installation
 
-## What is it?
-
-**A tool that allows you to `import()` external modules from other webpack builds, CDNs, or files hosted elsewhere, as if they were part of your current application.**
-
-## What can I do with it?
-
-- **Load components over the wire** - Pull in components at runtime.
-
-- **Build leaner micro-frontends (MFE)** - 
-Micro-frontends can share bundles with one another while still remaining self-contained, removing needless code duplication.
-
-- **Split a large, multi-team app into separate deployables while keeping it as one SPA** - Large apps can be split into separate feature bundles that can be deployed independently, reducing deployment bottlenecks.
-
-- **Manage common js / vendor files automatically.** - Instead of dealing with peer dependencies, externals, or anything else, you can just load the dependency from a remote source.
-
-- **LOSA Style frontend architecture** - Run multiple apps on a single page.
-
-## Setup
-
-### Install
-
-From npm:
-```bash
-npm install webpack-external-import --save
+```shell
+$ npm install webpack-external-import --save
+$ yarn add webpack-external-import --save
 ```
 
-or, from yarn:
-```bash
-yarn add webpack-external-import --save
-```
+## Getting Started
 
-### Basic Setup - Importing URLs only
+  
+> The basic setup will allow you to import from URLs.  For example: `import('https://code.jquery.com/jquery-3.3.1.min.js');`
+> **Step 1** is all thats needed for simple dunamic url imports()
+> **Step 2** offers more advanced capabalities, like loading modules from another webpack build
 
-The basic setup will allow you to import from URLs.  For example: `import('https://code.jquery.com/jquery-3.3.1.min.js');`
 
-Add the `webpack-external-import/babel` plugin to your babelrc:
+1.  Add `webpack-external-import/babel` to your `.babelrc`:
 
-**.babelrc**
-```json
+```js
+// .babelrc
 {
-    "presets": [],
-    "plugins": [
+  "plugins": ["webpack-external-import/babel"]
+}
+```
+A possible `.babelrc` could look lke:
+```js
+// .babelrc
+
+{
+  "plugins": [
         "webpack-external-import/babel",
         "@babel/plugin-syntax-dynamic-import",
         "@babel/plugin-proposal-class-properties"
     ]
 }
 ```
+
+2.  Add `webpack-external-import/babel` to your `.babelrc`:
+```js
+// techblog.webpack.config.js
+const URLImportPlugin = require('webpack-external-import/webpack')
+{
+    plugins: [
+        new URLImportPlugin({
+          manifestName: 'website-one'
+        })
+    ]
+}
+```
+
+## What can `webpack-external-import` be used for?
+
+- **Load components over the wire** - Pull in components at runtime.
+- **Build leaner micro-frontends (MFE)** - 
+Micro-frontends can share bundles with one another while still remaining self-contained, removing needless code duplication.
+- **Split a large, multi-team app into separate deployables while keeping it as one SPA** - Large apps can be split into separate feature bundles that can be deployed independently, reducing deployment bottlenecks.
+- **Manage common js / vendor files automatically.** - Instead of dealing with peer dependencies, externals, or anything else, you can just load the dependency from a remote source.
+- **LOSA Style frontend architecture** - Run multiple apps on a single page.
+- **FOSA Style frontend orchastration** - Powerful frontend orchastration, self organizing application architecture. Many builds act as one
+
 
 ### Advanced Setup - Injecting Webpack modules from another build
 
