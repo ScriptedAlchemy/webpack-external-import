@@ -138,11 +138,9 @@ export
 <tr>
 
 <td>
-    <pre>
-    
+    <strong>
         Provider: Code-Splits asset into title-cnk
-    
-   </pre>
+   </strong>
 </td>
 
 <td>
@@ -189,7 +187,7 @@ componentDidMount() {
 
 <tr>
     <td>
-        <pre><br/><br/><br/>React Example<br/></pre>
+        <strong>React Example</strong>
     </td>
 <td><!--        --></td>
     <td>
