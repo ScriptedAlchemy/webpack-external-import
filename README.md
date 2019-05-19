@@ -91,6 +91,47 @@ Pretend we have two separate apps that each have their own _independent_ build. 
 
 To do this, we add an `externalize` comment to the module. This tells the plugin to make the module available externally with the name `ExampleModule`:
 
+
+<table>
+<tr>
+<th>
+Application A
+</th>
+<th>
+Application B
+</th>
+</tr>
+
+<tr>
+
+<td>
+<pre>
+<br/><br/><br/>Javascript Asset<br/><br/><br/><br/><br/>Consumer File<br/>
+</pre>
+</td>
+
+<td>
+<pre>
+```// Title.js
+import React from 'react';
+
+export const Title = ({title}) => {
+  return (<h1>{title}</h1>)
+}
+
+export const alert = (message) => {
+  alert(message)
+}
+
+
+/*externalize:ExampleModule*/`````
+</pre>
+</td>
+
+</tr>
+</table>
+
+
 **Application A:**
 ```js
 // Title.js
