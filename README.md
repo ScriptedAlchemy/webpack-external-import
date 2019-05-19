@@ -153,7 +153,8 @@ export
 <pre>
 
 ```js
-// App.js
+
+// Title.js
 
 componentDidMount() {
   import(
@@ -161,7 +162,8 @@ componentDidMount() {
   './components/Title'
   );
 }
-```  
+```
+
 </pre>
 <td>
 
