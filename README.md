@@ -108,33 +108,32 @@ Application B
 
 <td>
     <pre>
-        <br/><br/>Provider: Javascript Asset
+        <br/>Provider: Javascript Asset
     </pre>
 </td>
 
 <td>
-    <pre>
-    js
-        // Title.js
-        import React from 'react';
+<pre>
+    // Title.js
+    import React from 'react';
 
-        export const Title = ({title}) => {
-          return title
-        }
+    export const Title = ({title}) => {
+      return title
+    }
 
-        export const alert = (message) => {
-          alert(message)
-        }
+    export const alert = (message) => {
+      alert(message)
+    }
 
 
-        /*externalize:ExampleModule*/
-    </pre>
+    /*externalize:ExampleModule*/
+</pre>
 </td>
 
 </tr>
 <tr>
 <td>
-    <pre><br/><br/><br/>Consumer File<br/></pre>
+    <pre><br/>Consumer File<br/></pre>
 </td>
 <td><!--        --></td>
 
