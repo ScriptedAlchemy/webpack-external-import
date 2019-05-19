@@ -101,17 +101,13 @@ To do this, we add an `externalize` comment to the module. This tells the plugin
 Application A
 </th>
 <th>
-Application B
+Application B 
 </th>
 </tr>
 <tr>
 
 <td>
-    <pre>
-    
-        Provider: Javascript Asset
-
-   </pre>
+    **Provider: Javascript Asset**
 </td>
 
 <td>
