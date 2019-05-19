@@ -130,6 +130,105 @@ import {ExternalComponent} from 'webpack-external-import'
 }
 ```
 
+## API:
+
+```js
+// webpack.config.js
+
+module.exports = {
+  output: {
+    publicPath
+  },
+  plugins: [
+    new ManifestPlugin(options)
+  ]
+}
+```
+
+### `options.fileName`
+
+Type: `String`<br>
+Default: `manifest.json`
+
+The manifest filename in your output directory.
+
+### `options.publicPath`
+
+Type: `String`
+Default: `output.publicPath`
+
+A path prefix that will be added to values of the manifest.
+
+### `options.basePath`
+
+Type: `String`
+
+A path prefix for all keys. Useful for including your output path in the manifest.
+
+
+### `options.writeToFileEmit`
+
+Type: `Boolean`<br>
+Default: `false`
+
+If set to `true` will emit to build folder and memory in combination with `webpack-dev-server`
+
+
+### `options.seed`
+
+Type: `Object`<br>
+Default: `{}`
+
+A cache of key/value pairs to used to seed the manifest. This may include a set of [custom key/value](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/manifest.json) pairs to include in your manifest, or may be used to combine manifests across compilations in [multi-compiler mode](https://github.com/webpack/webpack/tree/master/examples/multi-compiler). To combine manifests, pass a shared seed object to each compiler's ManifestPlugin instance.
+
+### `options.filter`
+
+Type: `Function(FileDescriptor): Boolean`
+
+Filter out files. [FileDescriptor typings](#filedescriptor)
+
+
+### `options.map`
+
+Type: `Function(FileDescriptor): FileDescriptor`
+
+Modify files details before the manifest is created. [FileDescriptor typings](#filedescriptor)
+
+### `options.sort`
+
+Type: `Function(FileDescriptor): number`
+
+Sort files before they are passed to `generate`. [FileDescriptor typings](#filedescriptor)
+
+### `options.generate`
+
+Type: `Function(Object, FileDescriptor): Object`<br>
+Default: `(seed, files) => files.reduce((manifest, {name, path}) => ({...manifest, [name]: path}), seed)`
+
+Create the manifest. It can return anything as long as it's serialisable by `JSON.stringify`. [FileDescriptor typings](#filedescriptor)
+
+### `options.serialize`
+
+Type: `Function(Object): string`<br>
+Default: `(manifest) => JSON.stringify(manifest, null, 2)`
+
+Output manifest file in different format then json (i.e. yaml).
+
+
+## FileDescriptor
+
+```ts
+FileDescriptor {
+  path: string;
+  name: string | null;
+  isInitial: boolean;
+  isChunk: boolean;
+  chunk?: Chunk;
+  isAsset: boolean;
+  isModuleAsset: boolean;
+}
+```
+
 ### The entry manifest
 
 Each webpack build using the webpack plugin will output a manifest file to the build output directory.
@@ -260,6 +359,8 @@ export const Title = ({title}) => {
    new URLImportPlugin({
       manifestName: 'unknown-project', //default
       fileName: 'importManifest.js', // default
+      publicPath: null,
+      basePath: ''
     })
 ```
 

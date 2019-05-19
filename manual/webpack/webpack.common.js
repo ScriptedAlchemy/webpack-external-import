@@ -53,7 +53,6 @@ module.exports = (commonPaths) => ({
     dev: {
       publicPath: commonPaths.outputPath,
     },
-    open: true,
   },
   resolve: {
     modules: ['node_modules'],
