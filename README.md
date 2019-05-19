@@ -516,7 +516,7 @@ In this file, I am importing code from another website/build. My application is 
 How to start (using the demo)
 
 1) `npm install` then `cd manual; npm install`
-2) `npm run manual` from the root directory
+2) `npm run demo` from the root directory
 
 This comment runs the compile command to build a new copy of the plugin, as well as start the little manual [demo project](https://github.com/ScriptedAlchemy/webpack-external-import/tree/master/manual)
 
