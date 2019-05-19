@@ -22,7 +22,7 @@ module.exports = (siteId) => {
     plugins: [
       new URLImportPlugin({
         manifestName,
-        fileName: 'js/çustom-manifest.js',
+        fileName: 'importManifest.js',
         basePath: '',
         publicPath: '/',
         transformExtensions: /^(gz|map)$/i,

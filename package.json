@@ -1,88 +1,90 @@
 {
-  "name": "webpack-external-import",
-  "description": "dynamic import() external urls!",
-  "version": "0.0.1-beta.15",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/ScriptedAlchemy/webpack-external-import.git"
-  },
-  "author": "Zack Jackson <zack@ScriptedAlchemy.com> (https://github.com/ScriptedAlchemy)",
-  "files": [
-    "webpack",
-    "babel",
-    "scout.js",
-    "index.js"
-  ],
-  "scripts": {
-    "compile": "babel src -d . ",
-    "test": "npm run eslint && npm run tsc-test && npm run jest",
-    "lint": "eslint --ext .js,.ts,.tsx --ignore-pattern dist . --fix",
-    "jest": "NODE_ENV=development jest",
-    "jest:ci": "cross-env NODE_ENV=development jest",
-    "demo": "npm run compile && npm link && cd manual/Website1 && npm link webpack-external-import && npm run manual:dev | cd ../Website2 && npm link webpack-external-import && npm run manual:dev",
-    "babel": "npm run compile && cd manual && npm run babel",
-    "prepare": "npm run compile && cd manual && npm install"
-  },
-  "license": "MIT",
-  "devDependencies": {
-    "@babel/cli": "^7.4.4",
-    "@babel/core": "^7.4.4",
-    "@babel/plugin-proposal-class-properties": "^7.4.4",
-    "@babel/plugin-syntax-dynamic-import": "^7.2.0",
-    "@babel/plugin-transform-react-jsx": "^7.3.0",
-    "@babel/preset-env": "^7.4.4",
-    "@babel/preset-react": "^7.0.0",
-    "@typescript-eslint/eslint-plugin": "^1.9.0",
-    "babel-core": "^7.0.0-bridge.0",
-    "babel-eslint": "^10.0.1",
-    "babel-loader": "^8.0.6",
-    "babel-watch": "^7.0.0",
-    "cross-env": "^5.2.0",
-    "eslint": "^5.16.0",
-    "eslint-config-airbnb": "^17.1.0",
-    "eslint-plugin-import": "^2.17.2",
-    "eslint-plugin-jsx-a11y": "^6.2.1",
-    "eslint-plugin-react": "^7.13.0",
-    "html-webpack-plugin": "^3.2.0",
-    "jest": "^24.8.0",
-    "jest-puppeteer": "^4.1.1",
-    "prop-types": "^15.7.2",
-    "puppeteer": "^1.16.0",
-    "react": "^16.8.6",
-    "webpack": "^4.31.0",
-    "webpack-cli": "^3.3.2",
-    "webpack-dev-server": "^3.4.1"
-  },
-  "babel": {
-    "presets": [
-      [
-        "@babel/preset-env",
-        {
-          "targets": {
-            "node": true
-          }
-        }
-      ],
-      "@babel/preset-react"
-    ]
-  },
-  "jest": {
-    "preset": "jest-puppeteer"
-  },
-  "peerDependencies": {
-    "react": ">=16.8.0",
-    "redux": ">=4.0.0"
-  },
-  "dependencies": {
-    "@babel/helper-module-imports": "^7.0.0",
-    "babel-traverse": "^6.26.0",
-    "babylon": "^6.18.0",
-    "cacache": "^11.3.2",
-    "find-cache-dir": "^3.0.0",
-    "fs-extra": "^8.0.1",
-    "jest-haste-map": "^24.8.0",
-    "jest-resolve": "^24.8.0",
-    "scriptjs": "^2.5.9",
-    "source-map": "^0.7.3"
-  }
+    "name": "webpack-external-import",
+    "description": "dynamic import() external urls!",
+    "version": "0.0.1-beta.15",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/ScriptedAlchemy/webpack-external-import.git"
+    },
+    "author": "Zack Jackson <zack@ScriptedAlchemy.com> (https://github.com/ScriptedAlchemy)",
+    "files": [
+        "webpack",
+        "babel",
+        "scout.js",
+        "index.js"
+    ],
+    "scripts": {
+        "compile": "babel src -d . ",
+        "test": "npm run eslint && npm run tsc-test && npm run jest",
+        "lint": "eslint --ext .js,.ts,.tsx --ignore-pattern dist . --fix",
+        "jest": "NODE_ENV=development jest",
+        "jest:ci": "cross-env NODE_ENV=development jest",
+        "demo:one": "cd manual/Website1; npm i && npm link webpack-external-import && npm run manual:dev",
+        "demo:two": "cd manual/Website2; npm i && npm link webpack-external-import && npm run manual:dev",
+        "demo": "npm i && npm run compile && npm link && npm run demo:one | npm run demo:two",
+        "babel": "npm run compile && cd manual && npm run babel",
+        "prepare": "npm run compile && cd manual && npm install"
+    },
+    "license": "MIT",
+    "devDependencies": {
+        "@babel/cli": "^7.4.4",
+        "@babel/core": "^7.4.4",
+        "@babel/plugin-proposal-class-properties": "^7.4.4",
+        "@babel/plugin-syntax-dynamic-import": "^7.2.0",
+        "@babel/plugin-transform-react-jsx": "^7.3.0",
+        "@babel/preset-env": "^7.4.4",
+        "@babel/preset-react": "^7.0.0",
+        "@typescript-eslint/eslint-plugin": "^1.9.0",
+        "babel-core": "^7.0.0-bridge.0",
+        "babel-eslint": "^10.0.1",
+        "babel-loader": "^8.0.6",
+        "babel-watch": "^7.0.0",
+        "cross-env": "^5.2.0",
+        "eslint": "^5.16.0",
+        "eslint-config-airbnb": "^17.1.0",
+        "eslint-plugin-import": "^2.17.2",
+        "eslint-plugin-jsx-a11y": "^6.2.1",
+        "eslint-plugin-react": "^7.13.0",
+        "html-webpack-plugin": "^3.2.0",
+        "jest": "^24.8.0",
+        "jest-puppeteer": "^4.1.1",
+        "prop-types": "^15.7.2",
+        "puppeteer": "^1.16.0",
+        "react": "^16.8.6",
+        "webpack": "^4.31.0",
+        "webpack-cli": "^3.3.2",
+        "webpack-dev-server": "^3.4.1"
+    },
+    "babel": {
+        "presets": [
+            [
+                "@babel/preset-env",
+                {
+                    "targets": {
+                        "node": true
+                    }
+                }
+            ],
+            "@babel/preset-react"
+        ]
+    },
+    "jest": {
+        "preset": "jest-puppeteer"
+    },
+    "peerDependencies": {
+        "react": ">=16.8.0",
+        "redux": ">=4.0.0"
+    },
+    "dependencies": {
+        "@babel/helper-module-imports": "^7.0.0",
+        "babel-traverse": "^6.26.0",
+        "babylon": "^6.18.0",
+        "cacache": "^11.3.2",
+        "find-cache-dir": "^3.0.0",
+        "fs-extra": "^8.0.1",
+        "jest-haste-map": "^24.8.0",
+        "jest-resolve": "^24.8.0",
+        "scriptjs": "^2.5.9",
+        "source-map": "^0.7.3"
+    }
 }

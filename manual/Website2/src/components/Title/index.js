@@ -1,5 +1,5 @@
 import React from 'react';
-import 'moment'
+// import 'moment'/
 export const Title = ({title}) => {
   return (<h1>TITLE COMPONENT: {title}</h1>)
 }
