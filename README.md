@@ -93,45 +93,61 @@ To do this, we add an `externalize` comment to the module. This tells the plugin
 
 
 <table>
-<tr>
-<th>
-</th>
-<th>
-Application A
-</th>
-<th>
-Application B
-</th>
-</tr>
+    <tr>
+        <th>
+            <!-- empty -->
+        </th>
+        <th>
+            Application A
+        </th>
+        <th>
+            Application B
+        </th>
+    </tr>
 
-<tr>
+    <tr>
 
-<td>
-<pre>
-<br/><br/>Provider: Javascript Asset<br/><br/><br/><br/><br/>Consumer File<br/>
-</pre>
-</td>
+        <td>
+            <pre>
+                <br/><br/>Provider: Javascript Asset
+            </pre>
+        </td>
 
-<td>
-<pre>
-js
-    // Title.js
-    import React from 'react';
-    
-    export const Title = ({title}) => {
-      return title
-    }
-    
-    export const alert = (message) => {
-      alert(message)
-    }
-    
-    
-    /*externalize:ExampleModule*/
-</pre>
-</td>
+        <td>
+            <pre>
+            js
+                // Title.js
+                import React from 'react';
 
-</tr>
+                export const Title = ({title}) => {
+                  return title
+                }
+
+                export const alert = (message) => {
+                  alert(message)
+                }
+
+
+                /*externalize:ExampleModule*/
+            </pre>
+        </td>
+
+    </tr>
+    <tr>
+        <td>
+            <pre><br/><br/><br/>Consumer File<br/></pre>
+        </td>
+
+        <td>
+            <pre>
+            js
+                // App.js
+                import('http://website1.com/js/theExampleFile.js').then(({ExampleModule})=>{
+                  ExampleModule.alert('custom alert')
+                });
+            </pre>
+        </td>
+    </tr>
 </table>
 
 
