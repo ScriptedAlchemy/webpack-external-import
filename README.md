@@ -98,33 +98,31 @@ To do this, we add an `externalize` comment to the module. This tells the plugin
 <th>Application A</th>
 <th>Application B</th>
 </tr>
-
 <tr>
+<td>
+<pre>
+<br/><br/>Provider: Javascript Asset
+</pre>
+</td>
 
-    <td>
-        <pre>
-            <br/><br/>Provider: Javascript Asset
-        </pre>
-    </td>
+<td>
+<pre>
+js
+    // Title.js
+    import React from 'react';
 
-    <td>
-        <pre>
-        js
-            // Title.js
-            import React from 'react';
+    export const Title = ({title}) => {
+      return title
+    }
 
-            export const Title = ({title}) => {
-              return title
-            }
-
-            export const alert = (message) => {
-              alert(message)
-            }
+    export const alert = (message) => {
+      alert(message)
+    }
 
 
-            /*externalize:ExampleModule*/
-        </pre>
-    </td>
+    /*externalize:ExampleModule*/
+</pre>
+</td>
 
 </tr>
 <tr>
