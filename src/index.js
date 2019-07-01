@@ -27,7 +27,6 @@ class ExternalComponent extends Component {
   }
 
   render() {
-    console.log('lol')
     const Component = this.Component
     const {loaded} = this.state
     if (!loaded) return <span>loading</span>
