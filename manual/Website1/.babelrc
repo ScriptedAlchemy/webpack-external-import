@@ -1,18 +1,14 @@
 {
     "presets": [
-        "@babel/preset-react",
-        [
-            "@babel/preset-env",
-            {
-                "targets": {
-                    "node": true
-                }
-            }
-        ]
+        "@babel/preset-env"
     ],
     "plugins": [
         "webpack-external-import/babel",
-        "@babel/plugin-syntax-dynamic-import",
-        "@babel/plugin-proposal-class-properties"
+        [
+            "@babel/plugin-transform-runtime",
+            {
+                "regenerator": true
+            }
+        ]
     ]
 }

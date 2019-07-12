@@ -1,3 +1,5 @@
+import traverse from 'babel-traverse';
+
 'use-strict';
 
 const validMagicStrings = [
@@ -7,40 +9,38 @@ const validMagicStrings = [
   'webpackExclude',
   'webpackIgnore',
   'webpackPreload',
-  'webpackPrefetch'
+  'webpackPrefetch',
 ];
 
-import traverse from 'babel-traverse';
+const protocolAndDomainRE = /^(?:\w+:)?\/\/(\S+)$/;
 
-var protocolAndDomainRE = /^(?:\w+:)?\/\/(\S+)$/;
-
-var localhostDomainRE = /^localhost[\:?\d]*(?:[^\:?\d]\S*)?$/;
-var nonLocalhostDomainRE = /^[^\s\.]+\.\S{2,}$/;
+const localhostDomainRE = /^localhost[\:?\d]*(?:[^\:?\d]\S*)?$/;
+const nonLocalhostDomainRE = /^[^\s\.]+\.\S{2,}$/;
 
 function isUrl(string) {
   if (typeof string !== 'string') {
     return false;
   }
 
-  var match = string.match(protocolAndDomainRE);
+  const match = string.match(protocolAndDomainRE);
   if (!match) {
     return false;
   }
 
-  var everythingAfterProtocol = match[1];
+  const everythingAfterProtocol = match[1];
   if (!everythingAfterProtocol) {
     return false;
   }
 
-  if (localhostDomainRE.test(everythingAfterProtocol) ||
-    nonLocalhostDomainRE.test(everythingAfterProtocol)) {
+  if (localhostDomainRE.test(everythingAfterProtocol)
+    || nonLocalhostDomainRE.test(everythingAfterProtocol)) {
     return true;
   }
 
   return false;
 }
 
-const {addDefault} = require('@babel/helper-module-imports');
+const { addDefault } = require('@babel/helper-module-imports');
 
 const path = require('path');
 
@@ -54,7 +54,7 @@ const IMPORT_UNIVERSAL_DEFAULT = {
 const IMPORT_PATH_DEFAULT = {
   id: Symbol('pathId'),
   source: 'path',
-  nameHint: 'path'
+  nameHint: 'path',
 };
 
 function getImportArgPath(p) {
@@ -65,26 +65,25 @@ function trimChunkNameBaseDir(baseDir) {
   return baseDir.replace(/^[./]+|(\.js$)/g, '');
 }
 
-function getImport(p, {source, nameHint}) {
-  return addDefault(p, source, {nameHint});
+function getImport(p, { source, nameHint }) {
+  return addDefault(p, source, { nameHint });
 }
 
 function createTrimmedChunkName(t, importArgNode) {
-
   if (importArgNode.quasis) {
     let quasis = importArgNode.quasis.slice(0);
     const baseDir = trimChunkNameBaseDir(quasis[0].value.cooked);
     quasis[0] = Object.assign({}, quasis[0], {
       value: {
         raw: baseDir,
-        cooked: baseDir
-      }
+        cooked: baseDir,
+      },
     });
 
     quasis = quasis.map((quasi, i) => (i > 0 ? prepareQuasi(quasi) : quasi));
 
     return Object.assign({}, importArgNode, {
-      quasis
+      quasis,
     });
   }
 
@@ -96,20 +95,18 @@ function prepareQuasi(quasi) {
   return Object.assign({}, quasi, {
     value: {
       raw: quasi.value.cooked,
-      cooked: quasi.value.cooked
-    }
+      cooked: quasi.value.cooked,
+    },
   });
 }
 
 function getMagicWebpackComments(importArgNode) {
-  const {leadingComments} = importArgNode;
+  const { leadingComments } = importArgNode;
   const results = [];
   if (leadingComments && leadingComments.length) {
-    leadingComments.forEach(comment => {
+    leadingComments.forEach((comment) => {
       try {
-        const validMagicString = validMagicStrings.filter(str =>
-          new RegExp(`${str}\\w*:`).test(comment.value)
-        );
+        const validMagicString = validMagicStrings.filter(str => new RegExp(`${str}\\w*:`).test(comment.value));
         // keep this comment if we found a match
         if (validMagicString && validMagicString.length === 1) {
           results.push(comment);
@@ -123,7 +120,7 @@ function getMagicWebpackComments(importArgNode) {
 }
 
 function getMagicCommentChunkName(importArgNode) {
-  const {quasis, expressions} = importArgNode;
+  const { quasis, expressions } = importArgNode;
   if (!quasis) return trimChunkNameBaseDir(importArgNode.value);
 
   const baseDir = quasis[0].value.cooked;
@@ -133,7 +130,7 @@ function getMagicCommentChunkName(importArgNode) {
 }
 
 function getComponentId(t, importArgNode) {
-  const {quasis, expressions} = importArgNode;
+  const { quasis, expressions } = importArgNode;
   if (!quasis) return importArgNode.value;
 
   return quasis.reduce((str, quasi, i) => {
@@ -145,13 +142,12 @@ function getComponentId(t, importArgNode) {
 }
 
 function existingMagicCommentChunkName(importArgNode) {
-  const {leadingComments} = importArgNode;
+  const { leadingComments } = importArgNode;
   if (
-    leadingComments &&
-    leadingComments.length &&
-    leadingComments[0].value.indexOf('importUrl') !== -1
+    leadingComments
+    && leadingComments.length
+    && leadingComments[0].value.indexOf('importUrl') !== -1
   ) {
-
     try {
       return leadingComments[0].value.trim();
     } catch (e) {
@@ -163,8 +159,8 @@ function existingMagicCommentChunkName(importArgNode) {
 
 function idOption(t, importArgNode) {
   // if its an expression, then pass it through
-  if(t.isIdentifier(importArgNode)) {
-    return importArgNode
+  if (t.isIdentifier(importArgNode)) {
+    return importArgNode;
   }
   if (t.isBinaryExpression(importArgNode)) {
     return importArgNode;
@@ -179,8 +175,8 @@ function fileOption(t, p) {
   return t.objectProperty(
     t.identifier('file'),
     t.stringLiteral(
-      path.relative(__dirname, p.hub.file.opts.filename || '') || ''
-    )
+      path.relative(__dirname, p.hub.file.opts.filename || '') || '',
+    ),
   );
 }
 
@@ -193,12 +189,10 @@ function loadOption(t, loadTemplate, p, importArgNode) {
 
   delete argPath.node.leadingComments;
   argPath.addComment('leading', ` webpackChunkName: '${chunkName}' `);
-  otherValidMagicComments.forEach(validLeadingComment =>
-    argPath.addComment('leading', validLeadingComment.value)
-  );
+  otherValidMagicComments.forEach(validLeadingComment => argPath.addComment('leading', validLeadingComment.value));
 
   const load = loadTemplate({
-    IMPORT: argPath.parent
+    IMPORT: argPath.parent,
   }).expression;
 
   return t.objectProperty(t.identifier('load'), load);
@@ -211,7 +205,7 @@ module.exports = function dynamicUrlImportPlugin(babel) {
     name: 'dynamic-url-imports',
     visitor: {
       Program: {
-        enter: function (node, parent) {
+        enter(node, parent) {
           const comments = node.parent.comments || [];
           comments.forEach((comment) => {
             if (comment && comment.value) {
@@ -221,8 +215,7 @@ module.exports = function dynamicUrlImportPlugin(babel) {
               if (splitComment[0] === 'externalize') {
                 const functionToExport = splitComment[1].trim();
                 // props use this instead of module proto to actually export out the one single function
-                const header =
-                  `
+                const header = `
                  
  
                 `;
@@ -230,32 +223,31 @@ module.exports = function dynamicUrlImportPlugin(babel) {
 
                 node.pushContainer(
                   'body',
-                  babel.parse(header).program.body[0]
+                  babel.parse(header).program.body[0],
                 );
               }
             }
           });
-
         },
       },
       Identifier(p) {
         // only care about promise callbacks
-        if (!p.isIdentifier({name: 'then'})) {
+        if (!p.isIdentifier({ name: 'then' })) {
           return;
         }
-        if(!p.parent || !p.parent.object || !p.parent.object.isDynamic) {
+        if (!p.parent || !p.parent.object || !p.parent.object.isDynamic) {
           return;
         }
 
-        const parentPath = p.findParent((path) => path.isCallExpression());
+        const parentPath = p.findParent(path => path.isCallExpression());
         traverse(parentPath.node, {
           ArrowFunctionExpression(path) {
-            const moduleMaps = new Set()
+            const moduleMaps = new Set();
             if (path.isArrowFunctionExpression()) {
               if (path.node.params) {
-                path.node.params.forEach(node => {
+                path.node.params.forEach((node) => {
                   if (node.type === 'ObjectPattern') {
-                    node.properties.forEach(property => {
+                    node.properties.forEach((property) => {
                       if (!moduleMaps.has(property.key.name)) moduleMaps.add(property.key.name);
                     });
                     node.properties.length = 0;
@@ -264,27 +256,22 @@ module.exports = function dynamicUrlImportPlugin(babel) {
               }
 
               const injectedDepencency = Array.from(moduleMaps)
-                .map(moduleName => {
-                  return t.assignmentExpression(
-                    '=',
-                    t.identifier(`const ${moduleName}`),
-                    t.identifier(`__webpack_require__("${moduleName}")`),
-                  );
-                });
+                .map(moduleName => t.assignmentExpression(
+                  '=',
+                  t.identifier(`const ${moduleName}`),
+                  t.identifier(`__webpack_require__("${moduleName}")`),
+                ));
               try {
                 path.get('body')
-                    .node
-                    .body
-                    .unshift(...injectedDepencency);
-              } catch(e) {
-               // something is going wrong here. We need to make sure bad promises are not transformed
+                  .node
+                  .body
+                  .unshift(...injectedDepencency);
+              } catch (e) {
+                // something is going wrong here. We need to make sure bad promises are not transformed
               }
             }
-
-
-          }
+          },
         }, parentPath.scope);
-
       },
 
       Import(p) {
@@ -299,22 +286,22 @@ module.exports = function dynamicUrlImportPlugin(babel) {
         if (importArgNode.value && !isUrl(importArgNode.value)) return;
         if (!importArgNode.value && t.existingChunkName !== 'importUrl') return;
 
-        if (importArgNode.value) Object.assign(importWhitelist, {[importArgNode.value]: null});
+        if (importArgNode.value) Object.assign(importWhitelist, { [importArgNode.value]: null });
 
 
         const universalImport = getImport(p, IMPORT_UNIVERSAL_DEFAULT);
         // if being used in an await statement, return load() promise
         if (
-          p.parentPath.parentPath.isYieldExpression() || // await transformed already
-          t.isAwaitExpression(p.parentPath.parentPath.node) // await not transformed already
+          p.parentPath.parentPath.isYieldExpression() // await transformed already
+          || t.isAwaitExpression(p.parentPath.parentPath.node) // await not transformed already
         ) {
           const func = t.callExpression(universalImport, [
             loadOption(t, loadTemplate, p, importArgNode).value,
-            t.booleanLiteral(false)
+            t.booleanLiteral(false),
           ]);
 
           p.parentPath.replaceWith(func);
-          p.parentPath.node.isDynamic = true
+          p.parentPath.node.isDynamic = true;
           return;
         }
 
@@ -324,8 +311,8 @@ module.exports = function dynamicUrlImportPlugin(babel) {
         const func = t.callExpression(universalImport, [options]);
         delete t.existingChunkName;
         p.parentPath.replaceWith(func);
-        p.parentPath.node.isDynamic = true
-      }
-    }
+        p.parentPath.node.isDynamic = true;
+      },
+    },
   };
 };

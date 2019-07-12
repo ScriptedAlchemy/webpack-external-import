@@ -18,6 +18,7 @@
     "@babel/cli": "^7.4.3",
     "@babel/core": "^7.4.3",
     "@babel/plugin-syntax-dynamic-import": "^7.2.0",
+    "@babel/plugin-transform-runtime": "^7.5.0",
     "@babel/preset-env": "^7.4.3",
     "@babel/preset-react": "^7.0.0",
     "babel-core": "^7.0.0-bridge.0",
@@ -46,6 +47,7 @@
     "moment": "^2.24.0",
     "optimize-css-assets-webpack-plugin": "^5.0.1",
     "react-dom": "^16.8.6",
+    "regenerator-runtime": "^0.13.2",
     "scriptjs": "^2.5.9"
   }
 }
