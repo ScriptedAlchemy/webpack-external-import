@@ -23,7 +23,7 @@ class URLImportPlugin {
       serialize: manifest => `if(!window.entryManifest) {window.entryManifest = {}}; window.entryManifest["${opts.manifestName}"] = ${JSON.stringify(
         manifest,
         null,
-        2
+        2,
       )}`,
     }, opts || {});
   }
@@ -45,11 +45,11 @@ class URLImportPlugin {
     const outputFile = path.resolve(outputFolder, this.opts.fileName);
     const outputName = path.relative(outputFolder, outputFile);
 
-    const moduleAsset = ({userRequest}, file) => {
+    const moduleAsset = ({ userRequest }, file) => {
       if (userRequest) {
         moduleAssets[file] = path.join(
           path.dirname(file),
-          path.basename(userRequest)
+          path.basename(userRequest),
         );
       }
     };
@@ -84,7 +84,7 @@ class URLImportPlugin {
           isInitial: chunk.isOnlyInitial ? chunk.isOnlyInitial() : (chunk.isInitial ? chunk.isInitial() : chunk.initial),
           isChunk: true,
           isAsset: false,
-          isModuleAsset: false
+          isModuleAsset: false,
         });
       }, files), []);
 
@@ -99,7 +99,7 @@ class URLImportPlugin {
             isInitial: false,
             isChunk: false,
             isAsset: true,
-            isModuleAsset: true
+            isModuleAsset: true,
           });
         }
 
@@ -114,11 +114,11 @@ class URLImportPlugin {
           isInitial: false,
           isChunk: false,
           isAsset: true,
-          isModuleAsset: false
+          isModuleAsset: false,
         });
       }, files);
 
-      files = files.filter(file => {
+      files = files.filter((file) => {
         // Don't add hot updates to manifest
         const isUpdateChunk = file.path.includes('hot-update');
         // Don't add manifest from another instance
@@ -130,7 +130,7 @@ class URLImportPlugin {
       // Append optional basepath onto all references.
       // This allows output path to be reflected in the manifest.
       if (this.opts.basePath) {
-        files = files.map(file => {
+        files = files.map((file) => {
           file.name = this.opts.basePath + file.name;
           return file;
         });
@@ -140,13 +140,13 @@ class URLImportPlugin {
         // Similar to basePath but only affects the value (similar to how
         // output.publicPath turns require('foo/bar') into '/public/foo/bar', see
         // https://github.com/webpack/docs/wiki/configuration#outputpublicpath
-        files = files.map(file => {
+        files = files.map((file) => {
           file.path = publicPath + file.path;
           return file;
         });
       }
 
-      files = files.map(file => {
+      files = files.map((file) => {
         file.name = file.name.replace(/\\/g, '/');
         file.path = file.path.replace(/\\/g, '/');
         return file;
@@ -179,7 +179,7 @@ class URLImportPlugin {
         const cleanedManifest = Object.entries(manifest)
           .reduce((acc, [key, asset]) => {
             if (!asset.includes('.map')) {
-              return Object.assign(acc, {[key]: asset});
+              return Object.assign(acc, { [key]: asset });
             }
             return acc;
           }, {});
@@ -192,7 +192,7 @@ class URLImportPlugin {
           },
           size() {
             return output.length;
-          }
+          },
         };
 
         if (this.opts.writeToFileEmit) {
@@ -208,7 +208,7 @@ class URLImportPlugin {
     };
 
     function beforeRun(compiler, callback) {
-      let emitCount = emitCountMap.get(outputFile) || 0;
+      const emitCount = emitCountMap.get(outputFile) || 0;
       emitCountMap.set(outputFile, emitCount + 1);
 
       if (callback) {
@@ -220,30 +220,30 @@ class URLImportPlugin {
       const SyncWaterfallHook = require('tapable').SyncWaterfallHook;
       const pluginOptions = {
         name: 'URLImportPlugin',
-        stage: Infinity
+        stage: Infinity,
       };
       compiler.hooks.webpackURLImportPluginAfterEmit = new SyncWaterfallHook(['manifest']);
 
-      compiler.hooks.compilation.tap('URLImportPlugin', compilation => {
+      compiler.hooks.compilation.tap('URLImportPlugin', (compilation) => {
         const usedIds = new Set();
         compilation.hooks.beforeModuleIds.tap(
           'URLImportPlugin',
-          modules => {
+          (modules) => {
             for (const module of modules) {
               if (module._source && module._source._value.includes('externalize')) {
                 try {
-                  module.id = module._source._value.match(/\/\*\s*externalize\s*:\s*(\S+)\s*\*\//)[1]
+                  module.id = module._source._value.match(/\/\*\s*externalize\s*:\s*(\S+)\s*\*\//)[1];
                 } catch (error) {
 
                 }
               }
             }
-          }
+          },
         );
       });
 
 
-      compiler.hooks.compilation.tap(pluginOptions, ({hooks}) => {
+      compiler.hooks.compilation.tap(pluginOptions, ({ hooks }) => {
         hooks.moduleAsset.tap(pluginOptions, moduleAsset);
       });
       compiler.hooks.emit.tap(pluginOptions, emit);
@@ -251,7 +251,7 @@ class URLImportPlugin {
       compiler.hooks.run.tap(pluginOptions, beforeRun);
       compiler.hooks.watchRun.tap(pluginOptions, beforeRun);
     } else {
-      compiler.plugin('compilation', compilation => {
+      compiler.plugin('compilation', (compilation) => {
         compilation.plugin('module-asset', moduleAsset);
       });
       compiler.plugin('emit', emit);

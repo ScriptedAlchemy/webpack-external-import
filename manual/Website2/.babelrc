@@ -1,18 +1,36 @@
 {
-    "presets": [
+  "presets": [
+    "@babel/preset-react",
+    "@babel/preset-env"
+  ],
+  "plugins": [
+    "webpack-external-import/babel",
+    [
+      "@babel/plugin-transform-runtime",
+      {
+        "regenerator": true
+      }
+    ],
+    "@babel/plugin-proposal-class-properties"
+  ],
+  "env": {
+    "test": {
+      "presets": [
         "@babel/preset-react",
         [
-            "@babel/preset-env",
-            {
-                "targets": {
-                    "node": true
-                }
+          "@babel/preset-env",
+          {
+            "targets": {
+              "node": true
             }
+          }
         ]
-    ],
-    "plugins": [
+      ],
+      "plugins": [
         "webpack-external-import/babel",
         "@babel/plugin-syntax-dynamic-import",
         "@babel/plugin-proposal-class-properties"
-    ]
+      ]
+    }
+  }
 }

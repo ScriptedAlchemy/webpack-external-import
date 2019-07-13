@@ -1,28 +1,19 @@
+/* eslint-disable no-underscore-dangle */
 const scout = require('scriptjs');
 
-const diff = (obj,obj2)=> Object.keys(obj).reduce((diff, key) => {
-  if (obj[key] === obj2[key]) return diff
-  return {
-    ...diff,
-    [key]: obj2[key]
-  }
-}, {})
+// scriptjs is a quick and dirty solution to loading a script.
+// I need to dig back into webpack to locate the internal async loading functions
+// this should leverage the same mechanism import() and require.ensure depend on
 
-const initialModules = new Set()
+module.exports = url => new Promise((resolve, reject) => {
+  scout(url, url);
 
-module.exports = async (url) => {
-  const promise = await new Promise((resolve, reject) => {
-    scout(url, url);
-
-    scout.ready(url, function () {
-      console.log('url to fetch', url);
-      if (typeof document !== "undefined") {
-        document.__webpack_modules__ = document.__webpack_modules__ || {};
-        Object.assign(document.__webpack_modules__, __webpack_modules__)
-        Object.assign(__webpack_modules__, document.__webpack_modules__)
-      }
-      resolve(__webpack_modules__);
-    });
+  scout.ready(url, () => {
+    if (typeof document !== 'undefined') {
+      document.__webpack_modules__ = document.__webpack_modules__ || {};
+      Object.assign(document.__webpack_modules__, __webpack_modules__);
+      Object.assign(__webpack_modules__, document.__webpack_modules__);
+    }
+    resolve(__webpack_modules__);
   });
-  return promise;
-};
+});
