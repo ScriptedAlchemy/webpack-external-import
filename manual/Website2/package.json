@@ -1,14 +1,11 @@
 {
-  "name": "remixx",
+  "name": "demo-two",
   "version": "0.0.0-development",
   "repository": {
     "type": "git",
     "url": "https://github.com/faceyspacey/remixx.git"
   },
-  "author": "James FaceySpacey Gillmore <james@faceyspacey.com> (http://www.faceyspacey.com)",
-  "contributors": [
-    "Zack Jackson <zack@ScriptedAlchemy.com> (https://github.com/ScriptedAlchemy)"
-  ],
+  "author": "Zack Jackson <zack@ScriptedAlchemy.com> (https://github.com/ScriptedAlchemy)"
   "scripts": {
     "manual:prod": "cd ../../ && npm link && cd manual/Website2 && npm link webpack-external-import && cross-env NODE_ENV=production webpack-dev-server",
     "manual:dev": "cd ../../ && npm link && cd manual/Website2 && npm link webpack-external-import && cross-env NODE_ENV=development webpack-dev-server",

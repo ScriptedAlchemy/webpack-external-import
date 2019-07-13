@@ -1,4 +1,7 @@
 {
+    "globals": {
+        "__webpack_modules__": true
+    },
     "env": {
         "browser": true,
         "es6": true

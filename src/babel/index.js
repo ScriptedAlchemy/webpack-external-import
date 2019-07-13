@@ -1,16 +1,6 @@
 import traverse from 'babel-traverse';
-
-'use-strict';
-
-const validMagicStrings = [
-  'webpackMode',
-  // 'webpackMagicChunkName' gets dealt with current implementation & naming/renaming strategy
-  'webpackInclude',
-  'webpackExclude',
-  'webpackIgnore',
-  'webpackPreload',
-  'webpackPrefetch',
-];
+import { addDefault } from '@babel/helper-module-imports';
+import path from 'path';
 
 const protocolAndDomainRE = /^(?:\w+:)?\/\/(\S+)$/;
 
@@ -40,93 +30,20 @@ function isUrl(string) {
   return false;
 }
 
-const { addDefault } = require('@babel/helper-module-imports');
-
-const path = require('path');
-
 const visited = Symbol('visited');
 
-const IMPORT_UNIVERSAL_DEFAULT = {
+const IMPORT_SCOUT_DEFAULT = {
   id: Symbol('scout'),
   source: 'webpack-external-import',
 };
 
-const IMPORT_PATH_DEFAULT = {
-  id: Symbol('pathId'),
-  source: 'path',
-  nameHint: 'path',
-};
 
 function getImportArgPath(p) {
   return p.parentPath.get('arguments')[0];
 }
 
-function trimChunkNameBaseDir(baseDir) {
-  return baseDir.replace(/^[./]+|(\.js$)/g, '');
-}
-
 function getImport(p, { source, nameHint }) {
   return addDefault(p, source, { nameHint });
-}
-
-function createTrimmedChunkName(t, importArgNode) {
-  if (importArgNode.quasis) {
-    let quasis = importArgNode.quasis.slice(0);
-    const baseDir = trimChunkNameBaseDir(quasis[0].value.cooked);
-    quasis[0] = Object.assign({}, quasis[0], {
-      value: {
-        raw: baseDir,
-        cooked: baseDir,
-      },
-    });
-
-    quasis = quasis.map((quasi, i) => (i > 0 ? prepareQuasi(quasi) : quasi));
-
-    return Object.assign({}, importArgNode, {
-      quasis,
-    });
-  }
-
-  const moduleName = trimChunkNameBaseDir(importArgNode.value);
-  return t.stringLiteral(moduleName);
-}
-
-function prepareQuasi(quasi) {
-  return Object.assign({}, quasi, {
-    value: {
-      raw: quasi.value.cooked,
-      cooked: quasi.value.cooked,
-    },
-  });
-}
-
-function getMagicWebpackComments(importArgNode) {
-  const { leadingComments } = importArgNode;
-  const results = [];
-  if (leadingComments && leadingComments.length) {
-    leadingComments.forEach((comment) => {
-      try {
-        const validMagicString = validMagicStrings.filter(str => new RegExp(`${str}\\w*:`).test(comment.value));
-        // keep this comment if we found a match
-        if (validMagicString && validMagicString.length === 1) {
-          results.push(comment);
-        }
-      } catch (e) {
-        // eat the error, but don't give up
-      }
-    });
-  }
-  return results;
-}
-
-function getMagicCommentChunkName(importArgNode) {
-  const { quasis, expressions } = importArgNode;
-  if (!quasis) return trimChunkNameBaseDir(importArgNode.value);
-
-  const baseDir = quasis[0].value.cooked;
-  const hasExpressions = expressions.length > 0;
-  const chunkName = baseDir + (hasExpressions ? '[request]' : '');
-  return trimChunkNameBaseDir(chunkName);
 }
 
 function getComponentId(t, importArgNode) {
@@ -171,6 +88,8 @@ function idOption(t, importArgNode) {
   return t.stringLiteral(id);
 }
 
+// keeping this around for now. Might be useful for internal file mappings.
+// eslint-disable-next-line no-unused-vars
 function fileOption(t, p) {
   return t.objectProperty(
     t.identifier('file'),
@@ -180,23 +99,6 @@ function fileOption(t, p) {
   );
 }
 
-function loadOption(t, loadTemplate, p, importArgNode) {
-  const argPath = getImportArgPath(p);
-  const generatedChunkName = getMagicCommentChunkName(importArgNode);
-  const otherValidMagicComments = getMagicWebpackComments(importArgNode);
-  const existingChunkName = t.existingChunkName;
-  const chunkName = existingChunkName || generatedChunkName;
-
-  delete argPath.node.leadingComments;
-  argPath.addComment('leading', ` webpackChunkName: '${chunkName}' `);
-  otherValidMagicComments.forEach(validLeadingComment => argPath.addComment('leading', validLeadingComment.value));
-
-  const load = loadTemplate({
-    IMPORT: argPath.parent,
-  }).expression;
-
-  return t.objectProperty(t.identifier('load'), load);
-}
 
 module.exports = function dynamicUrlImportPlugin(babel) {
   const t = babel.types;
@@ -204,32 +106,6 @@ module.exports = function dynamicUrlImportPlugin(babel) {
   return {
     name: 'dynamic-url-imports',
     visitor: {
-      Program: {
-        enter(node, parent) {
-          const comments = node.parent.comments || [];
-          comments.forEach((comment) => {
-            if (comment && comment.value) {
-              const splitComment = comment.value.split(':');
-
-
-              if (splitComment[0] === 'externalize') {
-                const functionToExport = splitComment[1].trim();
-                // props use this instead of module proto to actually export out the one single function
-                const header = `
-                 
- 
-                `;
-
-
-                node.pushContainer(
-                  'body',
-                  babel.parse(header).program.body[0],
-                );
-              }
-            }
-          });
-        },
-      },
       Identifier(p) {
         // only care about promise callbacks
         if (!p.isIdentifier({ name: 'then' })) {
@@ -289,25 +165,21 @@ module.exports = function dynamicUrlImportPlugin(babel) {
         if (importArgNode.value) Object.assign(importWhitelist, { [importArgNode.value]: null });
 
 
-        const universalImport = getImport(p, IMPORT_UNIVERSAL_DEFAULT);
+        const universalImport = getImport(p, IMPORT_SCOUT_DEFAULT);
         // if being used in an await statement, return load() promise
         if (
           p.parentPath.parentPath.isYieldExpression() // await transformed already
           || t.isAwaitExpression(p.parentPath.parentPath.node) // await not transformed already
         ) {
-          const func = t.callExpression(universalImport, [
-            loadOption(t, loadTemplate, p, importArgNode).value,
-            t.booleanLiteral(false),
-          ]);
-
-          p.parentPath.replaceWith(func);
+          // need to verify async/await works
+          // eslint-disable-next-line no-param-reassign
           p.parentPath.node.isDynamic = true;
           return;
         }
 
         const options = idOption(t, importArgNode);
 
-
+        // add scout to the Program
         const func = t.callExpression(universalImport, [options]);
         delete t.existingChunkName;
         p.parentPath.replaceWith(func);
