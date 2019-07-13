@@ -1,13 +1,14 @@
 const webpackMerge = require('webpack-merge');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const path = require('path');
 const common = require('./webpack.common');
 const paths = require('./paths');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const URLImportPlugin = require("../../webpack");
-const path = require('path');
+const URLImportPlugin = require('../../webpack');
 
 const envs = {
   development: 'dev',
   production: 'prod',
+  test: 'dev',
 };
 /* eslint-disable global-require,import/no-dynamic-require */
 const env = envs[process.env.NODE_ENV || 'development'];
@@ -35,8 +36,8 @@ module.exports = (siteId) => {
       }),
       new HtmlWebpackPlugin({
         template: templatePath,
-        inject: true
+        inject: true,
       }),
-    ]
+    ],
   });
 };
