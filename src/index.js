@@ -16,6 +16,7 @@ class ExternalComponent extends Component {
   componentDidMount() {
     const { src, module, export: exportName } = this.props;
     src.then(() => {
+      console.log(module)
       console.log(__webpack_modules__);
       const requiredComponent = __webpack_require__(module);
       console.log('required', requiredComponent);
