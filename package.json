@@ -26,15 +26,18 @@
   ],
   "scripts": {
     "compile": "babel src -d . ",
-    "test": "npm run lint && npm run tsc-test && npm run jest",
+    "test": "yarn  lint && yarn  tsc-test && yarn  jest",
     "lint": "eslint --ext .js,.ts,.tsx --ignore-pattern dist,node_modules . --fix",
     "jest": "NODE_ENV=test jest",
     "jest:ci": "cross-env NODE_ENV=development jest",
-    "demo:one": "cd manual/Website1; npm i && npm link webpack-external-import && npm run manual:dev",
-    "demo:two": "cd manual/Website2; npm i && npm link webpack-external-import && npm run manual:dev",
-    "demo": "npm i && npm run compile && npm link && npm run demo:one | npm run demo:two",
-    "babel": "npm run compile && cd manual && npm run babel",
-    "prepare": "npm run compile && cd manual && npm install"
+    "demo:one": "cd manual/Website1; yarn && yarn link webpack-external-import && yarn  manual:dev",
+    "demo:one:fast": "cd manual/Website1; yarn link webpack-external-import && yarn  manual:dev",
+    "demo:two": "cd manual/Website2; yarn && yarn link webpack-external-import && yarn  manual:dev",
+    "demo:two:fast": "cd manual/Website2; yarn link webpack-external-import && yarn  manual:dev",
+    "demo": "yarn && yarn  compile && yarn link && yarn demo:one | yarn demo:two",
+    "demo:fast": "yarn compile && yarn link && yarn demo:one:fast | yarn demo:two:fast",
+    "babel": "yarn compile && cd manual && yarn  babel",
+    "prepare": "yarn compile && cd manual && yarn"
   },
   "license": "MIT",
   "devDependencies": {

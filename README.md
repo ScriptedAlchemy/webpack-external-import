@@ -2,7 +2,7 @@
 > **import() URLs and other external resources from third parties, or other webpack builds themselves!**
 
 ```shell
-$ npm i webpack-external-import
+$ yarn  webpack-external-import
 ```
 *This project is under active development*
 
@@ -11,7 +11,7 @@ $ npm i webpack-external-import
 # Installation
 
 ```shell
-$ npm install webpack-external-import --save
+$ yarn nstall webpack-external-import --save
 $ yarn add webpack-external-import --save
 ```
 
@@ -515,8 +515,8 @@ In this file, I am importing code from another website/build. My application is 
 ## DEMO
 How to start (using the demo)
 
-1) `npm install` then `cd manual; npm install`
-2) `npm run demo` from the root directory
+1) `yarn nstall` then `cd manual; yarn nstall`
+2) `yarn  demo` from the root directory
 
 This comment runs the compile command to build a new copy of the plugin, as well as start the little manual [demo project](https://github.com/ScriptedAlchemy/webpack-external-import/tree/master/manual)
 

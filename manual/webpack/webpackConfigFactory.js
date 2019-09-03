@@ -1,6 +1,7 @@
 const webpackMerge = require('webpack-merge');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path');
+const WriteFilePlugin = require('write-file-webpack-plugin');
 const common = require('./webpack.common');
 const paths = require('./paths');
 const URLImportPlugin = require('../../webpack');
@@ -21,6 +22,7 @@ module.exports = (siteId) => {
 
   return webpackMerge(common(commonPaths), envConfig(commonPaths), {
     plugins: [
+      new WriteFilePlugin(),
       new URLImportPlugin({
         manifestName,
         fileName: 'importManifest.js',
