@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {hot} from 'react-hot-loader';
-
+import {Title} from './components/Title'
 // import('http://localhost:8080/importManifest.js').then(() => {
 //   import(/* importUrl */'http://localhost:8080/' + window.entryManifest['demo-build']['other.js']).then(({externalFunction}) => {
 //     console.log('Webpack Modules:', __webpack_modules__);
@@ -9,7 +9,7 @@ import {hot} from 'react-hot-loader';
 //   });
 // })
 
-
+console.log(Title)
 class App extends Component {
   constructor(props) {
     super(props);
@@ -19,8 +19,7 @@ class App extends Component {
   }
 
   componentDidMount() {
-    import(/* webpackChunkName: "Title"*/ './components/Title');
-    import(/* webpackChunkName: "hello-world"*/ './components/hello-world').then((HelloWorld) => {
+    import('./components/hello-world').then((HelloWorld) => {
       this.setState({component: HelloWorld.default})
     })
   }

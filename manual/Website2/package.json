@@ -7,8 +7,8 @@
   },
   "author": "Zack Jackson <zack@ScriptedAlchemy.com> (https://github.com/ScriptedAlchemy)",
   "scripts": {
-    "manual:prod": "cd ../../ && npm link && cd manual/Website2 && npm link webpack-external-import && cross-env NODE_ENV=production webpack-dev-server",
-    "manual:dev": "cd ../../ && npm link && cd manual/Website2 && npm link webpack-external-import && cross-env NODE_ENV=development webpack-dev-server",
+    "manual:prod": "cd ../../ && yarn link  && cd manual/Website2 && yarn link  webpack-external-import && cross-env NODE_ENV=production webpack-dev-server",
+    "manual:dev": "cd ../../ && yarn link  && cd manual/Website2 && yarn link  webpack-external-import && cross-env NODE_ENV=development webpack-dev-server",
     "babel": "babel src -d babelOutput"
   },
   "devDependencies": {
@@ -28,6 +28,9 @@
     "webpack-dev-server": "^3.2.1",
     "webpack-merge": "^4.2.1",
     "write-file-webpack-plugin": "^4.5.0"
+  },
+  "interface": {
+
   },
   "peerDependencies": {
     "react": ">=16.8.0",
