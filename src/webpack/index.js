@@ -72,31 +72,12 @@ class URLImportPlugin {
                    return module._source._value.match(/\/\*\s*externalize\s*:\s*(\S+)\s*\*\//)[1]
                 }
                 // npm package names are URL-safe, but some servers don't like @ symbols
-                // return `npm.${packageName.replace('@', '')}`;
+               return true
             },
             enforce: true,
-            reuseExistingChunk: false
         };
         mergeDeep(options, {optimization: {splitChunks: {cacheGroups: chunkSplitting}}})
-        console.log(options.optimization.splitChunks)
-        compiler.hooks.thisCompilation.tap('URLImportPlugin', (compilation) => {
-            compilation.mainTemplate.hooks.localVars.tap(
-                'SPY',
-                (source, chunk, hash) => {
-                    // --------
-                    // --------
-                    // --------
-                    // --------
-                    // --------
-                    // determine whether this chunk needs our external import loader
-                    // --------
-                    // --------
-                    // --------
-                    // --------
-                    // --------
-                },
-            );
-        });
+        console.log(options.optimization.splitChunks);
 
         const moduleAssets = {};
 

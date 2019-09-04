@@ -12,7 +12,7 @@ class App extends Component {
   componentDidMount() {
     import('http://localhost:3002/importManifest.js').then(() => {
       this.setState({manifestLoaded: true})
-      import(/* importUrl */'http://localhost:3002/' + window.entryManifest['website-two']['hello-world.js']).then(({SomeExternalModule}) => {
+      import(/* importUrl */'http://localhost:3002/' + window.entryManifest['website-two']['SomeExternalModule.js']).then(({SomeExternalModule}) => {
         console.log('got module, will render it in 2 seconds')
         SomeExternalModule.externalFunction()
         setTimeout(() => {
@@ -31,7 +31,7 @@ class App extends Component {
 
   render() {
     const {manifestLoaded} = this.state
-    const helloWorldUrl = manifestLoaded && 'http://localhost:3002/' + window.entryManifest['website-two']['Title.js']
+    const helloWorldUrl = manifestLoaded && 'http://localhost:3002/' + window.entryManifest['website-two']['TitleComponent.js']
 
     return (
       <div>
