@@ -19,8 +19,8 @@ class App extends Component {
   }
 
   componentDidMount() {
-    import(/* webpackChunkName: "Title"*/ './components/Title');
-    import(/* webpackChunkName: "hello-world"*/ './components/hello-world').then((HelloWorld) => {
+    import('./components/Title');
+    import('./components/hello-world').then((HelloWorld) => {
       this.setState({component: HelloWorld.default})
     })
   }

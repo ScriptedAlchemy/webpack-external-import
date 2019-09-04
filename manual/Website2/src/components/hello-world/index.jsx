@@ -38,7 +38,7 @@ export { Test, TestTwo, TestThree };
 
 export default (props) => {
   // const timeStamp = moment()
-  return (<div>DYNAMICALLY LOADED:</div>);
+  return (<div>This component was dynamically loaded</div>);
 }
 
 
