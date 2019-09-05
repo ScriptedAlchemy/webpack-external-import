@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import dimport from 'dimport/legacy';
 import scout from './scout';
 
 class ExternalComponent extends Component {
@@ -14,23 +15,23 @@ class ExternalComponent extends Component {
   }
 
   componentDidMount() {
+    if (!window.import) {
+      window.import = dimport;
+    }
     const { src, module, export: exportName } = this.props;
-    src.then(() => {
-      console.log(module)
-      console.log(__webpack_modules__);
+    import(/* webpackIgnore: true */src).then(() => {
       const requiredComponent = __webpack_require__(module);
-      console.log('required', requiredComponent);
       this.Component = requiredComponent.default ? requiredComponent.default : requiredComponent[exportName];
       this.setState({ loaded: true });
     }).catch((e) => {
-      console.log(e.prototype);
+      throw new Error(`dynamic-import:${e.message}`);
     });
   }
 
   render() {
-    const Component = this.Component;
+    const { Component } = this;
     const { loaded } = this.state;
-    if (!loaded) return <span>loading</span>;
+    if (!loaded) return null
 
     const { src, module, ...rest } = this.props;
     return (

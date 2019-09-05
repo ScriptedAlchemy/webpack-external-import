@@ -57,6 +57,10 @@ module.exports = (commonPaths) => ({
     compress: true,
     hot: true,
     port: `300${commonPaths.siteId}`,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Headers': '*',
+    },
   },
   resolve: {
     alias: {

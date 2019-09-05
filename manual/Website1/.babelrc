@@ -21,7 +21,14 @@
           "@babel/preset-env",
           {
             "targets": {
-              "node": true
+              "node": true,
+              "browsers": [
+                ">0.23%",
+                "iOS >= 9",
+                "Chrome >= 63",
+                "safari >= 9",
+                "IE >= 11"
+              ]
             }
           }
         ]
