@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { ExternalComponent } from 'webpack-external-import';
+import { ExternalComponent } from '../../../index';
+
 import HelloWorld from './components/goodbye-world';
 
 class App extends Component {

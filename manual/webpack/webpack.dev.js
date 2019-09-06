@@ -62,11 +62,6 @@ module.exports = (commonPaths) => ({
       'Access-Control-Allow-Headers': '*',
     },
   },
-  resolve: {
-    alias: {
-      'webpack-external-import': external,
-    }
-  },
   plugins: [
     new webpack.HotModuleReplacementPlugin()
   ],

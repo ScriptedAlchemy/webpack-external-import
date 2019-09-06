@@ -1,5 +1,5 @@
-import React, {Component} from 'react';
-import {hot} from 'react-hot-loader';
+import React, { Component } from 'react';
+import { hot } from 'react-hot-loader';
 
 // import('http://localhost:8080/importManifest.js').then(() => {
 //   import(/* importUrl */'http://localhost:8080/' + window.entryManifest['demo-build']['other.js']).then(({externalFunction}) => {
@@ -14,22 +14,21 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      component: null
+      component: null,
     };
   }
 
   componentDidMount() {
     import('./components/Title');
     import('./components/hello-world').then((HelloWorld) => {
-      this.setState({component: HelloWorld.default})
-    })
+      this.setState({ component: HelloWorld.default });
+    });
   }
 
   render() {
-    if (!this.state.component) return <div/>
-    const {component: HelloWorld} = this.state
-    return <HelloWorld title="Hello from React webpack"/>;
-
+    if (!this.state.component) return <div />;
+    const { component: HelloWorld } = this.state;
+    return <HelloWorld title="Hello from React webpack" />;
   }
 }
 

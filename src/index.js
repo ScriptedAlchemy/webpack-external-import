@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import dimport from 'dimport/legacy';
-import scout from './scout';
 
+if (!window.import) {
+  window.import = require('dimport/legacy');
+}
 class ExternalComponent extends Component {
   constructor(props) {
     super(props);
@@ -14,12 +15,13 @@ class ExternalComponent extends Component {
     this.Component = null;
   }
 
+
   componentDidMount() {
-    if (!window.import) {
-      window.import = dimport;
-    }
     const { src, module, export: exportName } = this.props;
-    import(/* webpackIgnore: true */src).then(() => {
+    new Promise((resolve) => {
+      resolve(new Function(`return import("${src}")`)());
+    }).then(() => {
+      console.log('made it this far', module);
       const requiredComponent = __webpack_require__(module);
       this.Component = requiredComponent.default ? requiredComponent.default : requiredComponent[exportName];
       this.setState({ loaded: true });
@@ -31,7 +33,7 @@ class ExternalComponent extends Component {
   render() {
     const { Component } = this;
     const { loaded } = this.state;
-    if (!loaded) return null
+    if (!loaded) return null;
 
     const { src, module, ...rest } = this.props;
     return (
@@ -43,7 +45,6 @@ class ExternalComponent extends Component {
 export { ExternalComponent };
 
 ExternalComponent.propTypes = {
-  src: PropTypes.oneOfType([PropTypes.func, PropTypes.object]).isRequired,
+  src: PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.string]).isRequired,
   module: PropTypes.string,
 };
-export default scout;

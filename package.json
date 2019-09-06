@@ -25,7 +25,7 @@
     "manifest"
   ],
   "scripts": {
-    "compile": "babel src -d . ",
+    "compile": "babel src -d .",
     "test": "yarn  lint && yarn  tsc-test && yarn  jest",
     "lint": "eslint --ext .js,.ts,.tsx --ignore-pattern dist,node_modules . --fix",
     "jest": "NODE_ENV=test jest",
@@ -36,7 +36,7 @@
     "demo:two": "cd manual/Website2; yarn && yarn link webpack-external-import && yarn manual:dev",
     "demo:two:prod": "cd manual/Website2; yarn && yarn link webpack-external-import && yarn manual:prod",
     "demo:two:fast": "cd manual/Website2; yarn link webpack-external-import && yarn manual:dev",
-    "demo": "yarn && yarn  compile && yarn link && yarn demo:one | yarn demo:two",
+    "demo": "yarn && yarn && yarn link webpack-external-import && concurrently \"yarn compile\" \"yarn link\" \"yarn demo:one\"  \"yarn demo:two\"",
     "demo:prod": "yarn && yarn compile && yarn link && yarn demo:one:prod | yarn demo:two:prod",
     "demo:fast": "yarn compile && yarn link && yarn demo:one:fast | yarn demo:two:fast",
     "babel": "yarn compile && cd manual && yarn babel",
@@ -58,6 +58,7 @@
     "babel-eslint": "^10.0.3",
     "babel-loader": "^8.0.6",
     "babel-watch": "^7.0.0",
+    "concurrently": "^4.1.2",
     "cross-env": "^5.2.0",
     "eslint": "^5.3.0",
     "eslint-config-airbnb": "^17.1.1",
@@ -75,7 +76,7 @@
     "regenerator-runtime": "^0.13.2",
     "source-map": "^0.7.3",
     "webpack": "^4.31.0",
-    "webpack-cli": "^3.3.2",
+    "webpack-cli": "^3.3.8",
     "webpack-dev-server": "^3.4.1"
   },
   "babel": {

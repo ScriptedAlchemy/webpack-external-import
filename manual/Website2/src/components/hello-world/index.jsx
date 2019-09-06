@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import('https://code.jquery.com/jquery-3.3.1.min.js');
+
+import(/* webpackIgnore:true */'https://code.jquery.com/jquery-3.3.1.min.js');
 
 const Test = (props, state, actions) => <div>{state.title}</div>;
 
@@ -11,17 +12,18 @@ const TestTwo = (props, state, actions) => {
 export const externalFunction = () => {
   window.wasExternalFunctionCalled = true;
 
-  console.log('some function thats externalized')
+  console.log('some function thats externalized');
 };
 
-/*externalize: SomeExternalModule */
+/* externalize: SomeExternalModule */
 
 const TestThree = (props, state, actions) => (
   <button onClick={() => dispatch({
     type: 'fake',
     payload: 'nothin',
   })}
-  >test
+  >
+test
   </button>
 );
 
@@ -36,9 +38,6 @@ const TestFive = function (props, state, actions) {
 
 export { Test, TestTwo, TestThree };
 
-export default (props) => {
+export default props =>
   // const timeStamp = moment()
-  return (<div>This component was dynamically loaded</div>);
-}
-
-
+  (<div>This component was dynamically loaded</div>);

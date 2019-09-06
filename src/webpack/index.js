@@ -68,11 +68,10 @@ class URLImportPlugin {
 
                // dont chunk unless we are sure you can
                 if (module?._source._value?.indexOf('externalize') > -1 || false) {
-                   console.log('zack',module._source._value.match(/\/\*\s*externalize\s*:\s*(\S+)\s*\*\//)[1])
                    return module._source._value.match(/\/\*\s*externalize\s*:\s*(\S+)\s*\*\//)[1]
                 }
                 // npm package names are URL-safe, but some servers don't like @ symbols
-               return true
+               return 'main'
             },
             enforce: true,
         };
