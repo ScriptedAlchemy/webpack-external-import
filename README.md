@@ -18,7 +18,7 @@ $ yarn add webpack-external-import --save
 ## Getting Started
 
   
-> The basic setup enables a developt to import from URLs.  For example: `import('https://code.jquery.com/jquery-3.3.1.min.js');`
+> The basic setup enables a developer to import from URLs.  For example: `import('https://code.jquery.com/jquery-3.3.1.min.js');`
 > **Step 1** is all that's required for simple dynamic URL imports()
 > **Step 2** offers more advanced capabilities, like loading modules from another webpack build
 
