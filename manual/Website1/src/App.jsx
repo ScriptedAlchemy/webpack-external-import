@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { ExternalComponent } from '../../../index';
 import HelloWorld from './components/goodbye-world';
+import corsImport from "../../../src/corsImport";
 
 import('moment');
 class App extends Component {
@@ -10,7 +11,7 @@ class App extends Component {
   }
 
   componentDidMount() {
-    import(/* webpackIgnore:true */'http://localhost:3002/importManifest.js').then(() => {
+    corsImport(/* webpackIgnore:true */'http://localhost:3002/importManifest.js').then(() => {
       this.setState({ manifestLoaded: true });
       import(/* webpackIgnore:true */`http://localhost:3002/${window.entryManifest['website-two']['SomeExternalModule.js']}`).then(() => {
         console.log('got module, will render it in 2 seconds');

@@ -110,7 +110,13 @@ class URLImportPlugin {
     });
 
     mergeDeep(options, {
-      optimization: { namedModules: true, splitChunks: { cacheGroups: chunkSplitting } },
+      optimization: {
+        namedModules: true,
+        splitChunks: {
+          chunks: options?.optimization?.splitChunks?.chunks || 'all',
+          cacheGroups: chunkSplitting,
+        },
+      },
     });
 
     const moduleAssets = {};

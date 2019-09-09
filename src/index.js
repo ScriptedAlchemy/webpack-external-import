@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 if (!window.import) {
   window.import = require('dimport/legacy');
 }
+
 class ExternalComponent extends Component {
   constructor(props) {
     super(props);
@@ -11,16 +12,25 @@ class ExternalComponent extends Component {
     this.state = {
       loaded: false,
     };
-
+    this.importPromise = this.importPromise.bind(this);
     this.Component = null;
   }
 
+  importPromise(src) {
+    if (this.props.cors) {
+      return require('./corsImport').default(src);
+    }
+
+    return new Promise((resolve) => {
+      resolve(new Function(`return import("${src}")`)());
+    });
+  }
 
   componentDidMount() {
     const { src, module, export: exportName } = this.props;
-    new Promise((resolve) => {
-      resolve(new Function(`return import("${src}")`)());
-    }).then(() => {
+
+console.log(this.importPromise);
+    this.importPromise(src).then(() => {
       console.log('made it this far', module);
       const requiredComponent = __webpack_require__(module);
       this.Component = requiredComponent.default ? requiredComponent.default : requiredComponent[exportName];

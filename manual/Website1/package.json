@@ -45,7 +45,7 @@
     "react-dom": "^16.8.6",
     "regenerator-runtime": "^0.13.2",
     "scriptjs": "^2.5.9",
-    "webpack-external-import": "0.0.1-beta.12",
+    "webpack-external-import": "0.0.1-beta.23",
     "webpack-merge": "^4.2.1"
   }
 }
