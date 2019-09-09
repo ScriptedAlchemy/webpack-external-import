@@ -13,4 +13,4 @@ package-lock.json
 webpack
 babel
 index.js
-scout.js
+corsImport.js
