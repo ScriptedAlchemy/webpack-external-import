@@ -22,6 +22,13 @@ function mergeDeep(...objects) {
   }, {});
 }
 
+function hasExternalizedModule(module) {
+  const moduleSource = module?.originalSource?.()?.source?.() || '';
+  if (moduleSource?.indexOf('externalize') > -1 || false) {
+    return moduleSource;
+  }
+  return false;
+}
 const emitCountMap = new Map();
 
 class URLImportPlugin {
@@ -63,18 +70,24 @@ class URLImportPlugin {
     const options = compiler?.options;
     const chunkSplitting = options?.optimization?.splitChunks?.cacheGroups || {};
     chunkSplitting.interleave = {
-      test: /[\\/]src[\\/]/,
+      test(module) {
+        if (module.resource) {
+          return module.resource.includes('src') && !!hasExternalizedModule(module);
+        }
+      },
       name(module, chunks, cacheGroupKey) {
         // dont chunk unless we are sure you can
-        const moduleSource = module?.originalSource?.()?.source?.() || '';
-        if (moduleSource?.indexOf('externalize') > -1 || false) {
+
+        const moduleSource = hasExternalizedModule(module);
+        if (moduleSource) {
           // module.originalSource().source((dependencyTemplates, runtimeTemplate, type = "javascript") =>{
           // return NormalModule
           //   return
           // })
           return moduleSource.match(/\/\*\s*externalize\s*:\s*(\S+)\s*\*\//)[1];
         }
-        return 'main';
+        // returning a chunk name causes problems with mini-css popping chunks off
+        // return 'main';
       },
       enforce: true,
     };
