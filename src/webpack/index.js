@@ -66,17 +66,42 @@ class URLImportPlugin {
       test: /[\\/]src[\\/]/,
       name(module, chunks, cacheGroupKey) {
         // dont chunk unless we are sure you can
-        if (module?._source._value?.indexOf('externalize') > -1 || false) {
-          return module._source._value.match(/\/\*\s*externalize\s*:\s*(\S+)\s*\*\//)[1];
+        const moduleSource = module?.originalSource?.()?.source?.() || '';
+        if (moduleSource?.indexOf('externalize') > -1 || false) {
+          // module.originalSource().source((dependencyTemplates, runtimeTemplate, type = "javascript") =>{
+          // return NormalModule
+          //   return
+          // })
+          return moduleSource.match(/\/\*\s*externalize\s*:\s*(\S+)\s*\*\//)[1];
         }
         return 'main';
       },
       enforce: true,
     };
-    mergeDeep(options, { optimization: { splitChunks: { cacheGroups: chunkSplitting } } });
+    compiler.hooks.thisCompilation.tap('URLImportPlugin', (compilation) => {
+      // TODO: throw warning when changing module ID type
+      // if (options.ignoreOrder) {
+      //   compilation.warnings.push(
+      //     new Error(
+      //       `chunk ${chunk.name || chunk.id} [${pluginName}]\n`
+      //           + 'Conflicting order between:\n'
+      //           + ` * ${fallbackModule.readableIdentifier(
+      //             requestShortener,
+      //           )}\n`
+      //           + `${bestMatchDeps
+      //             .map(m => ` * ${m.readableIdentifier(requestShortener)}`)
+      //             .join('\n')}`,
+      //     ),
+      //   );
+      // }
+    });
+
+    mergeDeep(options, {
+      optimization: { namedModules: true, splitChunks: { cacheGroups: chunkSplitting } },
+    });
 
     const moduleAssets = {};
-
+    const externalModules = {};
     const outputFolder = compiler.options.output.path;
     const outputFile = path.resolve(outputFolder, this.opts.fileName);
     const outputName = path.relative(outputFolder, outputFile);
@@ -90,6 +115,10 @@ class URLImportPlugin {
       }
     };
 
+    function getMeta(module) {
+      console.log(module);
+    }
+
     const emit = (compilation, compileCallback) => {
       const emitCount = emitCountMap.get(outputFile) - 1;
       emitCountMap.set(outputFile, emitCount);
@@ -99,6 +128,7 @@ class URLImportPlugin {
       const publicPath = this.opts.publicPath != null ? this.opts.publicPath : compilation.options.output.publicPath;
       const stats = compilation.getStats()
         .toJson();
+      // console.log('Webpack Plugin Debugging');
 
       let files = compilation.chunks.reduce((files, chunk) => chunk.files.reduce((files, path) => {
         let name = chunk.name ? chunk.name : null;
@@ -110,9 +140,46 @@ class URLImportPlugin {
           name = path;
         }
 
+        // console.log('stats', stats);
+
+        if (externalModules[chunk.id]) {
+          // TODO: swap forEachModle out with const of
+          // const module of chunk.modulesIterable
+          chunk.forEachModule((module) => {
+            if (module.dependencies) {
+              module.dependencies.forEach((dependency) => {
+                // console.group();
+                // console.log('dependencies foreach: dependency.module', dependency.module);
+                // console.log('dependencies foreach:  dependency.module.entry', dependency?.module?.entry?.());
+                // console.group();
+                // console.log("Level 3");
+                // console.warn("More of level 3");
+                // console.groupEnd();
+                // console.log("Back to level 2");
+                // console.groupEnd();
+                const dependencyModuleSet = dependency.getReference?.()?.module;
+                if (!dependencyModuleSet) return null;
+                // console.log('getReference chunks', dependencyModuleSet);
+                // console.log('dependencyModuleSet', dependencyModuleSet);
+                // console.log('dependencyModuleSet entryModule', dependencyModuleSet?.entryModule?.());
+                // for (const module of dependencyModuleSet.chunksIterable) {
+                //   console.log('iterated dependency module', module);
+                //   console.log(module.block);
+                // }
+              });
+            }
+          });
+        }
+
         // Webpack 4: .isOnlyInitial()
         // Webpack 3: .isInitial()
         // Webpack 1/2: .initial
+        // const modules = chunk.modulesIterable;
+        // let i = 0;
+        // while (i < modules.length) {
+        //   getMeta(modules[i]);
+        //   i++;
+        // }
         return files.concat({
           path,
           chunk,
@@ -162,6 +229,7 @@ class URLImportPlugin {
 
         return !isUpdateChunk && !isManifest;
       });
+
 
       // Append optional basepath onto all references.
       // This allows output path to be reflected in the manifest.
@@ -265,22 +333,25 @@ class URLImportPlugin {
           'URLImportPlugin',
           (modules) => {
             for (const module of modules) {
-              if (module._source && module._source._value.includes('externalize')) {
+              const moduleSource = module?.originalSource?.().source?.() || '';
+              if (moduleSource?.indexOf('externalize') > -1 || false) {
+                module.buildMeta = mergeDeep(module.buildMeta, { isExternalized: true });
                 try {
-                  module.id = module._source._value.match(/\/\*\s*externalize\s*:\s*(\S+)\s*\*\//)[1];
+                  // look at refactoring this to use buildMeta not mutate id
+                  module.id = moduleSource.match(/\/\*\s*externalize\s*:\s*(\S+)\s*\*\//)[1];
                 } catch (error) {
-
                 }
+                externalModules[module.id] = {};
               }
             }
           },
         );
       });
 
-
       compiler.hooks.compilation.tap(pluginOptions, ({ hooks }) => {
         hooks.moduleAsset.tap(pluginOptions, moduleAsset);
       });
+
       compiler.hooks.emit.tap(pluginOptions, emit);
 
       compiler.hooks.run.tap(pluginOptions, beforeRun);

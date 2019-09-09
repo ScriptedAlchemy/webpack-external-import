@@ -76,5 +76,5 @@ module.exports = (commonPaths) => ({
       chunkFilename: `${commonPaths.cssFolder}/[name].css`,
     }),
   ],
-  devtool: 'source-map',
+  devtool: 'inline-source-map',
 });

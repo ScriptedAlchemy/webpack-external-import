@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { ExternalComponent } from '../../../index';
-
 import HelloWorld from './components/goodbye-world';
 
+import('moment');
 class App extends Component {
   constructor(props) {
     super(props);
@@ -14,7 +14,6 @@ class App extends Component {
       this.setState({ manifestLoaded: true });
       import(/* webpackIgnore:true */`http://localhost:3002/${window.entryManifest['website-two']['SomeExternalModule.js']}`).then(() => {
         console.log('got module, will render it in 2 seconds');
-        console.log(__webpack_require__('SomeExternalModule'));
         setTimeout(() => {
           this.setState({ loaded: true });
         }, 2000);
@@ -25,7 +24,8 @@ class App extends Component {
   renderDynamic = () => {
     const { loaded } = this.state;
     if (!loaded) return null;
-    return this.state.loaded && __webpack_require__('SomeExternalModule').default();
+
+    return __webpack_require__('SomeExternalModule').default();
   }
 
   render() {

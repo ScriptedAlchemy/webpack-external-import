@@ -37,6 +37,7 @@
     "demo:two:prod": "cd manual/Website2; yarn && yarn link webpack-external-import && yarn manual:prod",
     "demo:two:fast": "cd manual/Website2; yarn link webpack-external-import && yarn manual:dev",
     "demo": "yarn && yarn && yarn link webpack-external-import && concurrently \"yarn compile\" \"yarn link\" \"yarn demo:one\"  \"yarn demo:two\"",
+    "demo:debug": "npx kill-port 3200 | yarn && yarn && yarn link webpack-external-import && concurrently \"yarn compile\" \"yarn link\" \"yarn demo:one\"  \"yarn demo:two\"",
     "demo:prod": "yarn && yarn compile && yarn link && yarn demo:one:prod | yarn demo:two:prod",
     "demo:fast": "yarn compile && yarn link && yarn demo:one:fast | yarn demo:two:fast",
     "babel": "yarn compile && cd manual && yarn babel",

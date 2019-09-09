@@ -3,7 +3,7 @@ const external = require.resolve('../../')
 
 module.exports = (commonPaths) => ({
   mode: 'development',
-  devtool: 'source-map',
+  devtool: 'inline-source-map',
   entry: commonPaths.entry,
   output: {
     filename: '[name].js',
