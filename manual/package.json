@@ -20,9 +20,7 @@
     "babel-loader": "^8.0.5",
     "eslint-loader": "^2.1.2",
     "react-hot-loader": "^4.8.3",
-    "webpack": "^4.29.6",
     "webpack-cli": "^3.3.0",
-    "webpack-dev-server": "^3.2.1",
     "write-file-webpack-plugin": "^4.5.0"
   },
   "peerDependencies": {
@@ -38,6 +36,8 @@
     "html-webpack-plugin": "^3.2.0",
     "mini-css-extract-plugin": "^0.6.0",
     "optimize-css-assets-webpack-plugin": "^5.0.1",
+    "webpack": "^4.29.6",
+    "webpack-dev-server": "^3.2.1",
     "webpack-merge": "^4.2.1"
   }
 }
