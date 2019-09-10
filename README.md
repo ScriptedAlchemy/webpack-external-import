@@ -17,9 +17,6 @@ $ yarn add webpack-external-import --save
 
 ## Getting Started
 
-
-
-
 1.  Add `webpack-external-import/webpack` to your webpack plugins:
 ```js
 // techblog.webpack.config.js
@@ -391,7 +388,7 @@ module.exports = {
     publicPath
   },
   plugins: [
-    new UrlImportPlugin(options)
+    new URLImportPlugin(options)
   ]
 }
 ```
