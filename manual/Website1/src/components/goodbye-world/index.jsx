@@ -13,7 +13,8 @@ const TestThree = (props, state, actions) => (
     type: 'fake',
     payload: 'nothin',
   })}
-  >test
+  >
+test
   </button>
 );
 
@@ -28,6 +29,4 @@ const TestFive = function (props, state, actions) {
 
 export { Test, TestTwo, TestThree };
 
-export default (props) => {
-  return (<div>zack</div>);
-}
+export default props => (<div>zack</div>);

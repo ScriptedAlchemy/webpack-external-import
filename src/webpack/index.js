@@ -217,7 +217,7 @@ class URLImportPlugin {
     }
 
     if (compiler.hooks) {
-      const SyncWaterfallHook = require('tapable').SyncWaterfallHook;
+      const { SyncWaterfallHook } = require('tapable');
       const pluginOptions = {
         name: 'URLImportPlugin',
         stage: Infinity,

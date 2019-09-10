@@ -1,9 +1,9 @@
 const fs = require('fs');
 const path = require('path');
-const babel = require("@babel/core");
+const babel = require('@babel/core');
 
 function ensureDirectoryExistence(filePath) {
-  var dirname = path.dirname(filePath);
+  const dirname = path.dirname(filePath);
   if (fs.existsSync(dirname)) {
     return true;
   }
@@ -20,16 +20,16 @@ describe('Babel Transform Integrity', () => {
         const directoryForCase = path.resolve(casesDirectory, directory);
         const testCase = path.resolve(
           directoryForCase,
-          'index.js'
-        )
+          'index.js',
+        );
 
         const output = babel.transformFileSync(testCase,
           {
-            "plugins": [
-              require.resolve("../../babel"),
-              "@babel/plugin-syntax-dynamic-import",
-              "@babel/plugin-proposal-class-properties"
-            ]
+            plugins: [
+              require.resolve('../../babel'),
+              '@babel/plugin-syntax-dynamic-import',
+              '@babel/plugin-proposal-class-properties',
+            ],
           }).code;
 
         expect(output).toMatchSnapshot();

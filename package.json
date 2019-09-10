@@ -26,8 +26,8 @@
   ],
   "scripts": {
     "compile": "babel src -d . ",
-    "test": "npm run lint && npm run tsc-test && npm run jest",
-    "lint": "eslint --ext .js,.ts,.tsx --ignore-pattern dist,node_modules . --fix",
+    "test": "npm run lint && npm run jest",
+    "lint": "eslint --ext .js,.jsx .",
     "jest": "NODE_ENV=test jest",
     "jest:ci": "cross-env NODE_ENV=development jest",
     "demo:one": "cd manual/Website1; npm i && npm link webpack-external-import && npm run manual:dev",
@@ -46,7 +46,6 @@
     "@babel/plugin-transform-runtime": "^7.5.0",
     "@babel/preset-env": "^7.5.4",
     "@babel/preset-react": "^7.0.0",
-    "@typescript-eslint/eslint-plugin": "^1.9.0",
     "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^10.0.1",
     "babel-loader": "^8.0.6",

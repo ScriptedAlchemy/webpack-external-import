@@ -1,7 +1,8 @@
 const webpack = require('webpack');
-const external = require.resolve('../../')
 
-module.exports = (commonPaths) => ({
+const external = require.resolve('../../');
+
+module.exports = commonPaths => ({
   mode: 'development',
   devtool: 'source-map',
   entry: commonPaths.entry,
@@ -32,7 +33,7 @@ module.exports = (commonPaths) => ({
   },
   optimization: {
     runtimeChunk: {
-      name: "manifest",
+      name: 'manifest',
     },
     splitChunks: {
       chunks: 'all',
@@ -61,9 +62,9 @@ module.exports = (commonPaths) => ({
   resolve: {
     alias: {
       'webpack-external-import': external,
-    }
+    },
   },
   plugins: [
-    new webpack.HotModuleReplacementPlugin()
+    new webpack.HotModuleReplacementPlugin(),
   ],
 });

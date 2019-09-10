@@ -1,7 +1,10 @@
 import React from 'react';
 // import 'moment'/
-export const Title = ({title}) => {
-  return (<h1>TITLE COMPONENT: {title}</h1>)
-}
+export const Title = ({ title }) => (
+  <h1>
+TITLE COMPONENT:
+    {title}
+  </h1>
+);
 
-/*externalize:TitleComponent*/
+/* externalize:TitleComponent */
