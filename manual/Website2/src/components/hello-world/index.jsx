@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
 
-const Test = (props, state, actions) => <div>{state.title}</div>;
+const Test = props => <div>{props.title}</div>;
 
 const TestTwo = (props, state, actions) => (<div>{state.title}</div>);
 

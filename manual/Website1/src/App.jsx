@@ -30,12 +30,16 @@ class App extends Component {
 
   render() {
     const { manifestLoaded } = this.state;
-    const helloWorldUrl = manifestLoaded && `http://localhost:3002/${window.entryManifest['website-two']['TitleComponent.js']}`;
+    if(!manifestLoaded) {
+      return 'Loading...';
+    }
+
+    const helloWorldUrl = `http://localhost:3002/${window.entryManifest['website-two']['TitleComponent.js']}`;
 
     return (
       <div>
         <HelloWorld />
-        { manifestLoaded && <ExternalComponent src={helloWorldUrl} module="TitleComponent" export="Title" title="Some Heading" />}
+        <ExternalComponent src={helloWorldUrl} module="TitleComponent" export="Title" title="Some Heading" />
         {this.renderDynamic()}
       </div>
     );
