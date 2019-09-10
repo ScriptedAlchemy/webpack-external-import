@@ -11,7 +11,8 @@
     "webpack",
     "babel",
     "corsImport.js",
-    "index.js"
+    "index.js",
+    "polyfill.js"
   ],
   "keywords": [
     "import url",
