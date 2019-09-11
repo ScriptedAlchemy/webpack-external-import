@@ -3,8 +3,6 @@
 node_modules
 .idea
 dist
-.idea
-dist
 manual/Website1/babelOutput
 manual/Website2/babelOutput
 manual/build
@@ -13,4 +11,6 @@ package-lock.json
 webpack
 babel
 index.js
-scout.js
+corsImport.js
+polyfill.js
+react.js

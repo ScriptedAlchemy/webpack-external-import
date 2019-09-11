@@ -3,7 +3,7 @@ const external = require.resolve('../../')
 
 module.exports = (commonPaths) => ({
   mode: 'development',
-  devtool: 'source-map',
+  devtool: 'inline-source-map',
   entry: commonPaths.entry,
   output: {
     filename: '[name].js',
@@ -57,11 +57,10 @@ module.exports = (commonPaths) => ({
     compress: true,
     hot: true,
     port: `300${commonPaths.siteId}`,
-  },
-  resolve: {
-    alias: {
-      'webpack-external-import': external,
-    }
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Headers': '*',
+    },
   },
   plugins: [
     new webpack.HotModuleReplacementPlugin()
