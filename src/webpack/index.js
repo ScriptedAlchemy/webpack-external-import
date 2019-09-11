@@ -181,10 +181,10 @@ class URLImportPlugin {
                 // console.log('getReference chunks', dependencyModuleSet);
                 // console.log('dependencyModuleSet', dependencyModuleSet);
                 // console.log('dependencyModuleSet entryModule', dependencyModuleSet?.entryModule?.());
-                // for (const module of dependencyModuleSet.chunksIterable) {
-                //   console.log('iterated dependency module', module);
-                //   console.log(module.block);
-                // }
+                for (const module of dependencyModuleSet.chunksIterable) {
+                  // console.log('iterated dependency module', module);
+                  // console.log(module.block);
+                }
               });
             }
           });
