@@ -77,9 +77,13 @@
     "react": "^16.8.6",
     "regenerator-runtime": "^0.13.2",
     "source-map": "^0.7.3",
-    "webpack": "^4.31.0",
+    "webpack": "^4.40.2",
     "webpack-cli": "^3.3.8",
     "webpack-dev-server": "^3.4.1"
+  },
+
+  "peerDependencies": {
+    "webpack": "^4.40.2"
   },
   "babel": {
     "presets": [

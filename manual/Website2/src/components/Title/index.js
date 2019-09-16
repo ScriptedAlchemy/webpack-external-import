@@ -1,5 +1,6 @@
 import React from 'react';
-// import 'moment'/
+import 'react-select';
+
 export const Title = ({ title }) => (
   <h1>
 TITLE COMPONENT:
