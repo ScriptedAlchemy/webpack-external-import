@@ -97,7 +97,6 @@ class URLImportPlugin {
     }
 
     this.opts = Object.assign({
-      debug: false,
       publicPath: null,
       debug: debug || false,
       basePath: '',
