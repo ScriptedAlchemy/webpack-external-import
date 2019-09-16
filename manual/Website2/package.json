@@ -21,7 +21,7 @@
     "babel-core": "^7.0.0-bridge.0",
     "babel-loader": "^8.0.5",
     "eslint-loader": "^2.1.2",
-    "react": "^16.8.6",
+    "react": "16.8.6",
     "react-hot-loader": "^4.8.3",
     "webpack": "^4.29.6",
     "webpack-cli": "^3.3.0",

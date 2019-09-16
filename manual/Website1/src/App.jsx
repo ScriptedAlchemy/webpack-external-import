@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
-import { ExternalComponent,corsImport,getChunkPath } from 'webpack-external-import';
+import {
+  ExternalComponent, corsImport, getChunkPath, getChunkDependencies,
+} from 'webpack-external-import';
 import HelloWorld from './components/goodbye-world';
 
 import('moment');
@@ -12,8 +14,10 @@ class App extends Component {
   componentDidMount() {
     corsImport('http://localhost:3002/importManifest.js').then(() => {
       this.setState({ manifestLoaded: true });
-      console.log(getChunkPath('http://loaclhost:3002','website-two','SomeExternalModule.js'))
-      import(/* webpackIgnore:true */`http://localhost:3002/${window.entryManifest['website-two']['SomeExternalModule.js']}`).then(() => {
+
+      console.log('chunkdeps', getChunkDependencies('http://localhost:3002', 'website-two', 'TitleComponent.js'));
+
+      import(/* webpackIgnore:true */getChunkPath('http://localhost:3002', 'website-two', 'SomeExternalModule.js')).then(() => {
         console.log('got module, will render it in 2 seconds');
         setTimeout(() => {
           this.setState({ loaded: true });
@@ -31,11 +35,11 @@ class App extends Component {
 
   render() {
     const { manifestLoaded } = this.state;
-    if(!manifestLoaded) {
+    if (!manifestLoaded) {
       return 'Loading...';
     }
 
-    const helloWorldUrl = `http://localhost:3002/${window.entryManifest['website-two']['TitleComponent.js']}`;
+    const helloWorldUrl = getChunkPath('http://localhost:3002', 'website-two', 'TitleComponent');
 
     return (
       <div>
