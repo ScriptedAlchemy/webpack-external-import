@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { ExternalComponent,corsImport } from 'webpack-external-import';
+import { ExternalComponent,corsImport,getChunkPath } from 'webpack-external-import';
 import HelloWorld from './components/goodbye-world';
 
 import('moment');
@@ -12,6 +12,7 @@ class App extends Component {
   componentDidMount() {
     corsImport('http://localhost:3002/importManifest.js').then(() => {
       this.setState({ manifestLoaded: true });
+      console.log(getChunkPath('http://loaclhost:3002','website-two','SomeExternalModule.js'))
       import(/* webpackIgnore:true */`http://localhost:3002/${window.entryManifest['website-two']['SomeExternalModule.js']}`).then(() => {
         console.log('got module, will render it in 2 seconds');
         setTimeout(() => {

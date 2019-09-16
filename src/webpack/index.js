@@ -432,8 +432,8 @@ class URLImportPlugin {
       const isLastEmit = emitCount === 0;
       if (isLastEmit) {
         const cleanedManifest = Object.entries(manifest)
-          .reduce((acc, [key, asset]) => {
-            if (!asset.includes('.map')) {
+          .reduce((acc, [key, asset]) => {console.log(asset);
+            if (!asset?.path?.includes('.map')) {
               return Object.assign(acc, { [key]: asset });
             }
             return acc;
