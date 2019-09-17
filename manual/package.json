@@ -21,7 +21,7 @@
     "eslint-loader": "^2.1.2",
     "react-hot-loader": "^4.8.3",
     "webpack-cli": "^3.3.0",
-    "write-file-webpack-plugin": "^4.5.0"
+    "write-file-webpack-plugin": "^4.5.1"
   },
   "peerDependencies": {
     "react": ">=16.8.0",

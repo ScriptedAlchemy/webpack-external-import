@@ -1,5 +1,5 @@
 const webpack = require('webpack');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+
 
 module.exports = (commonPaths) => ({
   module: {
@@ -59,6 +59,5 @@ module.exports = (commonPaths) => ({
     extensions: ['*', '.js', '.jsx', '.css', '.scss'],
   },
   plugins: [
-    new webpack.ProgressPlugin(),
   ],
 });
