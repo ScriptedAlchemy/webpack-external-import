@@ -1,18 +1,10 @@
-import server from '../../manual/server';
+/* eslint-env jest */
+/* globals page */
+
+import server from '../../manual/spawn-server';
 import 'regenerator-runtime/runtime';
 
-const retry = fn => new Promise((resolve) => {
-  fn()
-    .then(resolve)
-    .catch(() => {
-      setTimeout(() => {
-        console.log('retrying...');
-        retry(fn).then(resolve);
-      }, 1000);
-    });
-});
-
-const waitFor200 = (page, url) => retry(() => new Promise((resolve, reject) => {
+const waitFor200 = async (page, url) => new Promise((resolve, reject) => {
   page
     .goto(url)
     .then((res) => {
@@ -23,37 +15,33 @@ const waitFor200 = (page, url) => retry(() => new Promise((resolve, reject) => {
       }
     })
     .catch(reject);
-}));
-
-beforeAll(async () => {
-  jest.setTimeout(30000);
-  await server.start();
 });
 
-afterAll(() => {
-  server.stop();
-});
+describe('integration', () => {
+  beforeAll(() => jest.setTimeout(30000));
 
-xdescribe('external script', () => {
-  let logs = [];
+  describe('external script', () => {
+    let logs = [];
 
-  beforeEach(() => {
-    page.on('console', msg => logs.push(msg.text()));
-  });
+    beforeEach(async () => {
+      page.on('console', msg => logs.push(msg.text()));
 
-  afterEach(() => {
-    logs = [];
-    page.removeAllListeners();
-  });
+      await server.start();
+    });
 
-  it('should console.log', async () => {
-    jest.setTimeout(30000);
+    afterEach(() => {
+      logs = [];
+      page.removeAllListeners();
 
-    await page.waitFor(1000);
-    await waitFor200(page, 'http://localhost:3002/importManifest.js');
-    await page.goto('http://localhost:3001');
-    await page.waitForResponse('http://localhost:3002/hello-world.js');
-    await page.waitFor(() => window.wasExternalFunctionCalled);
-    expect(logs).toContain('some function thats externalized');
+      server.stop();
+    });
+
+    it('runs without error', async () => {
+      await waitFor200(page, 'http://localhost:3002/importManifest.js');
+      await waitFor200(page, 'http://localhost:3001');
+      await page.waitForResponse(res => /3002.*hello-world\..*\.js/.test(res.url()));
+      await page.waitFor(() => window.wasExternalFunctionCalled);
+      expect(logs).toContain('some function thats externalized');
+    });
   });
 });
