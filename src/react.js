@@ -15,7 +15,7 @@ class ExternalComponent extends Component {
   importPromise(src) {
     if (!src) {
       return new Promise((resolve, reject) => {
-        reject(throw new Error('no src prop'));
+        reject();
       });
     }
     if (this.props.cors) {
