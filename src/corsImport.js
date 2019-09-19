@@ -1,8 +1,8 @@
 import loadjs from 'loadjs';
 
 const corsImport = (url) => {
-  if(url) {
-    return new Promise.resolve();
+  if (!url) {
+    return new Promise((resolve, reject) => reject('no url in corsImport'));
   }
   loadjs(url, url);
 
