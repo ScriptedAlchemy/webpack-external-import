@@ -167,14 +167,14 @@ class URLImportPlugin {
             name = path;
           }
 
-        // console.log('stats', stats);
+          // console.log('stats', stats);
 
-        if (externalModules[chunk.id]) {
+          if (externalModules[chunk.id]) {
           // TODO: swap forEachModle out with const of
           // const module of chunk.modulesIterable
-          chunk.forEachModule((module) => {
-            if (module.dependencies) {
-              module.dependencies.forEach((dependency) => {
+            chunk.forEachModule((module) => {
+              if (module.dependencies) {
+                module.dependencies.forEach((dependency) => {
                 // console.group();
                 // console.log('dependencies foreach: dependency.module', dependency.module);
                 // console.log('dependencies foreach:  dependency.module.entry', dependency?.module?.entry?.());
@@ -184,8 +184,8 @@ class URLImportPlugin {
                 // console.groupEnd();
                 // console.log("Back to level 2");
                 // console.groupEnd();
-                const dependencyModuleSet = dependency.getReference?.()?.module;
-                if (!dependencyModuleSet) return null;
+                  const dependencyModuleSet = dependency.getReference?.()?.module;
+                  if (!dependencyModuleSet) return null;
                 // console.log('getReference chunks', dependencyModuleSet);
                 // console.log('dependencyModuleSet', dependencyModuleSet);
                 // console.log('dependencyModuleSet entryModule', dependencyModuleSet?.entryModule?.());
@@ -193,30 +193,31 @@ class URLImportPlugin {
                 //   console.log('iterated dependency module', module);
                 //   console.log(module.block);
                 // }
-              });
-            }
-          });
-        }
+                });
+              }
+            });
+          }
 
-        // Webpack 4: .isOnlyInitial()
-        // Webpack 3: .isInitial()
-        // Webpack 1/2: .initial
-        // const modules = chunk.modulesIterable;
-        // let i = 0;
-        // while (i < modules.length) {
-        //   getMeta(modules[i]);
-        //   i++;
-        // }
-        return files.concat({
-          path,
-          chunk,
-          name,
-          isInitial: chunk.isOnlyInitial ? chunk.isOnlyInitial() : (chunk.isInitial ? chunk.isInitial() : chunk.initial),
-          isChunk: true,
-          isAsset: false,
-          isModuleAsset: false,
-        });
-      }, files), []);
+          // Webpack 4: .isOnlyInitial()
+          // Webpack 3: .isInitial()
+          // Webpack 1/2: .initial
+          // const modules = chunk.modulesIterable;
+          // let i = 0;
+          // while (i < modules.length) {
+          //   getMeta(modules[i]);
+          //   i++;
+          // }
+          return files.concat({
+            path,
+            chunk,
+            name,
+            isInitial: chunk.isOnlyInitial ? chunk.isOnlyInitial() : (chunk.isInitial ? chunk.isInitial() : chunk.initial),
+            isChunk: true,
+            isAsset: false,
+            isModuleAsset: false,
+          });
+        }, files), [],
+      );
 
       // module assets don't show up in assetsByChunkName.
       // we're getting them this way;
