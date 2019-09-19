@@ -13,6 +13,11 @@ class ExternalComponent extends Component {
   }
 
   importPromise(src) {
+    if (!src) {
+      return new Promise((resolve, reject) => {
+        reject(throw new Error('no src prop'));
+      });
+    }
     if (this.props.cors) {
       return require('./corsImport').default(src);
     }
@@ -28,6 +33,7 @@ class ExternalComponent extends Component {
     const { src, module, export: exportName } = this.props;
     if (!src) {
       throw new Error(`dynamic-import: no url ${JSON.stringify(this.props, null, 2)}`);
+      return;
     }
     this.importPromise(src).then(() => {
       const requiredComponent = __webpack_require__(module);
