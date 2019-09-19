@@ -167,63 +167,56 @@ class URLImportPlugin {
             name = path;
           }
 
-          // console.log('stats', stats);
+        // console.log('stats', stats);
 
-          if (externalModules[chunk.id]) {
-            // TODO: swap forEachModle out with const of
-            // const module of chunk.modulesIterable
-            chunk.forEachModule((module) => {
-              if (module.dependencies) {
-                module.dependencies.forEach((dependency) => {
-                  // console.group();
-                  // console.log('dependencies foreach: dependency.module', dependency.module);
-                  // console.log('dependencies foreach:  dependency.module.entry', dependency?.module?.entry?.());
-                  // console.group();
-                  // console.log("Level 3");
-                  // console.warn("More of level 3");
-                  // console.groupEnd();
-                  // console.log("Back to level 2");
-                  // console.groupEnd();
-                  const dependencyModuleSet = dependency.getReference?.()
-                            ?.module;
-                  if (!dependencyModuleSet) return null;
-                  // console.log('getReference chunks', dependencyModuleSet);
-                  // console.log('dependencyModuleSet', dependencyModuleSet);
-                  // console.log('dependencyModuleSet entryModule', dependencyModuleSet?.entryModule?.());
-                  // for (const module of dependencyModuleSet.chunksIterable) {
-                  //   console.log('iterated dependency module', module);
-                  //   console.log(module.block);
-                  // }
-                });
-              }
-            });
-          }
-
-          // Webpack 4: .isOnlyInitial()
-          // Webpack 3: .isInitial()
-          // Webpack 1/2: .initial
-          // const modules = chunk.modulesIterable;
-          // let i = 0;
-          // while (i < modules.length) {
-          //   getMeta(modules[i]);
-          //   i++;
-          // }
-          return files.concat({
-            path,
-            chunk,
-            name,
-            isInitial: chunk.isOnlyInitial
-              ? chunk.isOnlyInitial()
-              : chunk.isInitial
-                ? chunk.isInitial()
-                : chunk.initial,
-            isChunk: true,
-            isAsset: false,
-            isModuleAsset: false,
+        if (externalModules[chunk.id]) {
+          // TODO: swap forEachModle out with const of
+          // const module of chunk.modulesIterable
+          chunk.forEachModule((module) => {
+            if (module.dependencies) {
+              module.dependencies.forEach((dependency) => {
+                // console.group();
+                // console.log('dependencies foreach: dependency.module', dependency.module);
+                // console.log('dependencies foreach:  dependency.module.entry', dependency?.module?.entry?.());
+                // console.group();
+                // console.log("Level 3");
+                // console.warn("More of level 3");
+                // console.groupEnd();
+                // console.log("Back to level 2");
+                // console.groupEnd();
+                const dependencyModuleSet = dependency.getReference?.()?.module;
+                if (!dependencyModuleSet) return null;
+                // console.log('getReference chunks', dependencyModuleSet);
+                // console.log('dependencyModuleSet', dependencyModuleSet);
+                // console.log('dependencyModuleSet entryModule', dependencyModuleSet?.entryModule?.());
+                // for (const module of dependencyModuleSet.chunksIterable) {
+                //   console.log('iterated dependency module', module);
+                //   console.log(module.block);
+                // }
+              });
+            }
           });
-        }, files),
-        [],
-      );
+        }
+
+        // Webpack 4: .isOnlyInitial()
+        // Webpack 3: .isInitial()
+        // Webpack 1/2: .initial
+        // const modules = chunk.modulesIterable;
+        // let i = 0;
+        // while (i < modules.length) {
+        //   getMeta(modules[i]);
+        //   i++;
+        // }
+        return files.concat({
+          path,
+          chunk,
+          name,
+          isInitial: chunk.isOnlyInitial ? chunk.isOnlyInitial() : (chunk.isInitial ? chunk.isInitial() : chunk.initial),
+          isChunk: true,
+          isAsset: false,
+          isModuleAsset: false,
+        });
+      }, files), []);
 
       // module assets don't show up in assetsByChunkName.
       // we're getting them this way;
@@ -263,6 +256,7 @@ class URLImportPlugin {
 
         return !isUpdateChunk && !isManifest;
       });
+
 
       // Append optional basepath onto all references.
       // This allows output path to be reflected in the manifest.
