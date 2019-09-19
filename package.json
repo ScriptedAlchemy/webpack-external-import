@@ -1,7 +1,7 @@
 {
   "name": "webpack-external-import",
   "description": "dynamic import() external urls!",
-  "version": "0.0.1-beta.23",
+  "version": "0.0.1-beta.32",
   "repository": {
     "type": "git",
     "url": "https://github.com/ScriptedAlchemy/webpack-external-import.git"
@@ -12,7 +12,8 @@
     "babel",
     "corsImport.js",
     "index.js",
-    "polyfill.js"
+    "polyfill.js",
+    "react.js"
   ],
   "keywords": [
     "import url",

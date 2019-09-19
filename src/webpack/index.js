@@ -34,26 +34,29 @@ const emitCountMap = new Map();
 class URLImportPlugin {
   constructor(opts) {
     if (!opts.manifestName) {
-      throw new Error('URLImportPlugin: You MUST specify a manifestName in your options. Something unique. Like {manifestName: my-special-build}');
+      throw new Error(
+        'URLImportPlugin: You MUST specify a manifestName in your options. Something unique. Like {manifestName: my-special-build}',
+      );
     }
-    this.opts = Object.assign({
-      publicPath: null,
-      basePath: '',
-      manifestName: 'unknown-project',
-      fileName: 'importManifest.js',
-      transformExtensions: /^(gz|map)$/i,
-      writeToFileEmit: false,
-      seed: null,
-      filter: null,
-      map: null,
-      generate: null,
-      sort: null,
-      serialize: manifest => `if(!window.entryManifest) {window.entryManifest = {}}; window.entryManifest["${opts.manifestName}"] = ${JSON.stringify(
-        manifest,
-        null,
-        2,
-      )}`,
-    }, opts || {});
+    this.opts = Object.assign(
+      {
+        publicPath: null,
+        basePath: '',
+        manifestName: 'unknown-project',
+        fileName: 'importManifest.js',
+        transformExtensions: /^(gz|map)$/i,
+        writeToFileEmit: false,
+        seed: null,
+        filter: null,
+        map: null,
+        generate: null,
+        sort: null,
+        serialize: manifest => `if(!window.entryManifest) {window.entryManifest = {}}; window.entryManifest["${
+          opts.manifestName
+        }"] = ${JSON.stringify(manifest, null, 2)}`,
+      },
+      opts || {},
+    );
   }
 
   getFileType(str) {
@@ -72,7 +75,9 @@ class URLImportPlugin {
     chunkSplitting.interleave = {
       test(module) {
         if (module.resource) {
-          return module.resource.includes('src') && !!hasExternalizedModule(module);
+          return (
+            module.resource.includes('src') && !!hasExternalizedModule(module)
+          );
         }
       },
       name(module, chunks, cacheGroupKey) {
@@ -111,13 +116,14 @@ class URLImportPlugin {
 
     mergeDeep(options, {
       optimization: {
-        namedModules: true,
         splitChunks: {
-          chunks: options?.optimization?.splitChunks?.chunks || 'all',
           cacheGroups: chunkSplitting,
         },
       },
     });
+
+    Object.assign(options.optimization.splitChunks, { chunks: 'all' });
+    Object.assign(options.optimization, { namedModules: true });
 
     const moduleAssets = {};
     const externalModules = {};
@@ -144,29 +150,31 @@ class URLImportPlugin {
 
       const seed = this.opts.seed || {};
 
-      const publicPath = this.opts.publicPath != null ? this.opts.publicPath : compilation.options.output.publicPath;
-      const stats = compilation.getStats()
-        .toJson();
+      const publicPath = this.opts.publicPath != null
+        ? this.opts.publicPath
+        : compilation.options.output.publicPath;
+      const stats = compilation.getStats().toJson();
       // console.log('Webpack Plugin Debugging');
 
-      let files = compilation.chunks.reduce((files, chunk) => chunk.files.reduce((files, path) => {
-        let name = chunk.name ? chunk.name : null;
+      let files = compilation.chunks.reduce(
+        (files, chunk) => chunk.files.reduce((files, path) => {
+          let name = chunk.name ? chunk.name : null;
 
-        if (name) {
-          name = `${name}.${this.getFileType(path)}`;
-        } else {
-          // For nameless chunks, just map the files directly.
-          name = path;
-        }
+          if (name) {
+            name = `${name}.${this.getFileType(path)}`;
+          } else {
+            // For nameless chunks, just map the files directly.
+            name = path;
+          }
 
-        // console.log('stats', stats);
+          // console.log('stats', stats);
 
-        if (externalModules[chunk.id]) {
+          if (externalModules[chunk.id]) {
           // TODO: swap forEachModle out with const of
           // const module of chunk.modulesIterable
-          chunk.forEachModule((module) => {
-            if (module.dependencies) {
-              module.dependencies.forEach((dependency) => {
+            chunk.forEachModule((module) => {
+              if (module.dependencies) {
+                module.dependencies.forEach((dependency) => {
                 // console.group();
                 // console.log('dependencies foreach: dependency.module', dependency.module);
                 // console.log('dependencies foreach:  dependency.module.entry', dependency?.module?.entry?.());
@@ -176,8 +184,8 @@ class URLImportPlugin {
                 // console.groupEnd();
                 // console.log("Back to level 2");
                 // console.groupEnd();
-                const dependencyModuleSet = dependency.getReference?.()?.module;
-                if (!dependencyModuleSet) return null;
+                  const dependencyModuleSet = dependency.getReference?.()?.module;
+                  if (!dependencyModuleSet) return null;
                 // console.log('getReference chunks', dependencyModuleSet);
                 // console.log('dependencyModuleSet', dependencyModuleSet);
                 // console.log('dependencyModuleSet entryModule', dependencyModuleSet?.entryModule?.());
@@ -185,30 +193,31 @@ class URLImportPlugin {
                 //   console.log('iterated dependency module', module);
                 //   console.log(module.block);
                 // }
-              });
-            }
-          });
-        }
+                });
+              }
+            });
+          }
 
-        // Webpack 4: .isOnlyInitial()
-        // Webpack 3: .isInitial()
-        // Webpack 1/2: .initial
-        // const modules = chunk.modulesIterable;
-        // let i = 0;
-        // while (i < modules.length) {
-        //   getMeta(modules[i]);
-        //   i++;
-        // }
-        return files.concat({
-          path,
-          chunk,
-          name,
-          isInitial: chunk.isOnlyInitial ? chunk.isOnlyInitial() : (chunk.isInitial ? chunk.isInitial() : chunk.initial),
-          isChunk: true,
-          isAsset: false,
-          isModuleAsset: false,
-        });
-      }, files), []);
+          // Webpack 4: .isOnlyInitial()
+          // Webpack 3: .isInitial()
+          // Webpack 1/2: .initial
+          // const modules = chunk.modulesIterable;
+          // let i = 0;
+          // while (i < modules.length) {
+          //   getMeta(modules[i]);
+          //   i++;
+          // }
+          return files.concat({
+            path,
+            chunk,
+            name,
+            isInitial: chunk.isOnlyInitial ? chunk.isOnlyInitial() : (chunk.isInitial ? chunk.isInitial() : chunk.initial),
+            isChunk: true,
+            isAsset: false,
+            isModuleAsset: false,
+          });
+        }, files), [],
+      );
 
       // module assets don't show up in assetsByChunkName.
       // we're getting them this way;
@@ -299,13 +308,15 @@ class URLImportPlugin {
 
       const isLastEmit = emitCount === 0;
       if (isLastEmit) {
-        const cleanedManifest = Object.entries(manifest)
-          .reduce((acc, [key, asset]) => {
+        const cleanedManifest = Object.entries(manifest).reduce(
+          (acc, [key, asset]) => {
             if (!asset.includes('.map')) {
               return Object.assign(acc, { [key]: asset });
             }
             return acc;
-          }, {});
+          },
+          {},
+        );
 
         const output = this.opts.serialize(cleanedManifest);
 
@@ -326,7 +337,11 @@ class URLImportPlugin {
       if (compiler.hooks) {
         compiler.hooks.webpackURLImportPluginAfterEmit.call(manifest);
       } else {
-        compilation.applyPluginsAsync('webpack-manifest-plugin-after-emit', manifest, compileCallback);
+        compilation.applyPluginsAsync(
+          'webpack-manifest-plugin-after-emit',
+          manifest,
+          compileCallback,
+        );
       }
     };
 
@@ -345,26 +360,28 @@ class URLImportPlugin {
         name: 'URLImportPlugin',
         stage: Infinity,
       };
-      compiler.hooks.webpackURLImportPluginAfterEmit = new SyncWaterfallHook(['manifest']);
+      compiler.hooks.webpackURLImportPluginAfterEmit = new SyncWaterfallHook([
+        'manifest',
+      ]);
 
       compiler.hooks.compilation.tap('URLImportPlugin', (compilation) => {
-        compilation.hooks.beforeModuleIds.tap(
-          'URLImportPlugin',
-          (modules) => {
-            for (const module of modules) {
-              const moduleSource = module?.originalSource?.().source?.() || '';
-              if (moduleSource?.indexOf('externalize') > -1 || false) {
-                module.buildMeta = mergeDeep(module.buildMeta, { isExternalized: true });
-                try {
-                  // look at refactoring this to use buildMeta not mutate id
-                  module.id = moduleSource.match(/\/\*\s*externalize\s*:\s*(\S+)\s*\*\//)[1];
-                } catch (error) {
-                }
-                externalModules[module.id] = {};
-              }
+        compilation.hooks.beforeModuleIds.tap('URLImportPlugin', (modules) => {
+          for (const module of modules) {
+            const moduleSource = module?.originalSource?.().source?.() || '';
+            if (moduleSource?.indexOf('externalize') > -1 || false) {
+              module.buildMeta = mergeDeep(module.buildMeta, {
+                isExternalized: true,
+              });
+              try {
+                // look at refactoring this to use buildMeta not mutate id
+                module.id = moduleSource.match(
+                  /\/\*\s*externalize\s*:\s*(\S+)\s*\*\//,
+                )[1];
+              } catch (error) {}
+              externalModules[module.id] = {};
             }
-          },
-        );
+          }
+        });
       });
 
       compiler.hooks.compilation.tap(pluginOptions, ({ hooks }) => {

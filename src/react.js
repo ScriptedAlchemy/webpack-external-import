@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import './polyfill';
 
 class ExternalComponent extends Component {
   constructor(props) {
@@ -14,6 +13,11 @@ class ExternalComponent extends Component {
   }
 
   importPromise(src) {
+    if (!src) {
+      return new Promise((resolve, reject) => {
+        reject();
+      });
+    }
     if (this.props.cors) {
       return require('./corsImport').default(src);
     }
@@ -24,6 +28,8 @@ class ExternalComponent extends Component {
   }
 
   componentDidMount() {
+    require('./polyfill');
+
     const { src, module, export: exportName } = this.props;
     if (!src) {
       throw new Error(`dynamic-import: no url ${JSON.stringify(this.props, null, 2)}`);
