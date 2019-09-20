@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import './polyfill';
+import { importWithDependencies, importDependenciesOf } from './index';
 
 class ExternalComponent extends Component {
   constructor(props) {
@@ -18,6 +19,7 @@ class ExternalComponent extends Component {
       return require('./corsImport').default(src);
     }
 
+
     return new Promise((resolve) => {
       resolve(new Function(`return import("${src}")`)());
     });
@@ -28,6 +30,7 @@ class ExternalComponent extends Component {
     if (!src) {
       throw new Error(`dynamic-import: no url ${JSON.stringify(this.props, null, 2)}`);
     }
+
     this.importPromise(src).then(() => {
       const requiredComponent = __webpack_require__(module);
       this.Component = requiredComponent.default ? requiredComponent.default : requiredComponent[exportName];
