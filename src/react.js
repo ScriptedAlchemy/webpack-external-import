@@ -15,10 +15,14 @@ class ExternalComponent extends Component {
   }
 
   importPromise(src) {
+    if (!src) {
+      return new Promise((resolve, reject) => {
+        reject();
+      });
+    }
     if (this.props.cors) {
       return require('./corsImport').default(src);
     }
-
 
     return new Promise((resolve) => {
       resolve(new Function(`return import("${src}")`)());
@@ -26,6 +30,8 @@ class ExternalComponent extends Component {
   }
 
   componentDidMount() {
+    require('./polyfill');
+
     const { src, module, export: exportName } = this.props;
     if (!src) {
       throw new Error(`dynamic-import: no url ${JSON.stringify(this.props, null, 2)}`);

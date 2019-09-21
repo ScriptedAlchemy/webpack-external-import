@@ -77,6 +77,7 @@ export const importDependenciesOf = (basePath, nameSpace, module) => {
   // window.entryManifest[nameSpace][module]
   // console.log('import with deps:')
 };
+
 export {
   corsImport,
   ExternalComponent,

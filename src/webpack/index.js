@@ -93,7 +93,9 @@ class URLImportPlugin {
     const debug = typeof v8debug === 'object'
         || /--debug|--inspect/.test(process.execArgv.join(' '));
     if (!opts.manifestName) {
-      throw new Error('URLImportPlugin: You MUST specify a manifestName in your options. Something unique. Like {manifestName: my-special-build}');
+      throw new Error(
+        'URLImportPlugin: You MUST specify a manifestName in your options. Something unique. Like {manifestName: my-special-build}',
+      );
     }
 
     this.opts = Object.assign({
@@ -458,7 +460,11 @@ class URLImportPlugin {
       if (compiler.hooks) {
         compiler.hooks.webpackURLImportPluginAfterEmit.call(manifest);
       } else {
-        compilation.applyPluginsAsync('webpack-manifest-plugin-after-emit', manifest, compileCallback);
+        compilation.applyPluginsAsync(
+          'webpack-manifest-plugin-after-emit',
+          manifest,
+          compileCallback,
+        );
       }
     };
 
@@ -477,7 +483,9 @@ class URLImportPlugin {
         name: 'URLImportPlugin',
         stage: Infinity,
       };
-      compiler.hooks.webpackURLImportPluginAfterEmit = new SyncWaterfallHook(['manifest']);
+      compiler.hooks.webpackURLImportPluginAfterEmit = new SyncWaterfallHook([
+        'manifest',
+      ]);
 
       compiler.hooks.compilation.tap('URLImportPlugin', (compilation) => {
         const usedIds = new Set();
