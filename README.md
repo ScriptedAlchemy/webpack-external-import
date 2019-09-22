@@ -542,7 +542,7 @@ How to start the demo in debug mode, using node --inspect and connecting to a ch
 > This is mainly for debugging the webpack plugin
  
 In the root directory, run the following
-1) `yarn install``
+1) `yarn install`
 2) `yarn demo:debug` from the root directory
 3) browse to [localhost:3001](http://localhost:3001)  or [localhost:3002](http://localhost:3002) 
 
