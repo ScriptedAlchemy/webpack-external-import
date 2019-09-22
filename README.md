@@ -526,11 +526,24 @@ In this file, I am importing code from another website/build. My application is 
 ```
 
 ## DEMO
-How to start (using the demo)
-
-1) `yarn install` then `cd manual; yarn install`
+How to start using the demo
+In the *root directory*, run the following
+1) `yarn install` then `yarn demo`
 2) `yarn demo` from the root directory
 3) browse to localhost:3001 or localhost:3002
 
 This comment runs the compile command to build a new copy of the plugin, as well as start the little manual [demo project](https://github.com/ScriptedAlchemy/webpack-external-import/tree/master/manual)
+
+
+## Development
+How to start the demo in debug mode, using node --inspect and connecting to a chrome debugger
+> This is mainly for debugging the webpack plugin
+ 
+In the root directory, run the following
+1) `yarn install` then `yarn demo:debug`
+2) `yarn demo` from the root directory
+3) browse to [localhost:3001](http://localhost:3001)  or [localhost:3002](http://localhost:3002) 
+
+**Note:** _[localhost:3001](http://localhost:3001) is the "consumer app, while the other is the provider app". Both apps work independently and you should check both of them out (they are extremely basic)_
+
 
