@@ -8,6 +8,8 @@ $ yarn  webpack-external-import
 ```
 *This project is under active development*
 
+**To jump to the _development_ section [click here](#installation)
+
 
 
 # Installation
@@ -540,8 +542,8 @@ How to start the demo in debug mode, using node --inspect and connecting to a ch
 > This is mainly for debugging the webpack plugin
  
 In the root directory, run the following
-1) `yarn install` then `yarn demo:debug`
-2) `yarn demo` from the root directory
+1) `yarn install``
+2) `yarn demo:debug` from the root directory
 3) browse to [localhost:3001](http://localhost:3001)  or [localhost:3002](http://localhost:3002) 
 
 **Note:** _[localhost:3001](http://localhost:3001) is the "consumer app, while the other is the provider app". Both apps work independently and you should check both of them out (they are extremely basic)_
