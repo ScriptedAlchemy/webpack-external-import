@@ -534,9 +534,9 @@ In the *root directory*, run the following
 2) run `yarn demo` from the root directory
 3) browse to [localhost:3001](http://localhost:3001)  or [localhost:3002](http://localhost:3002) 
 
-This command will install, all depdendencies, build the source for the plugin, install the demo dependencies, run all builds and start serving
+This command will install, all dependencies, build the source for the plugin, install the demo dependencies, run all builds and start serving
 
-## Development
+## Development & Debugging
 How to start the demo in debug mode, using node --inspect and connecting to a chrome debugger
 
 > This is mainly for debugging the webpack plugin
@@ -549,5 +549,5 @@ In the root directory, run the following
 **Note:** _[localhost:3001](http://localhost:3001) is the "consumer app, while the other is the provider app". Both apps work independently and you should check both of them out (they are extremely basic)_
 
 
-Open chrome dev tools and you should see the box hilighted below appear, click on it to connect to the webpack debugger 
+Open chrome dev tools and you should see the box highlighted below appear, click on it to connect to the webpack debugger 
 ![GitHub Logo](/docs/inspect.png)
