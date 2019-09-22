@@ -17,34 +17,7 @@ $ yarn add webpack-external-import --save
 
 ## Getting Started
 
-  
-> The basic setup enables a developt to import from URLs.  For example: `import('https://code.jquery.com/jquery-3.3.1.min.js');`
-> **Step 1** is all that's required for simple dynamic URL imports()
-> **Step 2** offers more advanced capabilities, like loading modules from another webpack build
-
-
-1.  Add `webpack-external-import/babel` to your `.babelrc`:
-
-```js
-// .babelrc
-{
-  "plugins": ["webpack-external-import/babel"]
-}
-```
-A possible `.babelrc` could look lke:
-```js
-// .babelrc
-
-{
-  "plugins": [
-        "webpack-external-import/babel",
-        "@babel/plugin-syntax-dynamic-import",
-        "@babel/plugin-proposal-class-properties"
-    ]
-}
-```
-
-2.  Add `webpack-external-import/babel` to your `.babelrc`:
+1.  Add `webpack-external-import/webpack` to your webpack plugins:
 ```js
 // techblog.webpack.config.js
 const URLImportPlugin = require('webpack-external-import/webpack')
@@ -55,6 +28,64 @@ const URLImportPlugin = require('webpack-external-import/webpack')
         })
     ]
 }
+```
+
+2. Add the `import()` polyfill (recommended)
+```js
+// index.js
+import 'webpack-external-import/polyfill';
+
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App.jsx';
+
+ReactDOM.render(<App />, document.getElementById('app'));
+```
+3. If you are interleaving webpack bundles, load their manifests
+```js
+  import {corsImport} from "webpack-external-import"
+  // if importing on the same domain and CORS isnt an issue
+  import(/* webpackIgnore:true */'http://localhost:3002/importManifest.js')
+
+  // if you need to import from a third party where CORS is an issue
+  corsImport('http://localhost:3002/importManifest.js')
+```
+4. import an external resource 
+We use raw `import()` with a polyfill to act as a script loader. We also have a fallback script loader for loading CORS. 
+
+```js
+// App.jsx
+// import a chunk from another website build with webpack-external-import
+  import {corsImport} from "webpack-external-import"
+
+  componentDidMount() {
+    corsImport('http://localhost:3002/importManifest.js').then(() => {
+      this.setState({ manifestLoaded: true });
+      import(/* webpackIgnore:true */`http://localhost:3002/${window.entryManifest['website-two']['SomeExternalModule.js']}`).then(() => {
+        console.log('got module, will render it in 2 seconds');
+        setTimeout(() => {
+          __webpack_require__('SomeExternalModule').default();
+          this.setState({ loaded: true });
+        }, 2000);
+      });
+    });
+  }
+```
+
+Or with JSX and a react component
+```js
+import {ExternalComponent} from 'webpack-external-import'
+ render() {
+    const { manifestLoaded } = this.state;
+    const titleComponentAsset = manifestLoaded && `http://localhost:3002/${window.entryManifest['website-two']['TitleComponent.js']}`;
+
+    return (
+      <div>
+        <HelloWorld />
+        { manifestLoaded && <ExternalComponent src={titleComponentAsset} module="TitleComponent" export="Title" title="Some Heading" />}
+      </div>
+    );
+  }
 ```
 
 ## What is the use of  `webpack-external-import` ?
@@ -86,18 +117,7 @@ const URLImportPlugin = require('webpack-external-import/webpack')
     ]
 }
 ```
-Then add the babel plugin to babelrc:
 
-**.babelrc**
-```json
-{
-    "presets": [],
-    "plugins": [
-        "webpack-external-import/babel",
-        "@babel/plugin-syntax-dynamic-import",
-    ]
-}
-```
 
 ## Example Usage
 Pretend we have two separate apps that each have their _independent_ build.  We want to share a module from one of our apps with the other.
@@ -158,18 +178,7 @@ export
 
 <td>
 
-```js
-
-// Title.js
-
-componentDidMount() {
-  import(
-  /* webpackChunkName: "title-cnk"*/ 
-  './components/Title'
-  );
-}
-```
-
+empty
 <td>
 
 <td>empty<td>
@@ -188,8 +197,9 @@ componentDidMount() {
     
 // App.js
 
-import('http://website1.com/js/ex-file.js')
-.then(({ExampleModule})=>{
+import(/* webpackIgnore:true */'http://website1.com/js/ExampleModule.js')
+.then(()=>{
+  const ExampleModule = __webpack_require__("ExampleModule");
   ExampleModule.alert('custom alert')
 });
     
@@ -216,7 +226,7 @@ const SomeComponent = (props)=>{
   return (
     <ExternalComponent 
     src={
-      import(/* importUrl */ this.state.url)
+      this.state.url
     } 
     module="ExampleModule"
     export='Title' 
@@ -234,7 +244,7 @@ const SomeComponent = (props)=>{
     
 Pretend we have two separate apps that each have their own independent build. We want to share a module from one of our apps with the other.
     
-To do this, we add an externalize comment to the module. This tells the plugin to make the module available externally with the name `ExampleModule`:
+To do this, we add an externalize comment to the module. This tells the plugin to make the module available externally with the name `ExampleModule` and webpack will chunk this file into `dist/ExampleModule.js`
 
 ```js
 // Title.js
@@ -257,7 +267,7 @@ export const alert = (message) => {
 The `ExampleModule` can now be pulled into our other app using `import`:
 
 ```js
-import('http://website1.com/js/theExampleFile.js').then(({ExampleModule})=>{
+import(/* webpackIgnore:true */'http://website1.com/js/ExampleModule.js').then(({ExampleModule})=>{
   ExampleModule.alert('custom alert')
 });
 ```
@@ -269,7 +279,7 @@ import {ExternalComponent} from 'webpack-external-import'
 
 ()=>{
   return (
-    <ExternalComponent src={import(/* importUrl */ helloWorldUrl)} module="ExampleModule" export='Title' title={'Some Heading'}/>
+    <ExternalComponent src={helloWorldUrl} module="ExampleModule" export='Title' title={'Some Heading'} cors/>
   )
 }
 ```
@@ -283,7 +293,7 @@ import {ExternalComponent} from 'webpack-external-import'
 import React, {Component} from 'react';
 import {hot} from 'react-hot-loader';
 import HelloWorld from './components/hello-world';
-import {ExternalComponent} from 'webpack-external-import'
+import {ExternalComponent,corsImport} from 'webpack-external-import'
 
 class App extends Component {
   constructor(props) {
@@ -292,9 +302,10 @@ class App extends Component {
   }
 
   componentDidMount() {
-    import('http://localhost:3002/importManifest.js').then(() => {
+  // using corsImport as an example, could also me import(/* webpackIgnore:true */)
+    corsImport('http://localhost:3002/importManifest.js').then(() => {
       this.setState({manifestLoaded: true})
-      import(/* importUrl */'http://localhost:3002/' + window.entryManifest['website-two']['hello-world.js']).then(({someModule}) => {
+      import(/* webpackIgnore:true */'http://localhost:3002/' + window.entryManifest['website-two']['hello-world.js']).then(({someModule}) => {
         console.log('got module, will render it in 2 seconds')
         someModule.externalFunction()
         setTimeout(() => {
@@ -313,12 +324,12 @@ class App extends Component {
 
   render() {
     const {manifestLoaded} = this.state
-    const helloWorldUrl = manifestLoaded && 'http://localhost:3002/' + window.entryManifest['website-two']['Title.js']
+    const helloWorldUrl = manifestLoaded && 'http://localhost:3002/' + window.entryManifest['website-two']['TitleComponent.js']
 
     return (
       <div>
         <HelloWorld/>
-        { manifestLoaded && <ExternalComponent src={import(/* importUrl */ helloWorldUrl)} module="TitleComponent" export='Title' title={'Some Heading'}/>}
+        { manifestLoaded && <ExternalComponent  src={helloWorldUrl} module="TitleComponent" export='Title' title={'Some Heading'} cors/>}
         {this.renderDynamic()}
       </div>
     )
@@ -338,10 +349,7 @@ class App extends Component {
   }
 
   componentDidMount() {
-    // Easy way to code-split files you want to use on other applications
-    // I also rename the chunk with webpackChunkName, so I can reference it by a custom name in window.entryManifest
-    import(/* webpackChunkName: "Title"*/ './components/Title');
-    import(/* webpackChunkName: "hello-worl-chunk"*/ './components/hello-world').then((HelloWorld) => {
+    import('./components/hello-world').then((HelloWorld) => {
       this.setState({component: HelloWorld.default})
     })
   }
@@ -380,7 +388,7 @@ module.exports = {
     publicPath
   },
   plugins: [
-    new ManifestPlugin(options)
+    new URLImportPlugin(options)
   ]
 }
 ```
@@ -465,6 +473,8 @@ React Component
 
 **`export`: string** - The named export to use as a component from the module being imported
 
+**`cors`: bool** - If asset is being loaded from a url which throws a CORS error. This will inject a script to the browser
+
 
 #### Usage
 ```js
@@ -499,8 +509,9 @@ In this file, I am importing code from another website/build. My application is 
   componentDidMount() {
     import('http://localhost:3002/importManifest.js').then(() => {
       this.setState({manifestLoaded: true})
-      import(/* importUrl */'http://localhost:3002/' + window.entryManifest['website-two']['hello-world.js'])
-        .then(({someModule}) => {
+      import(/* importUrl */'http://localhost:3002/' + window.entryManifest['website-two']['someModule.js'])
+        .then(() => {
+          const someModule = __webpack_require__("someModule")
           console.log('got the module, will render it in 2 seconds..')
           someModule.externalFunction()
           setTimeout(() => {
@@ -515,8 +526,9 @@ In this file, I am importing code from another website/build. My application is 
 ## DEMO
 How to start (using the demo)
 
-1) `yarn nstall` then `cd manual; yarn nstall`
-2) `yarn  demo` from the root directory
+1) `yarn install` then `cd manual; yarn install`
+2) `yarn demo` from the root directory
+3) browse to localhost:3001 or localhost:3002
 
 This comment runs the compile command to build a new copy of the plugin, as well as start the little manual [demo project](https://github.com/ScriptedAlchemy/webpack-external-import/tree/master/manual)
 

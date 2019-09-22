@@ -1,10 +1,10 @@
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
-const WriteFilePlugin = require( 'write-file-webpack-plugin');
+const WriteFilePlugin = require('write-file-webpack-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 
-module.exports = (commonPaths) => ({
+module.exports = commonPaths => ({
   mode: 'production',
   entry: commonPaths.entry,
   output: {
@@ -67,6 +67,10 @@ module.exports = (commonPaths) => ({
     compress: true,
     hot: true,
     port: `300${commonPaths.siteId}`,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Headers': '*',
+    },
   },
   plugins: [
     new WriteFilePlugin(),
@@ -76,5 +80,5 @@ module.exports = (commonPaths) => ({
       chunkFilename: `${commonPaths.cssFolder}/[name].css`,
     }),
   ],
-  devtool: 'source-map',
+  devtool: 'inline-source-map',
 });

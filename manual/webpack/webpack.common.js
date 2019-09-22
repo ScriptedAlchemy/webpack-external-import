@@ -59,6 +59,5 @@ module.exports = (commonPaths) => ({
     extensions: ['*', '.js', '.jsx', '.css', '.scss'],
   },
   plugins: [
-    new webpack.ProgressPlugin(),
   ],
 });
