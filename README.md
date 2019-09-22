@@ -8,7 +8,7 @@ $ yarn  webpack-external-import
 ```
 *This project is under active development*
 
-**To jump to the _development_ section [click here](#installation)
+**To jump to the _development_ section [click here](#development)
 
 
 
