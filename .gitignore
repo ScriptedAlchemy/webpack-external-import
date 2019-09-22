@@ -3,9 +3,9 @@
 node_modules
 .idea
 dist
-manual/Website1/babelOutput
-manual/Website2/babelOutput
-manual/build
+manual/**/babelOutput
+manual/**/dist
+manual/**/build
 manual/yarn.lock
 package-lock.json
 webpack
@@ -14,3 +14,4 @@ index.js
 corsImport.js
 polyfill.js
 react.js
+yarn-error.log

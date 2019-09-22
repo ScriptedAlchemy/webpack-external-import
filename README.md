@@ -1,6 +1,8 @@
 # Webpack External Import
 > **import() URLs and other external resources from third parties, or other webpack builds themselves!**
 
+[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
+
 ```shell
 $ yarn  webpack-external-import
 ```

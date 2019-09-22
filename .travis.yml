@@ -2,3 +2,15 @@ language: node_js
 node_js:
   - 8
   - 10
+install: yarn --ignore-engines # ignore engines to test node 6, otherwise it fails on engine check
+jobs:
+  include:
+    - stage: Build
+      name: Travis Status
+      script: npx travis-github-status
+      name: Linting
+      script: npm run lint
+      name: Snyk
+      script: snyk
+#after_success:
+#  - npm run semantic-release
