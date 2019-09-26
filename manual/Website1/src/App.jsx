@@ -1,18 +1,28 @@
 import React, { Component } from 'react';
-import { ExternalComponent,corsImport } from 'webpack-external-import';
+import {
+  ExternalComponent, corsImport, getChunkPath, getChunkDependencies, importDependenciesOf,
+} from 'webpack-external-import';
 import HelloWorld from './components/goodbye-world';
 
 import('moment');
 class App extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      titleUrl: null,
+      manifestLoaded: false,
+      loaded: false,
+    };
   }
 
   componentDidMount() {
     corsImport('http://localhost:3002/importManifest.js').then(() => {
       this.setState({ manifestLoaded: true });
-      import(/* webpackIgnore:true */`http://localhost:3002/${window.entryManifest['website-two']['SomeExternalModule.js']}`).then(() => {
+      importDependenciesOf('http://localhost:3002', 'website-two', 'TitleComponent').then((url) => {
+        this.setState({ titleUrl: url });
+      });
+
+      import(/* webpackIgnore:true */getChunkPath('http://localhost:3002', 'website-two', 'SomeExternalModule.js')).then(() => {
         console.log('got module, will render it in 2 seconds');
         setTimeout(() => {
           this.setState({ loaded: true });
@@ -29,17 +39,16 @@ class App extends Component {
   }
 
   render() {
-    const { manifestLoaded } = this.state;
-    if(!manifestLoaded) {
+    const { manifestLoaded, titleUrl } = this.state;
+    if (!manifestLoaded) {
       return 'Loading...';
     }
 
-    const helloWorldUrl = `http://localhost:3002/${window.entryManifest['website-two']['TitleComponent.js']}`;
 
     return (
       <div>
         <HelloWorld />
-        <ExternalComponent src={helloWorldUrl} module="TitleComponent" export="Title" title="Some Heading" />
+        {titleUrl && <ExternalComponent src={titleUrl} module="TitleComponent" export="Title" title="Some Heading" />}
         {this.renderDynamic()}
       </div>
     );

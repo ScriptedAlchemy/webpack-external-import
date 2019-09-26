@@ -41,7 +41,7 @@
     "mini-css-extract-plugin": "^0.6.0",
     "moment": "^2.24.0",
     "optimize-css-assets-webpack-plugin": "^5.0.1",
-    "react": "^16.8.6",
+    "react": "16.8.6",
     "react-dom": "^16.8.6",
     "regenerator-runtime": "^0.13.2",
     "scriptjs": "^2.5.9",
