@@ -1,7 +1,7 @@
 const webpack = require('webpack');
 
 
-module.exports = (commonPaths) => ({
+module.exports = commonPaths => ({
   module: {
     rules: [
       // {

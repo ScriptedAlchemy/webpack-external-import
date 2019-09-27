@@ -16,7 +16,7 @@ const envs = {
 const env = envs[process.env.NODE_ENV || 'development'];
 const envConfig = require(`./webpack.${env}.js`);
 
-module.exports = (siteId,options) => {
+module.exports = (siteId, options) => {
   const commonPaths = paths(siteId);
   const manifestName = siteId === 1 ? 'website-one' : 'website-two';
   const templatePath = path.resolve(__dirname, `../Website${siteId}/template.html`);
@@ -42,5 +42,5 @@ module.exports = (siteId,options) => {
         inject: true,
       }),
     ],
-  },options);
+  }, options);
 };

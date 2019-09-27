@@ -1,7 +1,8 @@
 const webpack = require('webpack');
-const external = require.resolve('../../')
 
-module.exports = (commonPaths) => ({
+const external = require.resolve('../../');
+
+module.exports = commonPaths => ({
   mode: 'development',
   devtool: 'inline-source-map',
   entry: commonPaths.entry,
@@ -32,7 +33,7 @@ module.exports = (commonPaths) => ({
   },
   optimization: {
     runtimeChunk: {
-      name: "manifest",
+      name: 'manifest',
     },
     splitChunks: {
       chunks: 'all',
@@ -63,6 +64,6 @@ module.exports = (commonPaths) => ({
     },
   },
   plugins: [
-    new webpack.HotModuleReplacementPlugin()
+    new webpack.HotModuleReplacementPlugin(),
   ],
 });

@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import './polyfill';
-import { importWithDependencies, importDependenciesOf } from './index';
 
 class ExternalComponent extends Component {
   constructor(props) {
@@ -27,6 +26,10 @@ class ExternalComponent extends Component {
     return new Promise((resolve) => {
       resolve(new Function(`return import("${src}")`)());
     });
+  }
+
+  componentDidCatch() {
+    throw new Error('ExternalComponent: You might be missing dependencies. Try using passing importWithDependencies() as the src props');
   }
 
   componentDidMount() {

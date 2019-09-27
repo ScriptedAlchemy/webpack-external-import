@@ -27,7 +27,7 @@
     "manifest"
   ],
   "scripts": {
-    "compile": "babel src -d .",
+    "build": "babel src -d .",
     "test": "yarn  lint && yarn  tsc-test && yarn  jest",
     "lint": "eslint --ext .js,.ts,.tsx --ignore-pattern dist,node_modules . --fix",
     "jest": "NODE_ENV=test jest",
@@ -38,19 +38,19 @@
     "demo:two": "cd manual/Website2; yarn && yarn link webpack-external-import && yarn manual:dev",
     "demo:two:prod": "cd manual/Website2; yarn && yarn link webpack-external-import && yarn manual:prod",
     "demo:two:fast": "cd manual/Website2; yarn link webpack-external-import && yarn manual:dev",
-    "demo": "yarn && yarn && yarn link webpack-external-import && concurrently \"yarn compile\" \"yarn link\" \"yarn demo:one\"  \"yarn demo:two\"",
-    "demo:debug": "npx kill-port 3200 | yarn && yarn && yarn link webpack-external-import && concurrently \"yarn compile\" \"yarn link\" \"yarn demo:one\"  \"yarn demo:two\"",
-    "demo:prod": "yarn && yarn compile && yarn link && yarn demo:one:prod | yarn demo:two:prod",
-    "demo:fast": "yarn compile && yarn link && yarn demo:one:fast | yarn demo:two:fast",
-    "babel": "yarn compile && cd manual && yarn babel",
-    "prepare": "yarn compile && cd manual && yarn"
+    "demo": "yarn && yarn && yarn link webpack-external-import && concurrently \"yarn build\" \"yarn link\" \"yarn demo:one\"  \"yarn demo:two\"",
+    "demo:debug": "npx kill-port 3200 | yarn && yarn && yarn link webpack-external-import && concurrently \"yarn build\" \"yarn link\" \"yarn demo:one\"  \"yarn demo:two\"",
+    "demo:prod": "yarn && yarn build && yarn link && yarn demo:one:prod | yarn demo:two:prod",
+    "demo:fast": "yarn build && yarn link && yarn demo:one:fast | yarn demo:two:fast",
+    "babel": "yarn build && cd manual && yarn babel",
+    "prepare": "yarn build && cd manual && yarn"
   },
   "license": "MIT",
   "devDependencies": {
     "@babel/cli": "^7.4.4",
     "@babel/core": "^7.4.4",
     "@babel/plugin-proposal-class-properties": "^7.5.0",
-    "@babel/plugin-proposal-optional-chaining": "^7.2.0",
+    "@babel/plugin-proposal-optional-chaining": "^7.6.0",
     "@babel/plugin-syntax-dynamic-import": "^7.2.0",
     "@babel/plugin-transform-react-jsx": "^7.3.0",
     "@babel/plugin-transform-runtime": "^7.5.0",
@@ -82,18 +82,8 @@
     "webpack-cli": "^3.3.8",
     "webpack-dev-server": "^3.4.1"
   },
-
   "peerDependencies": {
     "webpack": "^4.40.2"
-  },
-  "babel": {
-    "presets": [
-      "@babel/preset-env",
-      "@babel/preset-react"
-    ],
-    "plugins": [
-      "@babel/plugin-proposal-optional-chaining"
-    ]
   },
   "jest": {
     "preset": "jest-puppeteer"
@@ -103,6 +93,7 @@
     "babel-traverse": "^6.26.0",
     "dimport": "^1.0.0",
     "fs-extra": "^8.0.1",
+    "is-url-superb": "^3.0.0",
     "loadjs": "^3.6.1",
     "scriptjs": "^2.5.9"
   }

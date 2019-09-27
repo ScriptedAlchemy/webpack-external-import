@@ -10,7 +10,8 @@
         "regenerator": true
       }
     ],
-    "@babel/plugin-proposal-class-properties"
+    "@babel/plugin-proposal-class-properties",
+    "@babel/plugin-proposal-optional-chaining"
   ],
   "env": {
     "test": {
@@ -34,7 +35,8 @@
       ],
       "plugins": [
         "@babel/plugin-syntax-dynamic-import",
-        "@babel/plugin-proposal-class-properties"
+        "@babel/plugin-proposal-class-properties",
+        "@babel/plugin-proposal-optional-chaining"
       ]
     }
   }
