@@ -302,41 +302,50 @@ import {ExternalComponent,corsImport} from 'webpack-external-import'
 class App extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      titleUrl: null,
+      manifestLoaded: false,
+      loaded: false,
+    };
   }
 
   componentDidMount() {
-  // using corsImport as an example, could also me import(/* webpackIgnore:true */)
     corsImport('http://localhost:3002/importManifest.js').then(() => {
-      this.setState({manifestLoaded: true})
-      import(/* webpackIgnore:true */'http://localhost:3002/' + window.entryManifest['website-two']['hello-world.js']).then(({someModule}) => {
-        console.log('got module, will render it in 2 seconds')
-        someModule.externalFunction()
-        setTimeout(() => {
-          this.setState({loaded: true})
-
-        }, 2000)
+      this.setState({ manifestLoaded: true });
+      importDependenciesOf('http://localhost:3002', 'website-two', 'TitleComponent').then((url) => {
+        this.setState({ titleUrl: url });
       });
-    })
+
+      import(/* webpackIgnore:true */getChunkPath('http://localhost:3002', 'website-two', 'SomeExternalModule.js')).then(() => {
+        console.log('got module, will render it in 2 seconds');
+        setTimeout(() => {
+          this.setState({ loaded: true });
+        }, 2000);
+      });
+    });
   }
 
   renderDynamic = () => {
-    const {loaded} = this.state
-    if (!loaded) return null
-    return this.state.loaded && __webpack_require__('someModule').default()
+    const { loaded } = this.state;
+    if (!loaded) return null;
+
+    return __webpack_require__('SomeExternalModule').default();
   }
 
   render() {
-    const {manifestLoaded} = this.state
-    const helloWorldUrl = manifestLoaded && 'http://localhost:3002/' + window.entryManifest['website-two']['TitleComponent.js']
+    const { manifestLoaded, titleUrl } = this.state;
+    if (!manifestLoaded) {
+      return 'Loading...';
+    }
+
 
     return (
       <div>
-        <HelloWorld/>
-        { manifestLoaded && <ExternalComponent  src={helloWorldUrl} module="TitleComponent" export='Title' title={'Some Heading'} cors/>}
+        <HelloWorld />
+        {titleUrl && <ExternalComponent src={titleUrl} module="TitleComponent" export="Title" title="Some Heading" />}
         {this.renderDynamic()}
       </div>
-    )
+    );
   }
 }
 
@@ -482,7 +491,7 @@ React Component
 
 #### Usage
 ```js
-<ExternalComponent src={import(/* importUrl */ helloWorldUrl)} module="ExampleModule" export='Title' title={'Some Heading'}/>
+<ExternalComponent src={helloWorldUrl} module="ExampleModule" export='Title' title={'Some Heading'}/>
 ```
 
 ## FileDescriptor
@@ -510,21 +519,21 @@ Below is an example of using the manifest.
 In this file, I am importing code from another website/build. My application is loading website two's manifest, which is automatically added to `window.entryManifest` under the `manifestName` I set in the webpack plugin. After that, I'm importing a chunk from website-two, in this case - the chunk is code-split. 
 
 ```js
-  componentDidMount() {
-    import('http://localhost:3002/importManifest.js').then(() => {
-      this.setState({manifestLoaded: true})
-      import(/* importUrl */'http://localhost:3002/' + window.entryManifest['website-two']['someModule.js'])
-        .then(() => {
-          const someModule = __webpack_require__("someModule")
-          console.log('got the module, will render it in 2 seconds..')
-          someModule.externalFunction()
-          setTimeout(() => {
-            this.setState({loaded: true})
-          }, 2000)
+    componentDidMount() {
+      corsImport('http://localhost:3002/importManifest.js').then(() => {
+        this.setState({ manifestLoaded: true });
+        importDependenciesOf('http://localhost:3002', 'website-two', 'TitleComponent').then((url) => {
+          this.setState({ titleUrl: url });
         });
-      })
-  }
-
+  
+        import(/* webpackIgnore:true */getChunkPath('http://localhost:3002', 'website-two', 'SomeExternalModule.js')).then(() => {
+          console.log('got module, will render it in 2 seconds');
+          setTimeout(() => {
+            this.setState({ loaded: true });
+          }, 2000);
+        });
+      });
+    }
 ```
 
 ## DEMO
