@@ -49,7 +49,7 @@
     "commitlint": "npx commitlint  --from=HEAD~1 || yarn commitlinterror",
     "commitlinterror": "echo \"$(tput setaf 1)Red text $(tput setab 7)and white background$(tput sgr 0)\""
   },
-  "license": "MIT",
+  "license": "GNU GPLv3",
   "devDependencies": {
     "@babel/cli": "^7.6.0",
     "@babel/core": "^7.6.0",
