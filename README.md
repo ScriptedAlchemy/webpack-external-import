@@ -63,30 +63,33 @@ We use raw `import()` with a polyfill to act as a script loader. We also have a 
   import {corsImport} from "webpack-external-import"
 
   componentDidMount() {
-    corsImport('http://localhost:3002/importManifest.js').then(() => {
-      this.setState({ manifestLoaded: true });
-      import(/* webpackIgnore:true */`http://localhost:3002/${window.entryManifest['website-two']['SomeExternalModule.js']}`).then(() => {
-        console.log('got module, will render it in 2 seconds');
-        setTimeout(() => {
-          __webpack_require__('SomeExternalModule').default();
-          this.setState({ loaded: true });
-        }, 2000);
+      corsImport('http://localhost:3002/importManifest.js').then(() => {
+        this.setState({ manifestLoaded: true });
+        importDependenciesOf('http://localhost:3002', 'website-two', 'TitleComponent').then((url) => {
+          this.setState({ titleUrl: url });
+        });
+  
+        // if CORS isnt a problem, you can use native import (its polyfilled) 
+        import(/* webpackIgnore:true */getChunkPath('http://localhost:3002', 'website-two', 'SomeExternalModule.js')).then(() => {
+          console.log('got module, will render it in 2 seconds');
+          setTimeout(() => {
+            this.setState({ loaded: true });
+          }, 2000);
+        });
       });
-    });
-  }
+    }
 ```
 
 Or with JSX and a react component
 ```js
-import {ExternalComponent} from 'webpack-external-import'
+import {ExternalComponent, getChunkPath} from 'webpack-external-import'
  render() {
     const { manifestLoaded } = this.state;
-    const titleComponentAsset = manifestLoaded && `http://localhost:3002/${window.entryManifest['website-two']['TitleComponent.js']}`;
 
     return (
       <div>
         <HelloWorld />
-        { manifestLoaded && <ExternalComponent src={titleComponentAsset} module="TitleComponent" export="Title" title="Some Heading" />}
+        { manifestLoaded && <ExternalComponent src={getChunkPath('http://localhost:3002', 'website-two', 'TitleComponent.js')} module="TitleComponent" export="Title" title="Some Heading" />}
       </div>
     );
   }
