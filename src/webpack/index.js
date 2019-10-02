@@ -154,7 +154,7 @@ class URLImportPlugin {
         runtimeChunk: 'multiple',
         namedModules: true,
         splitChunks: {
-          chunks: options?.optimization?.splitChunks?.chunks || 'all',
+          chunks: 'all',
           cacheGroups: chunkSplitting,
         },
       },
