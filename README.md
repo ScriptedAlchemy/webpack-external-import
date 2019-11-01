@@ -451,6 +451,13 @@ Type: `Function(FileDescriptor): Boolean`
 
 Filter out files. [FileDescriptor typings](#filedescriptor)
 
+### `options.testPath`
+
+Type: `Function(Object, FileDescriptor): Object`<br>
+Default: `src`
+
+Test resource path to see if plugin should apply transformations
+
 
 ### `options.map`
 
