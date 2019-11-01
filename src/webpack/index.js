@@ -60,28 +60,25 @@ function hasExternalizedModule(module) {
   return false;
 }
 
-const interleaveConfig = {
+const interleaveConfig = test => ({
   test(module) {
     if (module.resource) {
-      return module.resource.includes('src') && !!hasExternalizedModule(module);
+      return module.resource.includes(test) && !!hasExternalizedModule(module);
     }
   },
   name(module, chunks, cacheGroupKey) {
-  // dont chunk unless we are sure you can
+    // dont chunk unless we are sure you can
 
     const moduleSource = hasExternalizedModule(module);
     if (moduleSource) {
-    // module.originalSource().source((dependencyTemplates, runtimeTemplate, type = "javascript") =>{
-    // return NormalModule
-    //   return
-    // })
       return moduleSource.match(/\/\*\s*externalize\s*:\s*(\S+)\s*\*\//)[1];
     }
-  // returning a chunk name causes problems with mini-css popping chunks off
-  // return 'main';
+    // returning a chunk name causes problems with mini-css popping chunks off
+    // return 'main';
   },
   enforce: true,
-};
+  reuseExistingChunk: false,
+});
 
 function performInterleave() {
 
@@ -101,6 +98,7 @@ class URLImportPlugin {
     this.opts = Object.assign({
       publicPath: null,
       debug: debug || false,
+      testPath: 'src',
       basePath: '',
       manifestName: 'unknown-project',
       fileName: 'importManifest.js',
@@ -140,11 +138,11 @@ class URLImportPlugin {
     }
     const options = compiler?.options;
     const chunkSplitting = options?.optimization?.splitChunks?.cacheGroups || {};
-    chunkSplitting.interleave = interleaveConfig;
+    chunkSplitting.interleave = interleaveConfig(this.opts.test);
 
     if (this.opts.debug) {
       console.groupCollapsed('interleaveConfig');
-      console.log(interleaveConfig);
+      console.log(chunkSplitting.interleave);
       console.groupEnd();
       console.groupCollapsed('New webpack optimization config');
     }
@@ -154,14 +152,18 @@ class URLImportPlugin {
         runtimeChunk: 'multiple',
         namedModules: true,
         splitChunks: {
-          chunks: options?.optimization?.splitChunks?.chunks || 'all',
+          chunks: 'all',
           cacheGroups: chunkSplitting,
         },
       },
     });
-
+    Object.assign(options.optimization.splitChunks, {
+      chunks: 'all',
+      cacheGroups: chunkSplitting,
+      namedModules: true,
+    });
     if (this.opts.debug) {
-      console.log(options.optimization);
+      console.log(options);
       console.groupEnd();
     }
 
@@ -222,7 +224,6 @@ class URLImportPlugin {
       let files = compilation.chunks.reduce((files, chunk) => chunk.files.reduce((files, path) => {
         let name = chunk.name ? chunk.name : null;
         const dependencyChains = {};
-
         if (name) {
           name = `${name}.${this.getFileType(path)}`;
         } else {
@@ -434,7 +435,7 @@ class URLImportPlugin {
       const isLastEmit = emitCount === 0;
       if (isLastEmit) {
         const cleanedManifest = Object.entries(manifest)
-          .reduce((acc, [key, asset]) => {console.log(asset);
+          .reduce((acc, [key, asset]) => {
             if (!asset?.path?.includes('.map')) {
               return Object.assign(acc, { [key]: asset });
             }
