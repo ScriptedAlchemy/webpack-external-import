@@ -451,7 +451,7 @@ Type: `Function(FileDescriptor): Boolean`
 
 Filter out files. [FileDescriptor typings](#filedescriptor)
 
-### `options.testPath`
+### `options.test`
 
 Type: `Function(Object, FileDescriptor): Object`<br>
 Default: `src`

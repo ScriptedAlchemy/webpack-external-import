@@ -98,7 +98,7 @@ class URLImportPlugin {
     this.opts = Object.assign({
       publicPath: null,
       debug: debug || false,
-      testPath: 'src',
+      test: 'src',
       basePath: '',
       manifestName: 'unknown-project',
       fileName: 'importManifest.js',
@@ -138,7 +138,7 @@ class URLImportPlugin {
     }
     const options = compiler?.options;
     const chunkSplitting = options?.optimization?.splitChunks?.cacheGroups || {};
-    chunkSplitting.interleave = interleaveConfig(testPath);
+    chunkSplitting.interleave = interleaveConfig(test);
 
     if (this.opts.debug) {
       console.groupCollapsed('interleaveConfig');
