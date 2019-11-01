@@ -35,7 +35,7 @@ const removeNull = function () {
   if (nullCount == length) { this.length = 0; return this; }
   // mix of null // non-null
   let idest = 0; let
-      isrc = length - 1;
+    isrc = length - 1;
   length -= nullCount;
   while (true) {
     while (!this[isrc]) { isrc--; nullCount--; } // find a non null (source) slot on the right
@@ -91,7 +91,7 @@ class URLImportPlugin {
         || /--debug|--inspect/.test(process.execArgv.join(' '));
     if (!opts.manifestName) {
       throw new Error(
-          'URLImportPlugin: You MUST specify a manifestName in your options. Something unique. Like {manifestName: my-special-build}',
+        'URLImportPlugin: You MUST specify a manifestName in your options. Something unique. Like {manifestName: my-special-build}',
       );
     }
 
@@ -114,9 +114,9 @@ class URLImportPlugin {
       sort: null,
       hashFunction: 'md4',
       serialize: manifest => `if(!window.entryManifest) {window.entryManifest = {}}; window.entryManifest["${opts.manifestName}"] = ${JSON.stringify(
-          manifest,
-          null,
-          2,
+        manifest,
+        null,
+        2,
       )}`,
     }, opts || {});
   }
@@ -194,8 +194,8 @@ class URLImportPlugin {
     const moduleAsset = ({ userRequest }, file) => {
       if (userRequest) {
         moduleAssets[file] = path.join(
-            path.dirname(file),
-            path.basename(userRequest),
+          path.dirname(file),
+          path.basename(userRequest),
         );
       }
     };
@@ -210,7 +210,7 @@ class URLImportPlugin {
 
       const publicPath = this.opts.publicPath != null ? this.opts.publicPath : compilation.options.output.publicPath;
       const stats = compilation.getStats()
-          .toJson();
+        .toJson();
 
       if (this.opts.debug) {
         console.groupCollapsed('Initial webpack stats');
@@ -435,12 +435,12 @@ class URLImportPlugin {
       const isLastEmit = emitCount === 0;
       if (isLastEmit) {
         const cleanedManifest = Object.entries(manifest)
-            .reduce((acc, [key, asset]) => {
-              if (!asset?.path?.includes('.map')) {
-                return Object.assign(acc, { [key]: asset });
-              }
-              return acc;
-            }, {});
+          .reduce((acc, [key, asset]) => {
+            if (!asset?.path?.includes('.map')) {
+              return Object.assign(acc, { [key]: asset });
+            }
+            return acc;
+          }, {});
 
         const output = this.opts.serialize(cleanedManifest);
         console.log('Output:', output);
@@ -462,9 +462,9 @@ class URLImportPlugin {
         compiler.hooks.webpackURLImportPluginAfterEmit.call(manifest);
       } else {
         compilation.applyPluginsAsync(
-            'webpack-manifest-plugin-after-emit',
-            manifest,
-            compileCallback,
+          'webpack-manifest-plugin-after-emit',
+          manifest,
+          compileCallback,
         );
       }
     };
@@ -491,47 +491,47 @@ class URLImportPlugin {
       compiler.hooks.compilation.tap('URLImportPlugin', (compilation) => {
         const usedIds = new Set();
         compilation.hooks.beforeModuleIds.tap(
-            'URLImportPlugin',
-            (modules) => {
-              for (const module of modules) {
-                if (module.id === null && module.resource) {
-                  const hash = createHash(this.opts.hashFunction);
+          'URLImportPlugin',
+          (modules) => {
+            for (const module of modules) {
+              if (module.id === null && module.resource) {
+                const hash = createHash(this.opts.hashFunction);
 
-                  let resourcePath = module.resource;
-                  if (resourcePath.indexOf('?') > -1) {
-                    resourcePath = resourcePath.split('?')[0];
-                  }
-
-                  try {
-                    hash.update(fs.readFileSync(resourcePath));
-                  } catch (ex) {
-                    console.error('failed on', module.context, module.resource);
-                    throw ex;
-                  }
-
-                  const hashId = hash.digest(this.opts.hashDigest);
-                  let len = this.opts.hashDigestLength;
-                  while (usedIds.has(hashId.substr(0, len))) {
-                    len++;
-                  }
-                  module.id = hashId.substr(0, len);
-                  usedIds.add(module.id);
+                let resourcePath = module.resource;
+                if (resourcePath.indexOf('?') > -1) {
+                  resourcePath = resourcePath.split('?')[0];
                 }
-                const moduleSource = module?.originalSource?.().source?.() || '';
-                if (moduleSource?.indexOf('externalize') > -1 || false) {
-                  module.buildMeta = mergeDeep(module.buildMeta, { isExternalized: true });
+
+                try {
+                  hash.update(fs.readFileSync(resourcePath));
+                } catch (ex) {
+                  console.error('failed on', module.context, module.resource);
+                  throw ex;
+                }
+
+                const hashId = hash.digest(this.opts.hashDigest);
+                let len = this.opts.hashDigestLength;
+                while (usedIds.has(hashId.substr(0, len))) {
+                  len++;
+                }
+                module.id = hashId.substr(0, len);
+                usedIds.add(module.id);
+              }
+              const moduleSource = module?.originalSource?.().source?.() || '';
+              if (moduleSource?.indexOf('externalize') > -1 || false) {
+                module.buildMeta = mergeDeep(module.buildMeta, { isExternalized: true });
 
 
-                  try {
-                    // look at refactoring this to use buildMeta not mutate id
-                    module.id = moduleSource.match(/\/\*\s*externalize\s*:\s*(\S+)\s*\*\//)[1];
-                    externalModules[module.id] = {};
-                  } catch (error) {
-                    throw new Error('external-import', error.message);
-                  }
+                try {
+                  // look at refactoring this to use buildMeta not mutate id
+                  module.id = moduleSource.match(/\/\*\s*externalize\s*:\s*(\S+)\s*\*\//)[1];
+                  externalModules[module.id] = {};
+                } catch (error) {
+                  throw new Error('external-import', error.message);
                 }
               }
-            },
+            }
+          },
         );
       });
 
