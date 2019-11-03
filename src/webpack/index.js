@@ -157,12 +157,14 @@ class URLImportPlugin {
         },
       },
     });
+
+    // forcefully mutate it
     Object.assign(options.optimization.splitChunks, {
       chunks: 'all',
       cacheGroups: chunkSplitting,
       namedModules: true,
     });
-    options.optimization.minimizer = [];
+
     if (this.opts.debug) {
       console.log(options);
       console.groupEnd();
