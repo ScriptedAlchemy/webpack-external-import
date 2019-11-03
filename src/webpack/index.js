@@ -162,6 +162,7 @@ class URLImportPlugin {
       cacheGroups: chunkSplitting,
       namedModules: true,
     });
+    options.optimization.minimizer = [];
     if (this.opts.debug) {
       console.log(options);
       console.groupEnd();
@@ -216,9 +217,8 @@ class URLImportPlugin {
         console.groupCollapsed('Initial webpack stats');
         console.log(stats);
         console.groupEnd();
+        console.group('Files');
       }
-
-      console.group('Files');
 
 
       let files = compilation.chunks.reduce((files, chunk) => chunk.files.reduce((files, path) => {
@@ -231,9 +231,10 @@ class URLImportPlugin {
           name = path;
         }
 
-        if (externalModules[chunk.id]) {
-          // console.groupCollapsed()
-          console.groupCollapsed(chunk.id);
+        if (externalModules[chunk.id] || externalModules[chunk.name]) {
+          if (this.opts.debug) {
+            console.groupCollapsed(chunk.id, chunk.name);
+          }
           // TODO: swap forEachModle out with const of
           // for(const module of chunk.modulesIterable){
           chunk.forEachModule((module) => {
@@ -268,9 +269,6 @@ class URLImportPlugin {
                 });
 
 
-                // console.log('getReference chunks', dependencyModuleSet);
-                // console.log('dependencyModuleSet', dependencyModuleSet);
-                // console.log('dependencyModuleSet entryModule', dependencyModuleSet?.entryModule?.());
                 for (const module of dependencyModuleSet.chunksIterable) {
                   if (this.opts.debug) {
                     console.groupCollapsed('Dependency Reference Iterable', dependency.request);
@@ -281,8 +279,6 @@ class URLImportPlugin {
                     if (dependencyChains[chunk.id]) {
                       //   console.log({ files: module.files });
                       dependencyChainMap.sourceFiles = dependencyChainMap?.sourceFiles?.concat?.(module.files) || null;
-
-                      // console.log({ dependencyChainMap });
                     } else {
                       // Object.assign(dependencyChains, { [chunk.id]: module.files });
                     }
@@ -303,12 +299,11 @@ class URLImportPlugin {
         }
         let currentDependencyChain = [];
         if (dependencyChains[chunk.id]) {
-          console.group('Computed Dependency Chain For:', chunk.id);
-          currentDependencyChain = dependencyChains?.[chunk.id]?.removeNull?.().reverse?.() || [];
-          console.log(currentDependencyChain);
-          console.groupEnd();
-
           if (this.opts.debug) {
+            console.group('Computed Dependency Chain For:', chunk.id);
+            currentDependencyChain = dependencyChains?.[chunk.id]?.removeNull?.().reverse?.() || [];
+            console.log(currentDependencyChain);
+            console.groupEnd();
             console.groupEnd();
           }
         }
@@ -374,8 +369,9 @@ class URLImportPlugin {
         return !isUpdateChunk && !isManifest;
       });
 
-      console.log('Unprocessed Files:', files);
-
+      if (this.opts.debug) {
+        console.log('Unprocessed Files:', files);
+      }
 
       // Append optional basepath onto all references.
       // This allows output path to be reflected in the manifest.
@@ -413,11 +409,12 @@ class URLImportPlugin {
       if (this.opts.sort) {
         files = files.sort(this.opts.sort);
       }
-      console.log('Processed Files:', files);
-      console.groupEnd();
+      if (this.opts.debug) {
+        console.log('Processed Files:', files);
+        console.groupEnd();
 
-      console.groupEnd();
-
+        console.groupEnd();
+      }
       let manifest;
       if (this.opts.generate) {
         manifest = this.opts.generate(seed, files);
@@ -431,7 +428,10 @@ class URLImportPlugin {
           return manifest;
         }, seed);
       }
-      console.log('Manifest:', manifest);
+      if (this.opts.debug) {
+        console.log('Manifest:', manifest);
+      }
+
       const isLastEmit = emitCount === 0;
       if (isLastEmit) {
         const cleanedManifest = Object.entries(manifest)
@@ -443,7 +443,9 @@ class URLImportPlugin {
           }, {});
 
         const output = this.opts.serialize(cleanedManifest);
-        console.log('Output:', output);
+        if (this.opts.debug) {
+          console.log('Output:', output);
+        }
         compilation.assets[outputName] = {
           source() {
             return output;
