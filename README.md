@@ -14,9 +14,18 @@ $ yarn  webpack-external-import
 
 # Installation
 
-```shell
-$ yarn nstall webpack-external-import --save
-$ yarn add webpack-external-import --save
+### npm
+
+```sh
+npm install webpack-external-import
+```
+
+_`npm init <initializer>` is available in npm 6+_
+
+### Yarn
+
+```sh
+yarn add webpack-external-import
 ```
 
 ## Getting Started
