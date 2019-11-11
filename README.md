@@ -20,8 +20,6 @@ $ yarn  webpack-external-import
 npm install webpack-external-import
 ```
 
-_`npm init <initializer>` is available in npm 6+_
-
 ### Yarn
 
 ```sh
