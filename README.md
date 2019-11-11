@@ -17,13 +17,13 @@ $ yarn  webpack-external-import
 ### npm
 
 ```sh
-npm install webpack-external-import
+npm install webpack-external-import --save
 ```
 
 ### Yarn
 
 ```sh
-yarn add webpack-external-import
+yarn add webpack-external-import --save
 ```
 
 ## Getting Started
