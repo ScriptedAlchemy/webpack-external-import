@@ -15,7 +15,7 @@ $ yarn  webpack-external-import
 # Installation
 
 ```shell
-$ yarn nstall webpack-external-import --save
+$ yarn install webpack-external-import --save
 $ yarn add webpack-external-import --save
 ```
 
