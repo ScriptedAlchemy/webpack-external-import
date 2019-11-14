@@ -30,7 +30,7 @@ export const getChunkDependencies = (basePath, nameSpace, module) => {
       && window?.entryManifest[nameSpace][module].dependencies) {
     window.entryManifest[nameSpace][module].dependencies.forEach((file) => {
       if (!__webpack_modules__[file.id]) {
-        file.sourceFiles.forEach(chunkFile => dependencyPaths.push(basePath + window?.entryManifest[nameSpace][chunkFile].path));
+        file.sourceFiles.forEach(chunkFile => dependencyPaths.push(basePath + chunkFile));
       }
     });
   } else if (window?.entryManifest[nameSpace]
@@ -38,7 +38,7 @@ export const getChunkDependencies = (basePath, nameSpace, module) => {
       && window?.entryManifest[nameSpace][`${module}.js`].dependencies) {
     window.entryManifest[nameSpace][`${module}.js`].dependencies.forEach((file) => {
       if (!__webpack_modules__[file.id]) {
-        file.sourceFiles.forEach(chunkFile => dependencyPaths.push(basePath + window?.entryManifest[nameSpace][chunkFile].path));
+        file.sourceFiles.forEach(chunkFile => dependencyPaths.push(basePath + chunkFile));
       }
     });
   }
