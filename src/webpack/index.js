@@ -63,6 +63,7 @@ function hasExternalizedModule(module) {
 const interleaveConfig = test => ({
   test(module) {
     if (module.resource) {
+      console.log(test, module.resource.includes(test), !!hasExternalizedModule(module));
       return module.resource.includes(test) && !!hasExternalizedModule(module);
     }
   },
@@ -77,7 +78,8 @@ const interleaveConfig = test => ({
     // return 'main';
   },
   enforce: true,
-  reuseExistingChunk: false,
+  // might need for next.js
+  // reuseExistingChunk: false,
 });
 
 function performInterleave() {
@@ -138,7 +140,7 @@ class URLImportPlugin {
     }
     const options = compiler?.options;
     const chunkSplitting = options?.optimization?.splitChunks?.cacheGroups || {};
-    chunkSplitting.interleave = interleaveConfig(this.opts.test);
+    chunkSplitting.interleave = interleaveConfig(this.opts.testPath);
 
     if (this.opts.debug) {
       console.groupCollapsed('interleaveConfig');
