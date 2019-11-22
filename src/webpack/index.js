@@ -5,7 +5,7 @@ const fs = require('fs');
 
 
 function mergeDeep(...objects) {
-  const isObject = obj => obj && typeof obj === 'object';
+  const isObject = (obj) => obj && typeof obj === 'object';
 
   return objects.reduce((prev, obj) => {
     Object.keys(obj).forEach((key) => {
@@ -60,10 +60,9 @@ function hasExternalizedModule(module) {
   return false;
 }
 
-const interleaveConfig = test => ({
+const interleaveConfig = (test) => ({
   test(module) {
     if (module.resource) {
-      console.log(test, module.resource.includes(test), !!hasExternalizedModule(module));
       return module.resource.includes(test) && !!hasExternalizedModule(module);
     }
   },
@@ -97,7 +96,7 @@ class URLImportPlugin {
       );
     }
 
-    this.opts = Object.assign({
+    this.opts = {
       publicPath: null,
       debug: debug || false,
       testPath: 'src',
@@ -115,12 +114,13 @@ class URLImportPlugin {
       context: null,
       sort: null,
       hashFunction: 'md4',
-      serialize: manifest => `if(!window.entryManifest) {window.entryManifest = {}}; window.entryManifest["${opts.manifestName}"] = ${JSON.stringify(
+      serialize: (manifest) => `if(!window.entryManifest) {window.entryManifest = {}}; window.entryManifest["${opts.manifestName}"] = ${JSON.stringify(
         manifest,
         null,
         2,
       )}`,
-    }, opts || {});
+      ...opts || {},
+    };
   }
 
   getFileType(str) {
@@ -141,7 +141,10 @@ class URLImportPlugin {
     const options = compiler?.options;
     const chunkSplitting = options?.optimization?.splitChunks?.cacheGroups || {};
     chunkSplitting.interleave = interleaveConfig(this.opts.testPath);
-
+    // dont rename exports when hoisting and tree shaking
+    Object.assign(options.optimization, {
+      providedExports: false,
+    });
     if (this.opts.debug) {
       console.groupCollapsed('interleaveConfig');
       console.log(chunkSplitting.interleave);
@@ -158,6 +161,10 @@ class URLImportPlugin {
           cacheGroups: chunkSplitting,
         },
       },
+    });
+
+    Object.assign(options.optimization, {
+      minimizer: [],
     });
 
     // forcefully mutate it
@@ -244,6 +251,7 @@ class URLImportPlugin {
           chunk.forEachModule((module) => {
             if (module.dependencies) {
               if (this.opts.debug) {
+                console.log(module);
                 console.group('Dependencies');
               }
               module.dependencies.forEach((dependency) => {
@@ -527,6 +535,7 @@ class URLImportPlugin {
               if (moduleSource?.indexOf('externalize') > -1 || false) {
                 module.buildMeta = mergeDeep(module.buildMeta, { isExternalized: true });
 
+                // Object.assign(module, { usedExports: module?.buildMeta?.providedExports || true });
 
                 try {
                   // look at refactoring this to use buildMeta not mutate id

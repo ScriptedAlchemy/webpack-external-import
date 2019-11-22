@@ -81,7 +81,8 @@
     "jest-resolve": "^24.9.0",
     "prop-types": "^15.7.2",
     "puppeteer": "^1.20.0",
-    "react": "^16.9.0",
+    "react": "16.8.6",
+    "react-dom": "16.8.6",
     "regenerator-runtime": "^0.13.3",
     "semantic-release": "^15.13.24",
     "source-map": "^0.7.3",
@@ -111,6 +112,7 @@
     "fs-extra": "^8.1.0",
     "loadjs": "^3.6.1",
     "npm": "^6.11.3",
+    "react-hooks-async": "^3.7.0",
     "scriptjs": "^2.5.9"
   },
   "config": {

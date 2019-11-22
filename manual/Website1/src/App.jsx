@@ -18,7 +18,7 @@ class App extends Component {
   componentDidMount() {
     corsImport('http://localhost:3002/importManifest.js').then(() => {
       this.setState({ manifestLoaded: true });
-      importDependenciesOf('http://localhost:3002', 'website-two', 'TitleComponent').then((url) => {
+      importDependenciesOf('http://localhost:3002/', 'website-two', 'TitleComponent').then((url) => {
         this.setState({ titleUrl: url });
       });
 
@@ -34,7 +34,7 @@ class App extends Component {
   renderDynamic = () => {
     const { loaded } = this.state;
     if (!loaded) return null;
-
+console.log(__webpack_require__('SomeExternalModule'));
     return __webpack_require__('SomeExternalModule').default();
   }
 
