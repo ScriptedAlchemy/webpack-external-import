@@ -1,2 +1,0 @@
-- name: Run ESLint
-  uses: stefanoeb/eslint-action@1.0.0
