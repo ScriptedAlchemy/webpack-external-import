@@ -3,59 +3,41 @@ import PropTypes from 'prop-types';
 import './polyfill';
 import { importWithDependencies, importDependenciesOf } from './index';
 
-class ExternalComponent extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      loaded: false,
-    };
-    this.importPromise = this.importPromise.bind(this);
-    this.Component = null;
-  }
-
-  importPromise(src) {
-    if (!src) {
-      return new Promise((resolve, reject) => {
-        reject();
-      });
-    }
-    if (this.props.cors) {
-      return require('./corsImport').default(src);
-    }
-
-    return new Promise((resolve) => {
-      resolve(new Function(`return import("${src}")`)());
-    });
-  }
-
-  componentDidMount() {
+const ExternalComponent = (props) => {
+  const { src, module, export: exportName, coors, ...rest } = props;
+  let Component = null;
+  const [loaded, setLoaded] = useState(false);
+  
+  useEffect(() => {
     require('./polyfill');
-
-    const { src, module, export: exportName } = this.props;
     if (!src) {
-      throw new Error(`dynamic-import: no url ${JSON.stringify(this.props, null, 2)}`);
+      throw new Error(`dynamic-import: no url ${JSON.stringify(props, null, 2)}`);
     }
 
-    this.importPromise(src).then(() => {
+    importPromise(src).then(() => {
       const requiredComponent = __webpack_require__(module);
-      this.Component = requiredComponent.default ? requiredComponent.default : requiredComponent[exportName];
-      this.setState({ loaded: true });
+      Component = requiredComponent.default ? requiredComponent.default : requiredComponent[exportName];
+      setLoaded(true)
     }).catch((e) => {
       throw new Error(`dynamic-import: ${e.message}`);
     });
-  }
-
-  render() {
-    const { Component } = this;
-    const { loaded } = this.state;
-    if (!loaded) return null;
-
-    const { src, module, ...rest } = this.props;
-    return (
-      <Component {...rest} />
-    );
-  }
+  }, []);
+  const importPromise = useCallback(
+    () => {
+      if (!src) return Promise.reject();
+      if (cors) {
+        return require('./corsImport').default(src);
+      }
+      return new Promise((resolve) => {
+        resolve(new Function(`return import("${src}")`)());
+      });
+    },
+    [src, cors],
+  );
+  if (!loaded) return null;
+  return (
+    <Component {...rest} />
+  )
 }
 
 ExternalComponent.propTypes = {
