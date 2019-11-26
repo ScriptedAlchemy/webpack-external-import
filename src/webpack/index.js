@@ -534,7 +534,8 @@ class URLImportPlugin {
               if (moduleSource?.indexOf('externalize') > -1 || false) {
                 module.buildMeta = mergeDeep(module.buildMeta, { isExternalized: true });
 
-                // Object.assign(module, { usedExports: module?.buildMeta?.providedExports || true });
+                // add exports back to usedExports, prevents tree shaking on module
+                Object.assign(module, { usedExports: module?.buildMeta?.providedExports || true });
 
                 try {
                   // look at refactoring this to use buildMeta not mutate id
