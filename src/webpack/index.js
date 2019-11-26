@@ -124,8 +124,8 @@ class URLImportPlugin {
   }
 
   getFileType(str) {
-    const fixdstr = str.replace(/\?.*/, '');
-    const split = fixdstr.split('.');
+    str = str.replace(/\?.*/, '');
+    const split = str.split('.');
     let ext = split.pop();
     if (this.opts.transformExtensions.test(ext)) {
       ext = `${split.pop()}.${ext}`;
@@ -172,23 +172,23 @@ class URLImportPlugin {
       console.groupEnd();
     }
 
-    // compiler.hooks.thisCompilation.tap('URLImportPlugin', (compilation) => {
-    // TODO: throw warning when changing module ID type
-    // if (options.ignoreOrder) {
-    //   compilation.warnings.push(
-    //     new Error(
-    //       `chunk ${chunk.name || chunk.id} [${pluginName}]\n`
-    //           + 'Conflicting order between:\n'
-    //           + ` * ${fallbackModule.readableIdentifier(
-    //             requestShortener,
-    //           )}\n`
-    //           + `${bestMatchDeps
-    //             .map(m => ` * ${m.readableIdentifier(requestShortener)}`)
-    //             .join('\n')}`,
-    //     ),
-    //   );
-    // }
-    // });
+    compiler.hooks.thisCompilation.tap('URLImportPlugin', (compilation) => {
+      // TODO: throw warning when changing module ID type
+      // if (options.ignoreOrder) {
+      //   compilation.warnings.push(
+      //     new Error(
+      //       `chunk ${chunk.name || chunk.id} [${pluginName}]\n`
+      //           + 'Conflicting order between:\n'
+      //           + ` * ${fallbackModule.readableIdentifier(
+      //             requestShortener,
+      //           )}\n`
+      //           + `${bestMatchDeps
+      //             .map(m => ` * ${m.readableIdentifier(requestShortener)}`)
+      //             .join('\n')}`,
+      //     ),
+      //   );
+      // }
+    });
 
     const moduleAssets = {};
     const externalModules = {};
@@ -209,10 +209,11 @@ class URLImportPlugin {
     const emit = (compilation, compileCallback) => {
       const emitCount = emitCountMap.get(outputFile) - 1;
       emitCountMap.set(outputFile, emitCount);
-      const { seed = {}, publicPath: publicPathOpt } = this.opts;
-      const { output } = compilation.options;
 
-      const publicPath = publicPathOpt != null ? publicPathOpt : output.publicPath;
+      const seed = this.opts.seed || {};
+
+
+      const publicPath = this.opts.publicPath != null ? this.opts.publicPath : compilation.options.output.publicPath;
       const stats = compilation.getStats()
         .toJson();
 
@@ -224,7 +225,6 @@ class URLImportPlugin {
       }
 
 
-      // eslint-disable-next-line no-shadow
       let files = compilation.chunks.reduce((files, chunk) => chunk.files.reduce((files, path) => {
         let name = chunk.name ? chunk.name : null;
         const dependencyChains = {};
@@ -263,7 +263,6 @@ class URLImportPlugin {
                 if (!dependencyChains[chunk.id]) {
                   Object.assign(dependencyChains, { [chunk.id]: [] });
                 }
-                // eslint-disable-next-line no-multi-assign
                 const dependencyChainMap = dependencyChains[chunk.id][dependency.sourceOrder] = {};
 
                 Object.assign(dependencyChainMap, {
@@ -274,7 +273,6 @@ class URLImportPlugin {
                 });
 
 
-                // eslint-disable-next-line no-shadow
                 for (const module of dependencyModuleSet.chunksIterable) {
                   if (this.opts.debug) {
                     console.groupCollapsed('Dependency Reference Iterable', dependency.request);
@@ -283,8 +281,9 @@ class URLImportPlugin {
 
                   if (module && module.files) {
                     if (dependencyChains[chunk.id]) {
-                      // eslint-disable-next-line max-len
                       dependencyChainMap.sourceFiles = dependencyChainMap?.sourceFiles?.concat?.(module.files) || null;
+                    } else {
+                      // Object.assign(dependencyChains, { [chunk.id]: module.files });
                     }
                   }
                 }
@@ -327,7 +326,6 @@ class URLImportPlugin {
           chunk,
           name,
           dependencies: dependencyChains?.[chunk.id]?.removeNull?.().reverse?.(),
-          // eslint-disable-next-line no-nested-ternary,max-len
           isInitial: chunk.isOnlyInitial ? chunk.isOnlyInitial() : (chunk.isInitial ? chunk.isInitial() : chunk.initial),
           isChunk: true,
           isAsset: false,
@@ -337,7 +335,6 @@ class URLImportPlugin {
 
       // module assets don't show up in assetsByChunkName.
       // we're getting them this way;
-      // eslint-disable-next-line no-shadow
       files = stats.assets.reduce((files, asset) => {
         const name = moduleAssets[asset.name];
         if (name) {
@@ -382,10 +379,9 @@ class URLImportPlugin {
       // Append optional basepath onto all references.
       // This allows output path to be reflected in the manifest.
       if (this.opts.basePath) {
-        files = files.map((f) => {
-          // eslint-disable-next-line no-param-reassign
-          f.name = this.opts.basePath + f.name;
-          return f;
+        files = files.map((file) => {
+          file.name = this.opts.basePath + file.name;
+          return file;
         });
       }
 
@@ -393,17 +389,16 @@ class URLImportPlugin {
         // Similar to basePath but only affects the value (similar to how
         // output.publicPath turns require('foo/bar') into '/public/foo/bar', see
         // https://github.com/webpack/docs/wiki/configuration#outputpublicpath
-        files = files.map((f) => {
-          // eslint-disable-next-line no-param-reassign
-          f.path = publicPath + f.path;
-          return f;
+        files = files.map((file) => {
+          file.path = publicPath + file.path;
+          return file;
         });
       }
 
-      files = files.map((f) => {
-        f.name = f.name.replace(/\\/g, '/');
-        f.path = f.path.replace(/\\/g, '/');
-        return f;
+      files = files.map((file) => {
+        file.name = file.name.replace(/\\/g, '/');
+        file.path = file.path.replace(/\\/g, '/');
+        return file;
       });
 
       if (this.opts.filter) {
