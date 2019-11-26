@@ -110,9 +110,7 @@
     "babel-traverse": "^6.26.0",
     "dimport": "^1.0.0",
     "fs-extra": "^8.1.0",
-    "loadjs": "^3.6.1",
-    "npm": "^6.11.3",
-    "scriptjs": "^2.5.9"
+    "loadjs": "^3.6.1"
   },
   "config": {
     "commitizen": {
