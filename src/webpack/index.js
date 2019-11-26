@@ -5,7 +5,7 @@ const fs = require('fs');
 
 
 function mergeDeep(...objects) {
-  const isObject = obj => obj && typeof obj === 'object';
+  const isObject = (obj) => obj && typeof obj === 'object';
 
   return objects.reduce((prev, obj) => {
     Object.keys(obj).forEach((key) => {
@@ -60,10 +60,9 @@ function hasExternalizedModule(module) {
   return false;
 }
 
-const interleaveConfig = test => ({
+const interleaveConfig = (test) => ({
   test(module) {
     if (module.resource) {
-      console.log(test, module.resource.includes(test), !!hasExternalizedModule(module));
       return module.resource.includes(test) && !!hasExternalizedModule(module);
     }
   },
@@ -97,7 +96,7 @@ class URLImportPlugin {
       );
     }
 
-    this.opts = Object.assign({
+    this.opts = {
       publicPath: null,
       debug: debug || false,
       testPath: 'src',
@@ -115,12 +114,13 @@ class URLImportPlugin {
       context: null,
       sort: null,
       hashFunction: 'md4',
-      serialize: manifest => `if(!window.entryManifest) {window.entryManifest = {}}; window.entryManifest["${opts.manifestName}"] = ${JSON.stringify(
+      serialize: (manifest) => `if(!window.entryManifest) {window.entryManifest = {}}; window.entryManifest["${opts.manifestName}"] = ${JSON.stringify(
         manifest,
         null,
         2,
       )}`,
-    }, opts || {});
+      ...opts || {},
+    };
   }
 
   getFileType(str) {
@@ -281,7 +281,6 @@ class URLImportPlugin {
 
                   if (module && module.files) {
                     if (dependencyChains[chunk.id]) {
-                      //   console.log({ files: module.files });
                       dependencyChainMap.sourceFiles = dependencyChainMap?.sourceFiles?.concat?.(module.files) || null;
                     } else {
                       // Object.assign(dependencyChains, { [chunk.id]: module.files });

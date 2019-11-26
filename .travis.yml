@@ -10,7 +10,5 @@ jobs:
       script: npx travis-github-status
       name: Linting
       script: npm run lint
-      name: Snyk
-      script: snyk
-#after_success:
-#  - npm run semantic-release
+after_success:
+  - npm run semantic-release
