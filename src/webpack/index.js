@@ -5,7 +5,7 @@ const fs = require('fs');
 
 
 function mergeDeep(...objects) {
-  const isObject = obj => obj && typeof obj === 'object';
+  const isObject = (obj) => obj && typeof obj === 'object';
 
   return objects.reduce((prev, obj) => {
     Object.keys(obj).forEach((key) => {
@@ -60,7 +60,7 @@ function hasExternalizedModule(module) {
   return false;
 }
 
-const interleaveConfig = test => ({
+const interleaveConfig = (test) => ({
   test(module) {
     if (module.resource) {
       return module.resource.includes(test) && !!hasExternalizedModule(module);
@@ -96,7 +96,7 @@ class URLImportPlugin {
       );
     }
 
-    this.opts = Object.assign({
+    this.opts = {
       publicPath: null,
       debug: debug || false,
       testPath: 'src',
@@ -114,17 +114,18 @@ class URLImportPlugin {
       context: null,
       sort: null,
       hashFunction: 'md4',
-      serialize: manifest => `if(!window.entryManifest) {window.entryManifest = {}}; window.entryManifest["${opts.manifestName}"] = ${JSON.stringify(
+      serialize: (manifest) => `if(!window.entryManifest) {window.entryManifest = {}}; window.entryManifest["${opts.manifestName}"] = ${JSON.stringify(
         manifest,
         null,
         2,
       )}`,
-    }, opts || {});
+      ...opts || {},
+    };
   }
 
   getFileType(str) {
-    str = str.replace(/\?.*/, '');
-    const split = str.split('.');
+    const fixdstr = str.replace(/\?.*/, '');
+    const split = fixdstr.split('.');
     let ext = split.pop();
     if (this.opts.transformExtensions.test(ext)) {
       ext = `${split.pop()}.${ext}`;
@@ -171,23 +172,23 @@ class URLImportPlugin {
       console.groupEnd();
     }
 
-    compiler.hooks.thisCompilation.tap('URLImportPlugin', (compilation) => {
-      // TODO: throw warning when changing module ID type
-      // if (options.ignoreOrder) {
-      //   compilation.warnings.push(
-      //     new Error(
-      //       `chunk ${chunk.name || chunk.id} [${pluginName}]\n`
-      //           + 'Conflicting order between:\n'
-      //           + ` * ${fallbackModule.readableIdentifier(
-      //             requestShortener,
-      //           )}\n`
-      //           + `${bestMatchDeps
-      //             .map(m => ` * ${m.readableIdentifier(requestShortener)}`)
-      //             .join('\n')}`,
-      //     ),
-      //   );
-      // }
-    });
+    // compiler.hooks.thisCompilation.tap('URLImportPlugin', (compilation) => {
+    // TODO: throw warning when changing module ID type
+    // if (options.ignoreOrder) {
+    //   compilation.warnings.push(
+    //     new Error(
+    //       `chunk ${chunk.name || chunk.id} [${pluginName}]\n`
+    //           + 'Conflicting order between:\n'
+    //           + ` * ${fallbackModule.readableIdentifier(
+    //             requestShortener,
+    //           )}\n`
+    //           + `${bestMatchDeps
+    //             .map(m => ` * ${m.readableIdentifier(requestShortener)}`)
+    //             .join('\n')}`,
+    //     ),
+    //   );
+    // }
+    // });
 
     const moduleAssets = {};
     const externalModules = {};
@@ -208,11 +209,10 @@ class URLImportPlugin {
     const emit = (compilation, compileCallback) => {
       const emitCount = emitCountMap.get(outputFile) - 1;
       emitCountMap.set(outputFile, emitCount);
+      const { seed = {}, publicPath: publicPathOpt } = this.opts;
+      const { output } = compilation.options;
 
-      const seed = this.opts.seed || {};
-
-
-      const publicPath = this.opts.publicPath != null ? this.opts.publicPath : compilation.options.output.publicPath;
+      const publicPath = publicPathOpt != null ? publicPathOpt : output.publicPath;
       const stats = compilation.getStats()
         .toJson();
 
@@ -224,7 +224,7 @@ class URLImportPlugin {
       }
 
 
-      let files = compilation.chunks.reduce((files, chunk) => chunk.files.reduce((files, path) => {
+      let files = compilation.chunks.reduce((mainFiles, chunk) => chunk.files.reduce((chunkFiles, path) => {
         let name = chunk.name ? chunk.name : null;
         const dependencyChains = {};
         if (name) {
@@ -281,8 +281,6 @@ class URLImportPlugin {
                   if (module && module.files) {
                     if (dependencyChains[chunk.id]) {
                       dependencyChainMap.sourceFiles = dependencyChainMap?.sourceFiles?.concat?.(module.files) || null;
-                    } else {
-                      // Object.assign(dependencyChains, { [chunk.id]: module.files });
                     }
                   }
                 }
@@ -320,11 +318,12 @@ class URLImportPlugin {
         //   getMeta(modules[i]);
         //   i++;
         // }
-        return files.concat({
+        return chunkFiles.concat({
           path,
           chunk,
           name,
           dependencies: dependencyChains?.[chunk.id]?.removeNull?.().reverse?.(),
+          // eslint-disable-next-line no-nested-ternary,max-len
           isInitial: chunk.isOnlyInitial ? chunk.isOnlyInitial() : (chunk.isInitial ? chunk.isInitial() : chunk.initial),
           isChunk: true,
           isAsset: false,

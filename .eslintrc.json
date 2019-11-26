@@ -7,5 +7,7 @@
         "browser": true,
         "es6": true
     },
-    "extends": "airbnb"
+    "extends": "airbnb",
+    "rules": {
+    }
 }

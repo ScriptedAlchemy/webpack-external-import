@@ -30,7 +30,7 @@ export const getChunkDependencies = (basePath, nameSpace, module) => {
       && window?.entryManifest[nameSpace][module].dependencies) {
     window.entryManifest[nameSpace][module].dependencies.forEach((file) => {
       if (!__webpack_modules__[file.id]) {
-        file.sourceFiles.forEach(chunkFile => dependencyPaths.push(basePath + chunkFile));
+        file.sourceFiles.forEach((chunkFile) => dependencyPaths.push(basePath + chunkFile));
       }
     });
   } else if (window?.entryManifest[nameSpace]
@@ -38,7 +38,7 @@ export const getChunkDependencies = (basePath, nameSpace, module) => {
       && window?.entryManifest[nameSpace][`${module}.js`].dependencies) {
     window.entryManifest[nameSpace][`${module}.js`].dependencies.forEach((file) => {
       if (!__webpack_modules__[file.id]) {
-        file.sourceFiles.forEach(chunkFile => dependencyPaths.push(basePath + chunkFile));
+        file.sourceFiles.forEach((chunkFile) => dependencyPaths.push(basePath + chunkFile));
       }
     });
   }
@@ -47,8 +47,8 @@ export const getChunkDependencies = (basePath, nameSpace, module) => {
 
 function getInSequence(array, asyncFunc) {
   return array.reduce((previous, current) => (
-    previous.then(accumulator => (
-      asyncFunc(current).then(result => accumulator.concat(result))
+    previous.then((accumulator) => (
+      asyncFunc(current).then((result) => accumulator.concat(result))
     ))
   ), Promise.resolve([]));
 }
