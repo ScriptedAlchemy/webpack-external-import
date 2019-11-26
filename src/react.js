@@ -1,90 +1,69 @@
-import React, { Component } from 'react';
+import React, {
+  Component, useCallback, useEffect, useState,
+} from 'react';
 import PropTypes from 'prop-types';
 import './polyfill';
 
-class ExternalComponent extends Component {
-  constructor(props) {
-    super(props);
+const ExternalComponent = (props) => {
+  const {
+    src, module, export: exportName, cors, ...rest
+  } = props;
+  let Component = null;
+  const [loaded, setLoaded] = useState(false);
+  const importPromise = useCallback(
+    () => {
+        const isPromise = src instanceof Promise;
+      if (!src) return Promise.reject();
+        if (this.props.cors) {
+            if (isPromise) {
+                return src.then((src) => require('./corsImport').default(src));
+            }
+            return require('./corsImport').default(src);
+        }
+        if (isPromise) {
+            return src.then((src) => new Promise((resolve) => {
+                resolve(new Function(`return import("${src}")`)());
+            }));
+        }
+        return new Promise((resolve) => {
+            resolve(new Function(`return import("${src}")`)());
+        });
+    },
+    [src, cors],
+  );
 
-    this.state = {
-      loaded: false,
-    };
-    this.importPromise = this.importPromise.bind(this);
-    this.Component = null;
-  }
-
-
-  importPromise(src) {
-    if (!src) {
-      return new Promise((resolve, reject) => {
-        reject();
-      });
-    }
-    const isPromise = src instanceof Promise;
-
-    if (this.props.cors) {
-      if (isPromise) {
-        return src.then((src) => require('./corsImport').default(src));
-      }
-      return require('./corsImport').default(src);
-    }
-    if (isPromise) {
-      return src.then((src) => new Promise((resolve) => {
-        resolve(new Function(`return import("${src}")`)());
-      }));
-    }
-    return new Promise((resolve) => {
-      resolve(new Function(`return import("${src}")`)());
-    });
-  }
-
-  componentDidMount() {
+  useEffect(() => {
     require('./polyfill');
-
-    const { src, module, export: exportName } = this.props;
     if (!src) {
-      throw new Error(`dynamic-import: no url ${JSON.stringify(this.props, null, 2)}`);
+      throw new Error(`dynamic-import: no url ${JSON.stringify(props, null, 2)}`);
     }
-    window.__webpack_require__ = __webpack_require__;
-    window.__webpack_modules__ = __webpack_modules__;
-    this.importPromise(src).then(() => {
-      window.webpackJsonp.forEach((item)=>{
-        console.log(item);
-        window.__LOADABLE_LOADED_CHUNKS__.push(item)
-      })
-      try {
-        __webpack_require__(module);
-        __webpack_require__(module);
-        __webpack_require__(module);
-      } catch (e) {
-      }
-      setTimeout(() => {
-        const requiredComponent = __webpack_require__(module);
-        console.log(requiredComponent);
-        this.Component = requiredComponent.default ? requiredComponent.default : requiredComponent[exportName];
-        this.setState({ loaded: true });
-      }, 1000);
+
+    importPromise(src).then(() => {
+        // patch into loadable
+        if( window.__LOADABLE_LOADED_CHUNKS__) {
+            window.webpackJsonp.forEach((item) => {
+                window.__LOADABLE_LOADED_CHUNKS__.push(item)
+            })
+        }
+      const requiredComponent = __webpack_require__(module);
+      Component = requiredComponent.default ? requiredComponent.default : requiredComponent[exportName];
+      setLoaded(true);
     }).catch((e) => {
       throw new Error(`dynamic-import: ${e.message}`);
     });
-  }
+  }, []);
 
-  render() {
-    const { Component } = this;
-    const { loaded } = this.state;
-    if (!loaded) return null;
-
-    const { src, module, ...rest } = this.props;
-    return (
-      <Component {...rest} />
-    );
-  }
-}
+  if (!loaded) return null;
+  return (
+    <Component {...rest} />
+  );
+};
 
 ExternalComponent.propTypes = {
   src: PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.string]).isRequired,
-  module: PropTypes.string,
+  module: PropTypes.string.isRequired,
   cors: PropTypes.bool,
+  export: PropTypes.string,
 };
 
 export default ExternalComponent;

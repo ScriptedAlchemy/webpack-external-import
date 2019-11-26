@@ -289,7 +289,6 @@ class URLImportPlugin {
 
                   if (module && module.files) {
                     if (dependencyChains[chunk.id]) {
-                      //   console.log({ files: module.files });
                       dependencyChainMap.sourceFiles = dependencyChainMap?.sourceFiles?.concat?.(module.files) || null;
                     } else {
                       // Object.assign(dependencyChains, { [chunk.id]: module.files });

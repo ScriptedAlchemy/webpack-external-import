@@ -1,7 +1,25 @@
 # Webpack External Import
 > **import() URLs and other external resources from third parties, or other webpack builds themselves!**
 
+<p align="center">
+    
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
+  <a href="https://www.npmjs.com/package/webpack-external-import">
+    <img src="https://img.shields.io/npm/v/webpack-external-import.svg" alt="Version" />
+  </a>
+
+  <a href="https://www.npmjs.com/package/webpack-external-import">
+    <img src="https://img.shields.io/npm/dt/webpack-external-import.svg" alt="Downloads" />
+  </a>
+
+  <a href="https://www.npmjs.com/package/webpack-external-import">
+    <img src="https://img.shields.io/npm/dm/webpack-external-import.svg" alt="License" />
+  </a>
+  
+  <a href="https://www.npmjs.com/package/webpack-external-import">
+    <img src="https://img.shields.io/npm/l/webpack-external-import.svg" alt="License" />
+  </a>
+</p>
 
 ```shell
 $ yarn  webpack-external-import
@@ -14,9 +32,16 @@ $ yarn  webpack-external-import
 
 # Installation
 
-```shell
-$ yarn nstall webpack-external-import --save
-$ yarn add webpack-external-import --save
+### npm
+
+```sh
+npm install webpack-external-import --save
+```
+
+### Yarn
+
+```sh
+yarn add webpack-external-import --save
 ```
 
 ## Getting Started

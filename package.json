@@ -29,7 +29,7 @@
   "scripts": {
     "compile": "babel src -d .",
     "test": "yarn  lint && yarn  tsc-test && yarn  jest",
-    "lint": "eslint --ext .js,.ts,.tsx --ignore-pattern dist,node_modules . --fix",
+    "lint": "eslint --ext .js,.ts,.tsx src --fix",
     "jest": "NODE_ENV=test jest",
     "jest:ci": "cross-env NODE_ENV=development jest",
     "demo:one": "cd manual/Website1; yarn && yarn link webpack-external-import && yarn manual:dev",
