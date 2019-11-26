@@ -112,7 +112,6 @@
     "fs-extra": "^8.1.0",
     "loadjs": "^3.6.1",
     "npm": "^6.11.3",
-    "react-hooks-async": "^3.7.0",
     "scriptjs": "^2.5.9"
   },
   "config": {

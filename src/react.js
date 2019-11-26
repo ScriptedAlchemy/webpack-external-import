@@ -12,22 +12,22 @@ const ExternalComponent = (props) => {
   const [loaded, setLoaded] = useState(false);
   const importPromise = useCallback(
     () => {
-        const isPromise = src instanceof Promise;
+      const isPromise = src instanceof Promise;
       if (!src) return Promise.reject();
-        if (this.props.cors) {
-            if (isPromise) {
-                return src.then((src) => require('./corsImport').default(src));
-            }
-            return require('./corsImport').default(src);
-        }
+      if (this.props.cors) {
         if (isPromise) {
-            return src.then((src) => new Promise((resolve) => {
-                resolve(new Function(`return import("${src}")`)());
-            }));
+          return src.then((src) => require('./corsImport').default(src));
         }
-        return new Promise((resolve) => {
-            resolve(new Function(`return import("${src}")`)());
-        });
+        return require('./corsImport').default(src);
+      }
+      if (isPromise) {
+        return src.then((src) => new Promise((resolve) => {
+          resolve(new Function(`return import("${src}")`)());
+        }));
+      }
+      return new Promise((resolve) => {
+        resolve(new Function(`return import("${src}")`)());
+      });
     },
     [src, cors],
   );
@@ -39,12 +39,12 @@ const ExternalComponent = (props) => {
     }
 
     importPromise(src).then(() => {
-        // patch into loadable
-        if( window.__LOADABLE_LOADED_CHUNKS__) {
-            window.webpackJsonp.forEach((item) => {
-                window.__LOADABLE_LOADED_CHUNKS__.push(item)
-            })
-        }
+      // patch into loadable
+      if (window.__LOADABLE_LOADED_CHUNKS__) {
+        window.webpackJsonp.forEach((item) => {
+          window.__LOADABLE_LOADED_CHUNKS__.push(item);
+        });
+      }
       const requiredComponent = __webpack_require__(module);
       Component = requiredComponent.default ? requiredComponent.default : requiredComponent[exportName];
       setLoaded(true);
