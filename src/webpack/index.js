@@ -164,7 +164,8 @@ class URLImportPlugin {
     });
 
     Object.assign(options.optimization, {
-      minimizer: [],
+      minimizer: this.opts.debug ? [] : options.optimization.minimizer,
+      splitChunks: options.optimization?.splitChunks || {},
     });
 
     // forcefully mutate it
