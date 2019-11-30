@@ -27,7 +27,7 @@ function TestFour(props, state, actions) {
   return (<div>testin</div>);
 }
 
-const TestFive = function (props, state, actions) {
+export const TestFive = function (props, state, actions) {
   return (<div>testn</div>);
 };
 

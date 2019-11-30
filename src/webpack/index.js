@@ -141,7 +141,10 @@ class URLImportPlugin {
     const options = compiler?.options;
     const chunkSplitting = options?.optimization?.splitChunks?.cacheGroups || {};
     chunkSplitting.interleave = interleaveConfig(this.opts.testPath);
-
+    // dont rename exports when hoisting and tree shaking
+    Object.assign(options.optimization, {
+      providedExports: false,
+    });
     if (this.opts.debug) {
       console.groupCollapsed('interleaveConfig');
       console.log(chunkSplitting.interleave);
@@ -158,6 +161,11 @@ class URLImportPlugin {
           cacheGroups: chunkSplitting,
         },
       },
+    });
+
+    Object.assign(options.optimization, {
+      minimizer: this.opts.debug ? [] : options.optimization.minimizer,
+      splitChunks: options.optimization?.splitChunks || {},
     });
 
     // forcefully mutate it
@@ -244,6 +252,7 @@ class URLImportPlugin {
           chunk.forEachModule((module) => {
             if (module.dependencies) {
               if (this.opts.debug) {
+                console.log(module);
                 console.group('Dependencies');
               }
               module.dependencies.forEach((dependency) => {
@@ -526,6 +535,8 @@ class URLImportPlugin {
               if (moduleSource?.indexOf('externalize') > -1 || false) {
                 module.buildMeta = mergeDeep(module.buildMeta, { isExternalized: true });
 
+                // add exports back to usedExports, prevents tree shaking on module
+                Object.assign(module, { usedExports: module?.buildMeta?.providedExports || true });
 
                 try {
                   // look at refactoring this to use buildMeta not mutate id
