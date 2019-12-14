@@ -1,5 +1,5 @@
 import React, {
-  Component, useCallback, useEffect, useState,
+   useCallback, useEffect, useState,
 } from 'react';
 import PropTypes from 'prop-types';
 import './polyfill';
@@ -8,13 +8,13 @@ const ExternalComponent = (props) => {
   const {
     src, module, export: exportName, cors, ...rest
   } = props;
-  let Component = null;
   const [loaded, setLoaded] = useState(false);
+  const [Component, setComponent] = useState({component: null});
   const importPromise = useCallback(
     () => {
       const isPromise = src instanceof Promise;
       if (!src) return Promise.reject();
-      if (this.props.cors) {
+      if (props.cors) {
         if (isPromise) {
           return src.then((src) => require('./corsImport').default(src));
         }
@@ -46,16 +46,17 @@ const ExternalComponent = (props) => {
         });
       }
       const requiredComponent = __webpack_require__(module);
-      Component = requiredComponent.default ? requiredComponent.default : requiredComponent[exportName];
+      const component = requiredComponent.default ? requiredComponent.default : requiredComponent[exportName];
+      setComponent({component});
       setLoaded(true);
     }).catch((e) => {
       throw new Error(`dynamic-import: ${e.message}`);
     });
   }, []);
 
-  if (!loaded) return null;
+  if (!Component.component) return null;
   return (
-    <Component {...rest} />
+    <Component.component {...rest} />
   );
 };
 

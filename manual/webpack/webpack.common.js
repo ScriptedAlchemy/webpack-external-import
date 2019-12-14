@@ -1,5 +1,5 @@
 const webpack = require('webpack');
-
+const path = require('path');
 
 module.exports = (commonPaths) => ({
   module: {
@@ -57,6 +57,9 @@ module.exports = (commonPaths) => ({
   resolve: {
     modules: ['node_modules'],
     extensions: ['*', '.js', '.jsx', '.css', '.scss'],
+    alias: {
+      react: path.resolve('../../node_modules/react'),
+    },
   },
   plugins: [
   ],
