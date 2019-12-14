@@ -110,7 +110,8 @@
   "dependencies": {
     "dimport": "^1.0.0",
     "fs-extra": "^8.1.0",
-    "loadjs": "^3.6.1"
+    "loadjs": "^3.6.1",
+    "url-join": "^4.0.1"
   },
   "config": {
     "commitizen": {

@@ -1,3 +1,4 @@
+import urljoin from 'url-join';
 import corsImport from './corsImport';
 import ExternalComponent from './react';
 
@@ -15,8 +16,7 @@ export const getChunkPath = (basePath, nameSpace, module) => {
     && window?.entryManifest[nameSpace][`${module}.js`].path) {
     pathString = [basePath, window.entryManifest[nameSpace][`${module}.js`].path];
   }
-
-  return pathString.join('');
+  return urljoin(pathString);
 };
 
 
@@ -38,7 +38,7 @@ export const getChunkDependencies = (basePath, nameSpace, module) => {
       && window?.entryManifest[nameSpace][`${module}.js`].dependencies) {
     window.entryManifest[nameSpace][`${module}.js`].dependencies.forEach((file) => {
       if (!__webpack_modules__[file.id]) {
-        file.sourceFiles.forEach((chunkFile) => dependencyPaths.push(basePath + chunkFile));
+        file.sourceFiles.forEach((chunkFile) => dependencyPaths.push(urljoin(basePath, chunkFile)));
       }
     });
   }
