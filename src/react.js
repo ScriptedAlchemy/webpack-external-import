@@ -35,7 +35,7 @@ const ExternalComponent = (props) => {
   useEffect(() => {
     require('./polyfill');
     if (!src) {
-      throw new Error(`dynamic-import: no url ${JSON.stringify(props, null, 2)}`);
+      throw new Error(`dynamic-import: no url, props: ${JSON.stringify(props, null, 2)}`);
     }
 
     importPromise(src).then(() => {
