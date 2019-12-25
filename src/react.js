@@ -8,7 +8,6 @@ const ExternalComponent = (props) => {
   const {
     src, module, export: exportName, cors, ...rest
   } = props;
-  const [loaded, setLoaded] = useState(false);
   const [Component, setComponent] = useState({component: null});
   const importPromise = useCallback(
     () => {
@@ -48,7 +47,6 @@ const ExternalComponent = (props) => {
       const requiredComponent = __webpack_require__(module);
       const component = requiredComponent.default ? requiredComponent.default : requiredComponent[exportName];
       setComponent({component});
-      setLoaded(true);
     }).catch((e) => {
       throw new Error(`dynamic-import: ${e.message}`);
     });
