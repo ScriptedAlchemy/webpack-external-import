@@ -34,6 +34,7 @@ module.exports = (commonPaths) => ({
     runtimeChunk: {
       name: "manifest",
     },
+    namedChunks: true,
     splitChunks: {
       chunks: 'all',
       maxInitialRequests: Infinity,

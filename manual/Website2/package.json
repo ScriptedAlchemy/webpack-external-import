@@ -27,6 +27,7 @@
     "webpack-cli": "^3.3.0",
     "webpack-dev-server": "^3.2.1",
     "webpack-merge": "^4.2.1",
+    "webpack-require-performance-plugin": "^0.2.1",
     "write-file-webpack-plugin": "^4.5.0"
   },
   "interface": {},
@@ -48,6 +49,7 @@
     "react-dom": "file:../../node_modules/react-dom",
     "react-select": "^3.0.4",
     "regenerator-runtime": "^0.13.2",
-    "scriptjs": "^2.5.9"
+    "scriptjs": "^2.5.9",
+    "wrapper-webpack-plugin": "^2.1.0"
   }
 }
