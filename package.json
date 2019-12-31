@@ -31,7 +31,7 @@
   ],
   "scripts": {
     "compile": "babel src -d .",
-    "test": "yarn  lint && yarn  tsc-test && yarn  jest",
+    "test": "yarn  lint",
     "lint": "eslint --ext .js,.ts,.tsx src --fix",
     "jest": "NODE_ENV=test jest",
     "jest:ci": "cross-env NODE_ENV=development jest",
@@ -71,7 +71,7 @@
     "babel-loader": "^8.0.6",
     "babel-watch": "^7.0.0",
     "commitizen": "^4.0.3",
-    "concurrently": "^4.1.2",
+    "concurrently": "^5.0.2",
     "cross-env": "^6.0.0",
     "cz-conventional-changelog": "^3.0.2",
     "eslint": "^6.4.0",
@@ -116,7 +116,7 @@
   "dependencies": {
     "dimport": "^1.0.0",
     "fs-extra": "^8.1.0",
-    "loadjs": "^3.6.1",
+    "loadjs": "^4.2.0",
     "url-join": "^4.0.1"
   },
   "config": {
