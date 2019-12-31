@@ -5978,6 +5978,11 @@ webpack-merge@^4.2.1:
   dependencies:
     lodash "^4.17.15"
 
+webpack-require-performance-plugin@^0.2.1:
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/webpack-require-performance-plugin/-/webpack-require-performance-plugin-0.2.1.tgz#679c3a07043f4cbf5527d4e44e9ec7f406960371"
+  integrity sha512-cZzS9TKzVOjwATa63SwrmJd3DLJNkuFJcxxQGN8ipe1F4W19k3mj4NbxbucNz+wcEJS5dIW6UiQylq1A6+A7Kw==
+
 webpack-sources@^1.1.0, webpack-sources@^1.4.0, webpack-sources@^1.4.1:
   version "1.4.3"
   resolved "https://registry.yarnpkg.com/webpack-sources/-/webpack-sources-1.4.3.tgz#eedd8ec0b928fbf1cbfe994e22d2d890f330a933"

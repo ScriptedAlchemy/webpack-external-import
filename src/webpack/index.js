@@ -2,6 +2,7 @@ const path = require("path");
 const fse = require("fs-extra");
 const createHash = require("webpack/lib/util/createHash");
 const fs = require("fs");
+const webpack = require("webpack");
 
 function mergeDeep(...objects) {
   const isObject = obj => obj && typeof obj === "object";
@@ -167,6 +168,7 @@ class URLImportPlugin {
     Object.assign(options.optimization, {
       providedExports: false
     });
+    this.moduleHashMap = {};
     if (this.opts.debug) {
       console.groupCollapsed("interleaveConfig");
       console.log(chunkSplitting.interleave);
@@ -553,6 +555,46 @@ class URLImportPlugin {
       compiler.hooks.webpackURLImportPluginAfterEmit = new SyncWaterfallHook([
         "manifest"
       ]);
+      const performanceMeasure = (source, arg2, arg3) => {
+        const clearMeasures = false;
+        const beforeExecuteModule = "// Execute the module function";
+        const afterExecuteModule = "// Flag the module as loaded";
+        return source
+          .replace(
+            beforeExecuteModule,
+            [
+              `var moduleHashMap = ${JSON.stringify(this.moduleHashMap)};`,
+              "// Begin mark of performance",
+              'if (typeof performance !== "undefined") performance.mark(moduleHashMap[moduleId]);',
+              "",
+              beforeExecuteModule
+            ].join("\n")
+          )
+          .replace(
+            afterExecuteModule,
+            [
+              "// End mark of performance",
+              'if (typeof performance !== "undefined") {',
+              "  performance.measure(moduleHashMap[moduleId], moduleHashMap[moduleId]);",
+              "  performance.clearMarks(moduleHashMap[moduleId]);",
+              clearMeasures ? "  performance.clearMeasures(moduleHashMap[moduleId]);" : "",
+              "}",
+              "",
+              afterExecuteModule
+            ].join("\n")
+          );
+      };
+      compiler.hooks.compilation.tap("URLImportPlugin", function(compilation) {
+        if (webpack.JavascriptModulesPlugin) {
+          // Webpack 5
+          webpack.JavascriptModulesPlugin.getCompilationHooks(
+            compilation
+          ).renderRequire.tap("URLImportPlugin", performanceMeasure);
+        } else {
+          const { mainTemplate } = compilation;
+          mainTemplate.hooks.require.tap("URLImportPlugin", performanceMeasure);
+        }
+      });
 
       compiler.hooks.compilation.tap("URLImportPlugin", compilation => {
         const usedIds = new Set();
@@ -603,6 +645,7 @@ class URLImportPlugin {
                 throw new Error("external-import", error.message);
               }
             }
+            this.moduleHashMap[module.id] = module.rawRequest;
           }
         });
       });

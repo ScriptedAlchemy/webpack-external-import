@@ -25,6 +25,7 @@
     "webpack": "^4.29.6",
     "webpack-cli": "^3.3.0",
     "webpack-dev-server": "^3.2.1",
+    "webpack-require-performance-plugin": "^0.2.1",
     "write-file-webpack-plugin": "^4.5.0"
   },
   "peerDependencies": {
