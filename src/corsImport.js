@@ -1,11 +1,13 @@
-import loadjs from 'loadjs';
+import loadjs from "loadjs";
 
-const corsImport = (url) => {
+const corsImport = url => {
   if (!url) {
-    return new Promise((resolve, reject) => reject('no url in corsImport'));
+    return new Promise((resolve, reject) =>
+      reject(new Error("no url in corsImport"))
+    );
   }
   if (loadjs.isDefined(url)) {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       resolve();
     });
   }
@@ -15,7 +17,7 @@ const corsImport = (url) => {
   return new Promise((resolve, reject) => {
     loadjs.ready(url, {
       success: resolve,
-      error: reject,
+      error: reject
     });
   });
 };
