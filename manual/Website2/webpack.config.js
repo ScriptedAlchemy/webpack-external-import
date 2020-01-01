@@ -11,3 +11,5 @@ module.exports = configFactory(siteId, {
     }),
   ],
 });
+
+console.log(module.exports)

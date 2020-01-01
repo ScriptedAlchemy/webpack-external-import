@@ -7,8 +7,8 @@
   },
   "author": "Zack Jackson <zack@ScriptedAlchemy.com> (https://github.com/ScriptedAlchemy)",
   "scripts": {
-    "manual:prod": "cross-env NODE_ENV=production webpack-dev-server",
-    "manual:dev": "cross-env NODE_ENV=development webpack-dev-server",
+    "manual:prod": "cross-env NODE_ENV=production node --inspect node_modules/webpack-dev-server/bin/webpack-dev-server.js",
+    "manual:dev": "cross-env NODE_ENV=development node --inspect node_modules/webpack-dev-server/bin/webpack-dev-server.js",
     "babel": "babel src -d babelOutput"
   },
   "devDependencies": {
@@ -46,7 +46,7 @@
     "react-dom": "file:../../node_modules/react-dom",
     "regenerator-runtime": "^0.13.2",
     "scriptjs": "^2.5.9",
-    "webpack-external-import": "0.3.0-beta.0",
+    "webpack-external-import": "../../",
     "webpack-merge": "^4.2.1"
   }
 }
