@@ -114,9 +114,11 @@
     "preset": "jest-puppeteer"
   },
   "dependencies": {
+    "assert": "^2.0.0",
     "dimport": "^1.0.0",
     "fs-extra": "^8.1.0",
     "loadjs": "^4.2.0",
+    "lodash": "^4.17.15",
     "url-join": "^4.0.1"
   },
   "config": {

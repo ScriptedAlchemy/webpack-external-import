@@ -5,6 +5,7 @@ const { ConcatSource } = require("webpack-sources");
 const ModuleFilenameHelpers = require("webpack/lib/ModuleFilenameHelpers");
 const fs = require("fs");
 const webpack = require("webpack");
+const WebpackDependencies = require('./util');
 
 function mergeDeep(...objects) {
   const isObject = obj => obj && typeof obj === "object";
@@ -232,6 +233,7 @@ class URLImportPlugin {
     const outputName = path.relative(outputFolder, outputFile);
 
     const moduleAsset = ({ userRequest }, file) => {
+
       if (userRequest) {
         moduleAssets[file] = path.join(
           path.dirname(file),
@@ -241,6 +243,11 @@ class URLImportPlugin {
     };
 
     const emit = (compilation, compileCallback) => {
+      var webpackDependencyStats = new WebpackDependencies(compilation.getStats(), {
+        srcFolder: path.resolve(__dirname, 'src'),
+        onlyLocal: false
+      });
+      console.log(webpackDependencyStats.getDependentIdsById('SomeExternalModule'));
       const emitCount = emitCountMap.get(outputFile) - 1;
       emitCountMap.set(outputFile, emitCount);
 
@@ -568,7 +575,6 @@ class URLImportPlugin {
     });
 
     function wrapFile(compilation, fileName, chunkMap) {
-      console.log(fileName, chunkMap);
       // const headerContent =
       //   typeof header === "function" ? header(fileName, chunkHash) : header;
       // const footerContent =
@@ -586,10 +592,69 @@ class URLImportPlugin {
     console.clear();
 
     const wrapChunks = (compilation, chunks) => {
+
+      // console.log(compilation.moduleGraph)
+      const map = {};
+      const orgs = {};
+      compilation.modules.forEach(module => {
+        // if (module.id === "SomeExternalModule") {
+        if (!map[module.id]) map[module.id] = new Set();
+        if (!orgs[module.id]) orgs[module.id] = new Set();
+        // console.log("###");
+        // console.log(module.id, module);
+        module.dependencies.forEach(moduleDep => {
+          // console.log("moduleDep", moduleDep);
+          const ref = moduleDep.getReference()?.module;
+          if (ref?.id) {
+            map[module.id].add(ref.id);
+          }
+        });
+        // }
+        // map[module.id]
+      });
+
+      const itMap = (key, array) => {
+        array.forEach(item => {
+          orgs[key].add(item);
+            itMap(key, orgs[key]);
+        });
+      };
+      if (map?.SomeExternalModule)
+        // itMap("SomeExternalModule", map.SomeExternalModule);
+      console.log(orgs);
+      // map?.SomeExternalModule?.forEach(sub => {
+      //   map[sub];
+      //   // console.log(sub.map(i=>map[i]))
+      // });
+      // module.dependencies?.forEach(modDep => {
+      //   if(!modDep.id) return
+      //   if (!map[module.id]) map[module.id] = [];
+      //
+      //   Object.assign(map, {
+      //     [module.id]: [...map[module.id], modDep.originModule.id]
+      //   });
+      // });
+      // });
+      // console.log(map)
+
       chunks.forEach(chunk => {
         if (!chunk.rendered) {
           return;
         }
+
+        Array.from(chunk.groupsIterable).forEach(group => {
+          // console.log("group", group);
+          // console.log("group parents", group.getParents());
+          // console.log([...group.blocksIterable][0]);
+          // [...group.blocksIterable][0]?.module?.dependencies.forEach((moduleDep)=>{
+          // console.log(moduleDep.getReference());
+          // if(moduleDep.constructor.name === 'HarmonyImportSideEffectDependency') {
+          //   console.log('module name:',[...group.blocksIterable][0].request)
+          //   console.log('module', moduleDep)
+          //   console.log('module ref',moduleDep.getReference())
+          // }
+          // })
+        });
         const chunkMap = Array.from(chunk.modulesIterable).reduce(
           (acc, module) => {
             acc[module.id] =
@@ -624,51 +689,6 @@ class URLImportPlugin {
       compiler.hooks.webpackURLImportPluginAfterEmit = new SyncWaterfallHook([
         "manifest"
       ]);
-      const performanceMeasure = (source, arg2, arg3) => {
-        const clearMeasures = false;
-        const beforeExecuteModule = "// Execute the module function";
-        const afterExecuteModule = "// Flag the module as loaded";
-        const afterWebpackRequire =
-          "// This file contains only the entry chunk.";
-
-        return source
-          .replace(
-            afterWebpackRequire,
-            [
-              "// adding local registration function",
-              "__webpack_require__['registerLocals'] = function((chunkMap) {",
-              "return 'zack was here'",
-              "})",
-              afterWebpackRequire
-            ].join("\n")
-          )
-          .replace(
-            beforeExecuteModule,
-            [
-              `var moduleHashMap = ${JSON.stringify(this.moduleHashMap)};`,
-              "// Begin mark of performance",
-              'if (typeof performance !== "undefined") performance.mark(moduleHashMap[moduleId]);',
-              "",
-              beforeExecuteModule
-            ].join("\n")
-          )
-          .replace(
-            afterExecuteModule,
-            [
-              "// End mark of performance",
-              'if (typeof performance !== "undefined") {',
-              "if(!moduleHashMap[moduleId]){console.log(moduleId,module)}",
-              "  performance.measure(moduleHashMap[moduleId], moduleHashMap[moduleId]);",
-              "  performance.clearMarks(moduleHashMap[moduleId]);",
-              clearMeasures
-                ? "  performance.clearMeasures(moduleHashMap[moduleId]);"
-                : "",
-              "}",
-              "",
-              afterExecuteModule
-            ].join("\n")
-          );
-      };
 
       const addLocalVars = (source, chunk, hash) => {
         return [
@@ -686,15 +706,16 @@ class URLImportPlugin {
         ].join("\n");
       };
       compiler.hooks.compilation.tap("URLImportPlugin", function(compilation) {
+        const { mainTemplate } = compilation;
+        mainTemplate.hooks.localVars.tap("URLImportPlugin", addLocalVars);
+
         if (webpack.JavascriptModulesPlugin) {
-          // Webpack 5
-          webpack.JavascriptModulesPlugin.getCompilationHooks(
-            compilation
-          ).renderRequire.tap("URLImportPlugin", performanceMeasure);
+          // // Webpack 5
+          // webpack.JavascriptModulesPlugin.getCompilationHooks(
+          //   compilation
+          // ).renderRequire.tap("URLImportPlugin", performanceMeasure);
         } else {
-          const { mainTemplate } = compilation;
-          mainTemplate.hooks.localVars.tap("URLImportPlugin", addLocalVars);
-          mainTemplate.hooks.require.tap("URLImportPlugin", performanceMeasure);
+          // mainTemplate.hooks.require.tap("URLImportPlugin", performanceMeasure);
         }
       });
 
