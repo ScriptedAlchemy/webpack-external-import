@@ -589,20 +589,25 @@ class URLImportPlugin {
       );
     }
 
-    console.clear();
-
     const wrapChunks = (compilation, chunks) => {
-      const map = {};
+      const map = { ignoredChunk: new Set() };
       const orgs = {};
 
       chunks.forEach(chunk => {
+        // map weak maps and weak sets for better organization & perf
         console.log(
           "chunk",
+          chunk.id,
           chunk.canBeInitial(),
           chunk.isOnlyInitial(),
           chunk.hasEntryModule(),
           chunk.hasRuntime()
         );
+
+        if (chunk.hasEntryModule()) {
+          map.ignoredChunk.add(chunk.id);
+        }
+
         if (!chunk.rendered) {
           return;
         }
@@ -610,7 +615,7 @@ class URLImportPlugin {
           if (!Array.isArray(map[chunk.id])) {
             map[chunk.id] = [];
           }
-          map[chunk.id].push(`${module.id}-${module.rawRequest}`);
+          map[chunk.id].push(`${module.id}`);
 
           module.reasons.forEach(reason => {
             if (reason.module) {
@@ -629,7 +634,11 @@ class URLImportPlugin {
         Object.keys(orgs).forEach(key => {
           Array.from(orgs[key]).forEach(subSet => {
             if (orgs[subSet]) {
-              orgs[key].add(...orgs[subSet]);
+              orgs[subSet].delete(...map.ignoredChunk);
+              // dont walk entry module
+              if (!map.ignoredChunk.has(subSet)) {
+                orgs[key].add(...orgs[subSet]);
+              }
             }
           });
         });
