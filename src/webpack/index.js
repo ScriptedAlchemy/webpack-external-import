@@ -5,7 +5,6 @@ const { ConcatSource } = require("webpack-sources");
 const ModuleFilenameHelpers = require("webpack/lib/ModuleFilenameHelpers");
 const fs = require("fs");
 const webpack = require("webpack");
-const WebpackDependencies = require('./util');
 
 function mergeDeep(...objects) {
   const isObject = obj => obj && typeof obj === "object";
@@ -167,6 +166,10 @@ class URLImportPlugin {
     const chunkSplitting =
       options?.optimization?.splitChunks?.cacheGroups || {};
     chunkSplitting.interleave = interleaveConfig(this.opts.testPath);
+    chunkSplitting.rselect = {
+      test: /[\\/]node_modules[\\/]react-select/,
+      enforce: true
+    };
     // dont rename exports when hoisting and tree shaking
     Object.assign(options.optimization, {
       providedExports: false
@@ -233,7 +236,6 @@ class URLImportPlugin {
     const outputName = path.relative(outputFolder, outputFile);
 
     const moduleAsset = ({ userRequest }, file) => {
-
       if (userRequest) {
         moduleAssets[file] = path.join(
           path.dirname(file),
@@ -243,11 +245,6 @@ class URLImportPlugin {
     };
 
     const emit = (compilation, compileCallback) => {
-      var webpackDependencyStats = new WebpackDependencies(compilation.getStats(), {
-        srcFolder: path.resolve(__dirname, 'src'),
-        onlyLocal: false
-      });
-      console.log(webpackDependencyStats.getDependentIdsById('SomeExternalModule'));
       const emitCount = emitCountMap.get(outputFile) - 1;
       emitCountMap.set(outputFile, emitCount);
 
@@ -556,6 +553,7 @@ class URLImportPlugin {
     }
 
     compiler.hooks.compilation.tap("URLImportPlugin", compilation => {
+      const thing = {};
       if (this.afterOptimizations) {
         compilation.hooks.afterOptimizeChunkAssets.tap(
           "URLImportPlugin",
@@ -567,6 +565,8 @@ class URLImportPlugin {
         compilation.hooks.optimizeChunkAssets.tapAsync(
           "URLImportPlugin",
           (chunks, done) => {
+            console.log(thing);
+
             wrapChunks(compilation, chunks);
             done();
           }
@@ -592,56 +592,49 @@ class URLImportPlugin {
     console.clear();
 
     const wrapChunks = (compilation, chunks) => {
-
-      // console.log(compilation.moduleGraph)
       const map = {};
       const orgs = {};
-      compilation.modules.forEach(module => {
-        // if (module.id === "SomeExternalModule") {
-        if (!map[module.id]) map[module.id] = new Set();
-        if (!orgs[module.id]) orgs[module.id] = new Set();
-        // console.log("###");
-        // console.log(module.id, module);
-        module.dependencies.forEach(moduleDep => {
-          // console.log("moduleDep", moduleDep);
-          const ref = moduleDep.getReference()?.module;
-          if (ref?.id) {
-            map[module.id].add(ref.id);
-          }
-        });
-        // }
-        // map[module.id]
-      });
-
-      const itMap = (key, array) => {
-        array.forEach(item => {
-          orgs[key].add(item);
-            itMap(key, orgs[key]);
-        });
-      };
-      if (map?.SomeExternalModule)
-        // itMap("SomeExternalModule", map.SomeExternalModule);
-      console.log(orgs);
-      // map?.SomeExternalModule?.forEach(sub => {
-      //   map[sub];
-      //   // console.log(sub.map(i=>map[i]))
-      // });
-      // module.dependencies?.forEach(modDep => {
-      //   if(!modDep.id) return
-      //   if (!map[module.id]) map[module.id] = [];
-      //
-      //   Object.assign(map, {
-      //     [module.id]: [...map[module.id], modDep.originModule.id]
-      //   });
-      // });
-      // });
-      // console.log(map)
 
       chunks.forEach(chunk => {
+        console.log(
+          "chunk",
+          chunk.canBeInitial(),
+          chunk.isOnlyInitial(),
+          chunk.hasEntryModule(),
+          chunk.hasRuntime()
+        );
         if (!chunk.rendered) {
           return;
         }
+        chunk.getModules().forEach(module => {
+          if (!Array.isArray(map[chunk.id])) {
+            map[chunk.id] = [];
+          }
+          map[chunk.id].push(`${module.id}-${module.rawRequest}`);
 
+          module.reasons.forEach(reason => {
+            if (reason.module) {
+              reason.module.chunksIterable.forEach(reasonChunk => {
+                if (!orgs[reasonChunk.id]) {
+                  orgs[reasonChunk.id] = new Set();
+                }
+
+                // orgs[chunk.id].add(`${module.id}-${module.rawRequest}`);
+                orgs[reasonChunk.id].add(chunk.id);
+              });
+            }
+          });
+        });
+
+        Object.keys(orgs).forEach(key => {
+          Array.from(orgs[key]).forEach(subSet => {
+            if (orgs[subSet]) {
+              orgs[key].add(...orgs[subSet]);
+            }
+          });
+        });
+        console.log(map);
+        console.log(orgs);
         Array.from(chunk.groupsIterable).forEach(group => {
           // console.log("group", group);
           // console.log("group parents", group.getParents());
@@ -707,6 +700,7 @@ class URLImportPlugin {
       };
       compiler.hooks.compilation.tap("URLImportPlugin", function(compilation) {
         const { mainTemplate } = compilation;
+
         mainTemplate.hooks.localVars.tap("URLImportPlugin", addLocalVars);
 
         if (webpack.JavascriptModulesPlugin) {
