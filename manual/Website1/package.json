@@ -45,7 +45,7 @@
     "react-dom": "file:../../node_modules/react-dom",
     "regenerator-runtime": "^0.13.2",
     "scriptjs": "^2.5.9",
-    "webpack-external-import": "../../",
+    "webpack-external-import": "*",
     "webpack-merge": "^4.2.1"
   }
 }

@@ -32,9 +32,8 @@ module.exports = (commonPaths) => ({
   },
   optimization: {
     runtimeChunk: {
-      name: "manifest",
+      name: "webpackRuntime",
     },
-    namedChunks: true,
     splitChunks: {
       chunks: 'all',
       maxInitialRequests: Infinity,
