@@ -1,37 +1,39 @@
-import React, { useCallback, useEffect, useState } from "react";
-import PropTypes from "prop-types";
-import "./polyfill";
+import React, { useCallback, useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
+import './polyfill';
 
-const ExternalComponent = props => {
-  const { src, module, export: exportName, cors, ...rest } = props;
+const ExternalComponent = (props) => {
+  const {
+    src, module, export: exportName, extendClass, cors, ...rest
+  } = props;
+  const [loaded, setLoaded] = useState(false);
   const [Component, setComponent] = useState({ component: null });
   const importPromise = useCallback(() => {
     const isPromise = src instanceof Promise;
     if (!src) return Promise.reject();
     if (props.cors) {
       if (isPromise) {
-        return src.then(src => require("./corsImport").default(src));
+        return src.then((src) => require('./corsImport').default(src));
       }
-      return require("./corsImport").default(src);
+      return require('./corsImport').default(src);
     }
     if (isPromise) {
       return src.then(
-        src =>
-          new Promise(resolve => {
-            resolve(new Function(`return import("${src}")`)());
-          })
+        (src) => new Promise((resolve) => {
+          resolve(new Function(`return import("${src}")`)());
+        }),
       );
     }
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       resolve(new Function(`return import("${src}")`)());
     });
   }, [src, cors]);
 
   useEffect(() => {
-    require("./polyfill");
+    require('./polyfill');
     if (!src) {
       throw new Error(
-        `dynamic-import: no url, props: ${JSON.stringify(props, null, 2)}`
+        `dynamic-import: no url, props: ${JSON.stringify(props, null, 2)}`,
       );
     }
 
@@ -39,7 +41,7 @@ const ExternalComponent = props => {
       .then(() => {
         // patch into loadable
         if (window.__LOADABLE_LOADED_CHUNKS__) {
-          window.webpackJsonp.forEach(item => {
+          window.webpackJsonp.forEach((item) => {
             window.__LOADABLE_LOADED_CHUNKS__.push(item);
           });
         }
@@ -48,15 +50,19 @@ const ExternalComponent = props => {
           ? requiredComponent.default
           : requiredComponent[exportName];
         setComponent({ component });
+        setLoaded(true);
       })
-      .catch(e => {
+      .catch((e) => {
         throw new Error(`dynamic-import: ${e.message}`);
       });
   }, []);
 
   if (!Component.component) return null;
 
-  // eslint-disable-next-line react/jsx-props-no-spreading
+  if (extendClass) {
+    const ExtendedComponent = Component.component(extendClass);
+    return <ExtendedComponent {...rest} />;
+  }
   return <Component.component {...rest} />;
 };
 
