@@ -1,11 +1,21 @@
 const path = require("path");
 const fse = require("fs-extra");
 const createHash = require("webpack/lib/util/createHash");
-const { ConcatSource } = require("webpack-sources");
+const { ConcatSource,RawSource } = require("webpack-sources");
 const ModuleFilenameHelpers = require("webpack/lib/ModuleFilenameHelpers");
+const FunctionModuleTemplatePlugin = require("webpack/lib/FunctionModuleTemplatePlugin");
 const fs = require("fs");
 const webpack = require("webpack");
-
+//use this
+class FunctionModulePlugin {
+  apply(compiler) {
+    compiler.hooks.compilation.tap("FunctionModulePlugin", compilation => {
+      new FunctionModuleTemplatePlugin().apply(
+          compilation.moduleTemplates.javascript
+      );
+    });
+  }
+}
 function mergeDeep(...objects) {
   const isObject = obj => obj && typeof obj === "object";
 
@@ -112,6 +122,7 @@ const emitCountMap = new Map();
 
 class URLImportPlugin {
   constructor(opts) {
+    console.clear();
     const debug =
       typeof v8debug === "object" ||
       /--debug|--inspect/.test(process.execArgv.join(" "));
@@ -555,9 +566,17 @@ class URLImportPlugin {
     compiler.hooks.compilation.tap("URLImportPlugin", compilation => {
       const thing = {};
       if (this.afterOptimizations) {
+        compilation.hooks.beforeOptimizeChunkAssets.tap(
+            "URLImportPlugin",
+            chunks => {
+              console.log(chunks);
+              wrapChunks(compilation, chunks);
+            }
+        );
         compilation.hooks.afterOptimizeChunkAssets.tap(
           "URLImportPlugin",
           chunks => {
+            console.log(chunks);
             wrapChunks(compilation, chunks);
           }
         );
@@ -565,8 +584,6 @@ class URLImportPlugin {
         compilation.hooks.optimizeChunkAssets.tapAsync(
           "URLImportPlugin",
           (chunks, done) => {
-            console.log(thing);
-
             wrapChunks(compilation, chunks);
             done();
           }
@@ -574,18 +591,20 @@ class URLImportPlugin {
       }
     });
 
-    function wrapFile(compilation, fileName, chunkMap) {
+    function wrapFile(compilation, fileName, allModulesNeeded, chunkKeys) {
       // const headerContent =
       //   typeof header === "function" ? header(fileName, chunkHash) : header;
       // const footerContent =
       //   typeof footer === "function" ? footer(fileName, chunkHash) : footer;
-      //
+      // compilation.assets[fileName] = compilation.assets[fileName].replace('(function(module, __webpack_exports__, __webpack_require__) {','(function(module, __webpack_exports__, __webpack_require__) { //zackwashere');
       compilation.assets[fileName] = new ConcatSource(
         String(
-          `__webpack_require__.registerLocals(${JSON.stringify(chunkMap)})`
+          `(function(){var allModules = ${JSON.stringify(
+            allModulesNeeded
+          )}; var allChunks = ${JSON.stringify(chunkKeys)};`
         ),
-        compilation.assets[fileName]
-        // String(footerContent)
+        compilation.assets[fileName],
+        String('})()')
       );
     }
 
@@ -595,6 +614,7 @@ class URLImportPlugin {
 
       chunks.forEach(chunk => {
         // map weak maps and weak sets for better organization & perf
+        // console.group(group)
         console.log(
           "chunk",
           chunk.id,
@@ -604,7 +624,7 @@ class URLImportPlugin {
           chunk.hasRuntime()
         );
 
-        if (chunk.hasEntryModule()) {
+        if (chunk.hasEntryModule() || chunk.hasRuntime()) {
           map.ignoredChunk.add(chunk.id);
         }
 
@@ -642,21 +662,7 @@ class URLImportPlugin {
             }
           });
         });
-        console.log(map);
-        console.log(orgs);
-        Array.from(chunk.groupsIterable).forEach(group => {
-          // console.log("group", group);
-          // console.log("group parents", group.getParents());
-          // console.log([...group.blocksIterable][0]);
-          // [...group.blocksIterable][0]?.module?.dependencies.forEach((moduleDep)=>{
-          // console.log(moduleDep.getReference());
-          // if(moduleDep.constructor.name === 'HarmonyImportSideEffectDependency') {
-          //   console.log('module name:',[...group.blocksIterable][0].request)
-          //   console.log('module', moduleDep)
-          //   console.log('module ref',moduleDep.getReference())
-          // }
-          // })
-        });
+
         const chunkMap = Array.from(chunk.modulesIterable).reduce(
           (acc, module) => {
             acc[module.id] =
@@ -668,14 +674,39 @@ class URLImportPlugin {
           },
           {}
         );
-
         this.moduleHashMap = { ...this.moduleHashMap, [chunk.id]: chunkMap };
+        // delete this
+        // for (const fileName of chunk.files) {
+        //   if (
+        //     ModuleFilenameHelpers.matchObject({}, fileName) &&
+        //     fileName.indexOf(".js") !== -1
+        //   ) {
+        //     console.log(`#####${chunk.id}###`);
+        //     wrapFile(compilation, fileName, map[chunk.id], orgs[chunk.id]);
+        //   }
+        // }
+      });
+      chunks.forEach(chunk => {
+        if (!chunk.rendered || map.ignoredChunk.has(chunk.id)) {
+          return;
+        }
+
         for (const fileName of chunk.files) {
           if (
             ModuleFilenameHelpers.matchObject({}, fileName) &&
             fileName.indexOf(".js") !== -1
           ) {
-            wrapFile(compilation, fileName, chunkMap);
+            const AllChunksNeeded = Array.from(orgs[chunk.id]);
+            const AllModulesNeeded = AllChunksNeeded.reduce(
+              (allDependencies, dependentChunk) => {
+                return {
+                  ...allDependencies,
+                  [dependentChunk]: [...new Set(map[dependentChunk])]
+                };
+              },
+              {}
+            );
+            wrapFile(compilation, fileName, AllModulesNeeded, AllChunksNeeded);
           }
         }
       });
@@ -700,9 +731,10 @@ class URLImportPlugin {
           "// adding local registration function",
           "__webpack_require__['registerLocals'] = function(chunkMap) {",
           "if(chunkMap && chunkMap instanceof Object) {",
-          "Object.keys(chunkMap).forEach(function(key){",
-          "interleaveMap[key] = chunkMap[key]",
-          "})",
+          "console.log(chunkMap)",
+          // "Object.keys(chunkMap).forEach(function(key){",
+          // "interleaveMap[key] = chunkMap[key]",
+          // "})",
           "}",
           "};"
         ].join("\n");
@@ -724,6 +756,7 @@ class URLImportPlugin {
 
       compiler.hooks.compilation.tap("URLImportPlugin", compilation => {
         const usedIds = new Set();
+        console.log(compilation);
         compilation.hooks.beforeModuleIds.tap("URLImportPlugin", modules => {
           // eslint-disable-next-line no-restricted-syntax
           for (const module of modules) {

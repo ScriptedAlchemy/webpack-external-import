@@ -13,7 +13,8 @@
     "corsImport.js",
     "index.js",
     "polyfill.js",
-    "react.js"
+    "react.js",
+    "loader"
   ],
   "keywords": [
     "import url",
@@ -92,6 +93,7 @@
     "react": "16.8.6",
     "react-dom": "16.8.6",
     "regenerator-runtime": "^0.13.3",
+    "schema-utils": "^2.6.1",
     "semantic-release": "^15.13.24",
     "source-map": "^0.7.3",
     "webpack": "^4.40.2",
