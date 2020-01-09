@@ -1,21 +1,24 @@
 const path = require("path");
 const fse = require("fs-extra");
 const createHash = require("webpack/lib/util/createHash");
-const { ConcatSource,RawSource } = require("webpack-sources");
+const { ConcatSource, RawSource } = require("webpack-sources");
 const ModuleFilenameHelpers = require("webpack/lib/ModuleFilenameHelpers");
+const Template = require("webpack/lib/Template");
 const FunctionModuleTemplatePlugin = require("webpack/lib/FunctionModuleTemplatePlugin");
 const fs = require("fs");
 const webpack = require("webpack");
-//use this
+
+// use this
 class FunctionModulePlugin {
   apply(compiler) {
     compiler.hooks.compilation.tap("FunctionModulePlugin", compilation => {
       new FunctionModuleTemplatePlugin().apply(
-          compilation.moduleTemplates.javascript
+        compilation.moduleTemplates.javascript
       );
     });
   }
 }
+
 function mergeDeep(...objects) {
   const isObject = obj => obj && typeof obj === "object";
 
@@ -567,11 +570,11 @@ class URLImportPlugin {
       const thing = {};
       if (this.afterOptimizations) {
         compilation.hooks.beforeOptimizeChunkAssets.tap(
-            "URLImportPlugin",
-            chunks => {
-              console.log(chunks);
-              wrapChunks(compilation, chunks);
-            }
+          "URLImportPlugin",
+          chunks => {
+            console.log(chunks);
+            wrapChunks(compilation, chunks);
+          }
         );
         compilation.hooks.afterOptimizeChunkAssets.tap(
           "URLImportPlugin",
@@ -597,14 +600,12 @@ class URLImportPlugin {
       // const footerContent =
       //   typeof footer === "function" ? footer(fileName, chunkHash) : footer;
       // compilation.assets[fileName] = compilation.assets[fileName].replace('(function(module, __webpack_exports__, __webpack_require__) {','(function(module, __webpack_exports__, __webpack_require__) { //zackwashere');
+
       compilation.assets[fileName] = new ConcatSource(
         String(
-          `(function(){var allModules = ${JSON.stringify(
-            allModulesNeeded
-          )}; var allChunks = ${JSON.stringify(chunkKeys)};`
+          `(window["webpackRegister"] = window["webpackRegister"] || []).push([${JSON.stringify(chunkKeys)},${JSON.stringify(allModulesNeeded)}]);\n`
         ),
-        compilation.assets[fileName],
-        String('})()')
+        compilation.assets[fileName]
       );
     }
 
@@ -723,24 +724,54 @@ class URLImportPlugin {
         "manifest"
       ]);
 
-      const addLocalVars = (source, chunk, hash) => {
+      const addInterleaveExtention = (source, chunk, hash) => {
         return [
           source,
-          "// interleaving map",
-          "var interleaveMap = {};",
           "// adding local registration function",
-          "__webpack_require__['registerLocals'] = function(chunkMap) {",
-          "if(chunkMap && chunkMap instanceof Object) {",
-          "console.log(chunkMap)",
+          "function registerLocals(chunkMap) { chunkMap[0].forEach(function(key){",
+          "//keys 0 map 1",
+          "console.log(chunkMap[1][key].filter((neededModule)=>{return !modules[neededModule]}));//modules.filter((module)=>{console.log(module)})",
           // "Object.keys(chunkMap).forEach(function(key){",
           // "interleaveMap[key] = chunkMap[key]",
-          // "})",
-          "}",
+          "})",
           "};"
         ].join("\n");
       };
+      const addLocalVars = (source, chunk, hash) => {
+        return [source, "// interleaving map", "var interleaveMap = {};"].join(
+          "\n"
+        );
+      };
       compiler.hooks.compilation.tap("URLImportPlugin", function(compilation) {
         const { mainTemplate } = compilation;
+        mainTemplate.hooks.requireExtensions.tap(
+          "URLImportPlugin",
+          addInterleaveExtention
+        );
+        mainTemplate.hooks.beforeStartup.tap(
+          "URLImportPlugin",
+          (source, chunk, hash) => {
+            if (source) {
+              const splitSrouce = source.split(
+                "jsonpArray.push = webpackJsonpCallback;"
+              );
+              return Template.asString([
+                splitSrouce[0].replace(
+                  'var jsonpArray = window["webpackJsonp"] = window["webpackJsonp"] || [];',
+                  'var jsonpArray = window["webpackJsonp"] = window["webpackJsonp"] || [];\nvar webpackRegister = window["webpackRegister"] = window["webpackRegister"] || [];'
+                ),
+                // splitSrouce[0].replace(
+                //   "var oldJsonpFunction = jsonpArray.push.bind(jsonpArray);",
+                //   "var oldJsonpFunction = jsonpArray.push.bind(jsonpArray);\nwebpackRegister.push.bind(webpackRegister);"
+                // ),
+                "jsonpArray.push = webpackJsonpCallback;",
+                "webpackRegister.push = registerLocals",
+                splitSrouce[1]
+              ]);
+            }
+            console.log("chunk", chunk);
+          }
+        );
 
         mainTemplate.hooks.localVars.tap("URLImportPlugin", addLocalVars);
 

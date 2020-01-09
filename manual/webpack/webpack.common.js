@@ -21,13 +21,13 @@ module.exports = commonPaths => ({
           babelrcRoots: [".", __dirname]
         }
       },
-      {
-        test: /\.(js|jsx)$/,
-        exclude: /(node_modules)/,
-        use: {
-          loader: require.resolve("../../loader")
-        }
-      },
+      // {
+      //   test: /\.(js|jsx)$/,
+      //   exclude: /(node_modules)/,
+      //   use: {
+      //     loader: require.resolve("../../loader")
+      //   }
+      // },
       {
         test: /\.(png|jpg|gif|svg)$/,
         use: [

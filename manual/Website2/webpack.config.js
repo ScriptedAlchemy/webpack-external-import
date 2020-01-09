@@ -7,7 +7,7 @@ const siteId = 2;
 module.exports = configFactory(siteId, {
   plugins: [
     new webpack.LoaderOptionsPlugin({
-      debug: true,
+      debug: false,
     }),
   ],
 });
