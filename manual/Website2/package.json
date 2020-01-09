@@ -8,7 +8,7 @@
   "author": "Zack Jackson <zack@ScriptedAlchemy.com> (https://github.com/ScriptedAlchemy)",
   "scripts": {
     "manual:prod": "cd ../../ && yarn link  && cd manual/Website2 && yarn link  webpack-external-import && cross-env NODE_ENV=production node node_modules/webpack-dev-server/bin/webpack-dev-server.js",
-    "manual:dev": "cd ../../ && yarn link  && cd manual/Website2 && yarn link  webpack-external-import && cross-env NODE_ENV=development node --inspect node_modules/webpack-dev-server/bin/webpack-dev-server.js",
+    "manual:dev": "cd ../../ && yarn link  && cd manual/Website2 && yarn link  webpack-external-import && cross-env NODE_ENV=development node node_modules/webpack-dev-server/bin/webpack-dev-server.js",
     "babel": "babel src -d babelOutput"
   },
   "devDependencies": {
@@ -47,7 +47,7 @@
     "optimize-css-assets-webpack-plugin": "^5.0.1",
     "react": "file:../../node_modules/react",
     "react-dom": "file:../../node_modules/react-dom",
-    "react-select": "^3.0.4",
+    "react-select": "3.0.4",
     "regenerator-runtime": "^0.13.2",
     "scriptjs": "^2.5.9",
     "wrapper-webpack-plugin": "^2.1.0",

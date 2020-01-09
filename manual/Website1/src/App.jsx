@@ -3,7 +3,7 @@ import {
   ExternalComponent, corsImport, getChunkPath, getChunkDependencies, importDependenciesOf,
 } from 'webpack-external-import';
 import HelloWorld from './components/goodbye-world';
-
+import 'react-select';
 import('moment');
 class App extends Component {
   constructor(props) {
