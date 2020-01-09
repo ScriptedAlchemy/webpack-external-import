@@ -2,10 +2,11 @@ import React, { useCallback, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import './polyfill';
 
-const ExternalComponent = (props) => {
+const ExternalComponent = React.forwardRef((props, ref) => {
   const {
     src, module, export: exportName, extendClass, cors, ...rest
   } = props;
+  console.log('external component ref', ref);
   const [loaded, setLoaded] = useState(false);
   const [Component, setComponent] = useState({ component: null });
   const importPromise = useCallback(() => {
@@ -61,10 +62,10 @@ const ExternalComponent = (props) => {
 
   if (extendClass) {
     const ExtendedComponent = Component.component(extendClass);
-    return <ExtendedComponent {...rest} />;
+    return <ExtendedComponent ref={ref} {...rest} />;
   }
-  return <Component.component {...rest} />;
-};
+  return <Component.component ref={ref} {...rest} />;
+});
 
 ExternalComponent.propTypes = {
   src: PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.string])
