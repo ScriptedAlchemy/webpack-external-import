@@ -8,7 +8,7 @@
   "author": "Zack Jackson <zack@ScriptedAlchemy.com> (https://github.com/ScriptedAlchemy)",
   "scripts": {
     "manual:prod": "cd ../../ && yarn link  && cd manual/Website2 && yarn link  webpack-external-import && cross-env NODE_ENV=production node node_modules/webpack-dev-server/bin/webpack-dev-server.js",
-    "manual:dev": "cd ../../ && yarn link  && cd manual/Website2 && yarn link  webpack-external-import && cross-env NODE_ENV=development node --inspect node_modules/webpack-dev-server/bin/webpack-dev-server.js",
+    "manual:dev": "cd ../../ && yarn link  && cd manual/Website2 && yarn link  webpack-external-import && cross-env NODE_ENV=development node node_modules/webpack-dev-server/bin/webpack-dev-server.js",
     "babel": "babel src -d babelOutput"
   },
   "devDependencies": {
