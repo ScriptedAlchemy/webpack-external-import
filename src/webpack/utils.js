@@ -19,6 +19,7 @@ export function mergeDeep(...objects) {
   }, {});
 }
 
+// TODO: delete this function in V2
 export function removeNull() {
   let nullCount = 0;
   let { length } = this;
@@ -62,3 +63,9 @@ export function removeNull() {
   this.length = length;
   return this;
 }
+// eslint-disable-next-line no-extend-native
+Object.defineProperty(Array.prototype, "removeNull", {
+  value: removeNull,
+  writable: true,
+  configurable: true
+});

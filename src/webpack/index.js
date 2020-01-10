@@ -1,14 +1,15 @@
 const path = require("path");
 const fse = require("fs-extra");
 const createHash = require("webpack/lib/util/createHash");
-const { ConcatSource } = require("webpack-sources");
-const ModuleFilenameHelpers = require("webpack/lib/ModuleFilenameHelpers");
-const Template = require("webpack/lib/Template");
 const FunctionModuleTemplatePlugin = require("webpack/lib/FunctionModuleTemplatePlugin");
 const fs = require("fs");
 const webpack = require("webpack");
-const {} = require("utils");
+const { mergeDeep, removeNull } = require("./utils");
 const { addInterleaveExtention } = require("./requireExtentions");
+const { addWebpackRegister } = require("./beforeStartup");
+const { interleaveConfig } = require("./chunkSplitting");
+const { addLocalVars } = require("./localVars");
+const { wrapChunks } = require("./optimizeChunk");
 // use this
 class FunctionModulePlugin {
   apply(compiler) {
@@ -19,43 +20,6 @@ class FunctionModulePlugin {
     });
   }
 }
-
-// eslint-disable-next-line no-extend-native
-Object.defineProperty(Array.prototype, "removeNull", {
-  value: removeNull,
-  writable: true,
-  configurable: true
-});
-
-function hasExternalizedModule(module) {
-  const moduleSource = module?.originalSource?.()?.source?.() || "";
-  if (moduleSource?.indexOf("externalize") > -1 || false) {
-    return moduleSource;
-  }
-  return false;
-}
-
-const interleaveConfig = test => ({
-  test(module) {
-    if (module.resource) {
-      return module.resource.includes(test) && !!hasExternalizedModule(module);
-    }
-  },
-  // eslint-disable-next-line no-unused-vars
-  name(module, chunks, cacheGroupKey) {
-    // dont chunk unless we are sure you can
-
-    const moduleSource = hasExternalizedModule(module);
-    if (moduleSource) {
-      return moduleSource.match(/\/\*\s*externalize\s*:\s*(\S+)\s*\*\//)[1];
-    }
-    // returning a chunk name causes problems with mini-css popping chunks off
-    // return 'main';
-  },
-  enforce: true
-  // might need for next.js
-  // reuseExistingChunk: false,
-});
 
 const emitCountMap = new Map();
 
@@ -502,152 +466,7 @@ class URLImportPlugin {
       }
     }
 
-    compiler.hooks.compilation.tap("URLImportPlugin", compilation => {
-      if (this.afterOptimizations) {
-        compilation.hooks.beforeOptimizeChunkAssets.tap(
-          "URLImportPlugin",
-          chunks => {
-            console.log(chunks);
-            wrapChunks(compilation, chunks);
-          }
-        );
-        // compilation.hooks.afterOptimizeChunkAssets.tap(
-        //   "URLImportPlugin",
-        //   chunks => {
-        //     console.log(chunks);
-        //     wrapChunks(compilation, chunks);
-        //   }
-        // );
-      } else {
-        compilation.hooks.optimizeChunkAssets.tapAsync(
-          "URLImportPlugin",
-          (chunks, done) => {
-            wrapChunks(compilation, chunks);
-            done();
-          }
-        );
-      }
-    });
 
-    function wrapFile(compilation, fileName, allModulesNeeded, chunkKeys) {
-      const pushArguments = JSON.stringify([
-        // pass the source compilation hash to figure out if a chunk is being required by its own build - if so, dont register anything
-        compilation.hash,
-        chunkKeys,
-        allModulesNeeded
-      ]);
-      // write source to the top of the file
-      compilation.assets[fileName] = new ConcatSource(
-        String(
-          `(window["webpackRegister"] = window["webpackRegister"] || []).push(${pushArguments});\n`
-        ),
-        compilation.assets[fileName]
-      );
-    }
-
-    const wrapChunks = (compilation, chunks) => {
-      const map = { ignoredChunk: new Set() };
-      const orgs = {};
-      chunks.forEach(chunk => {
-        // map weak maps and weak sets for better organization & perf
-        // console.group(group)
-        console.log(
-          "chunk",
-          chunk.id,
-          chunk.canBeInitial(),
-          chunk.isOnlyInitial(),
-          chunk.hasEntryModule(),
-          chunk.hasRuntime()
-        );
-
-        if (chunk.hasEntryModule() || chunk.hasRuntime()) {
-          map.ignoredChunk.add(chunk.id);
-        }
-
-        if (!chunk.rendered) {
-          return;
-        }
-        chunk.getModules().forEach(module => {
-          if (!Array.isArray(map[chunk.id])) {
-            map[chunk.id] = [];
-          }
-          map[chunk.id].push(`${module.id}`);
-
-          module.reasons.forEach(reason => {
-            if (reason.module) {
-              reason.module.chunksIterable.forEach(reasonChunk => {
-                if (!orgs[reasonChunk.id]) {
-                  orgs[reasonChunk.id] = new Set();
-                }
-
-                // orgs[chunk.id].add(`${module.id}-${module.rawRequest}`);
-                orgs[reasonChunk.id].add(chunk.id);
-              });
-            }
-          });
-        });
-
-        Object.keys(orgs).forEach(key => {
-          Array.from(orgs[key]).forEach(subSet => {
-            if (orgs[subSet]) {
-              orgs[subSet].delete(...map.ignoredChunk);
-              // dont walk entry module
-              if (!map.ignoredChunk.has(subSet)) {
-                orgs[key].add(...orgs[subSet]);
-              }
-            }
-          });
-        });
-
-        const chunkMap = Array.from(chunk.modulesIterable).reduce(
-          (acc, module) => {
-            acc[module.id] =
-              module.name ||
-              module.userRequest ||
-              module.rawRequest ||
-              module.id;
-            return acc;
-          },
-          {}
-        );
-        this.moduleHashMap = { ...this.moduleHashMap, [chunk.id]: chunkMap };
-        // delete this
-        // for (const fileName of chunk.files) {
-        //   if (
-        //     ModuleFilenameHelpers.matchObject({}, fileName) &&
-        //     fileName.indexOf(".js") !== -1
-        //   ) {
-        //     console.log(`#####${chunk.id}###`);
-        //     wrapFile(compilation, fileName, map[chunk.id], orgs[chunk.id]);
-        //   }
-        // }
-      });
-      chunks.forEach(chunk => {
-        if (!chunk.rendered || map.ignoredChunk.has(chunk.id)) {
-          return;
-        }
-
-        for (const fileName of chunk.files) {
-          if (
-            ModuleFilenameHelpers.matchObject({}, fileName) &&
-            fileName.indexOf(".js") !== -1
-          ) {
-            const AllChunksNeeded = Array.from(orgs[chunk.id]);
-            const AllModulesNeeded = AllChunksNeeded.reduce(
-              (allDependencies, dependentChunk) => {
-                return {
-                  ...allDependencies,
-                  [dependentChunk]: [...new Set(map[dependentChunk])]
-                };
-              },
-              {}
-            );
-            wrapFile(compilation, fileName, AllModulesNeeded, AllChunksNeeded);
-          }
-        }
-      });
-      // console.log(this.moduleHashMap);
-    }; // wrapChunks
 
     if (compiler.hooks) {
       const { SyncWaterfallHook } = require("tapable");
@@ -658,59 +477,40 @@ class URLImportPlugin {
       compiler.hooks.webpackURLImportPluginAfterEmit = new SyncWaterfallHook([
         "manifest"
       ]);
-
-      const addLocalVars = (source, chunk, hash) => {
-        return [source, "// interleaving map", "var interleaveMap = {};"].join(
-          "\n"
-        );
-      };
-      compiler.hooks.compilation.tap("URLImportPlugin", function(compilation) {
+      compiler.hooks.compilation.tap("URLImportPlugin", compilation => {
         const { mainTemplate } = compilation;
-        const webpackHash = `${mainTemplate.requireFn}.h`;
         mainTemplate.hooks.requireExtensions.tap(
           "URLImportPlugin",
-          (source, chunk) => addInterleaveExtention(source, chunk, webpackHash)
+          (source, chunk, hash) => addInterleaveExtention(source, chunk, hash)
         );
+        // TODO add an option for this
+        if (this.afterOptimizations) {
+          compilation.hooks.beforeOptimizeChunkAssets.tap(
+            "URLImportPlugin",
+            chunks => {
+              console.log(chunks);
+              wrapChunks(compilation, chunks, this.moduleHashMap);
+            }
+          );
+        } else {
+          compilation.hooks.optimizeChunkAssets.tapAsync(
+            "URLImportPlugin",
+            (chunks, done) => {
+              wrapChunks(compilation, chunks, this.moduleHashMap);
+              done();
+            }
+          );
+        }
         mainTemplate.hooks.beforeStartup.tap(
           "URLImportPlugin",
-          (source, chunk, hash) => {
-            if (source) {
-              const splitSrouce = source.split(
-                "jsonpArray.push = webpackJsonpCallback;"
-              );
-              return Template.asString([
-                splitSrouce[0].replace(
-                  'var jsonpArray = window["webpackJsonp"] = window["webpackJsonp"] || [];',
-                  'var jsonpArray = window["webpackJsonp"] = window["webpackJsonp"] || [];\nvar webpackRegister = window["webpackRegister"] = window["webpackRegister"] || [];'
-                ),
-                // splitSrouce[0].replace(
-                //   "var oldJsonpFunction = jsonpArray.push.bind(jsonpArray);",
-                //   "var oldJsonpFunction = jsonpArray.push.bind(jsonpArray);\nwebpackRegister.push.bind(webpackRegister);"
-                // ),
-                "jsonpArray.push = webpackJsonpCallback;",
-                "webpackRegister.push = registerLocals",
-                splitSrouce[1]
-              ]);
-            }
-            console.log("chunk", chunk);
-          }
+          addWebpackRegister
         );
 
         mainTemplate.hooks.localVars.tap("URLImportPlugin", addLocalVars);
-
-        if (webpack.JavascriptModulesPlugin) {
-          // // Webpack 5
-          // webpack.JavascriptModulesPlugin.getCompilationHooks(
-          //   compilation
-          // ).renderRequire.tap("URLImportPlugin", performanceMeasure);
-        } else {
-          // mainTemplate.hooks.require.tap("URLImportPlugin", performanceMeasure);
-        }
       });
 
       compiler.hooks.compilation.tap("URLImportPlugin", compilation => {
         const usedIds = new Set();
-        console.log(compilation);
         compilation.hooks.beforeModuleIds.tap("URLImportPlugin", modules => {
           // eslint-disable-next-line no-restricted-syntax
           for (const module of modules) {
