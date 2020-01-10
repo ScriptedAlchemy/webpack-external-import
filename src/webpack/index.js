@@ -1,13 +1,14 @@
 const path = require("path");
 const fse = require("fs-extra");
 const createHash = require("webpack/lib/util/createHash");
-const { ConcatSource, RawSource } = require("webpack-sources");
+const { ConcatSource } = require("webpack-sources");
 const ModuleFilenameHelpers = require("webpack/lib/ModuleFilenameHelpers");
 const Template = require("webpack/lib/Template");
 const FunctionModuleTemplatePlugin = require("webpack/lib/FunctionModuleTemplatePlugin");
 const fs = require("fs");
 const webpack = require("webpack");
-
+const {} = require("utils");
+const { addInterleaveExtention } = require("./requireExtentions");
 // use this
 class FunctionModulePlugin {
   apply(compiler) {
@@ -18,71 +19,6 @@ class FunctionModulePlugin {
     });
   }
 }
-
-function mergeDeep(...objects) {
-  const isObject = obj => obj && typeof obj === "object";
-
-  return objects.reduce((prev, obj) => {
-    Object.keys(obj).forEach(key => {
-      const pVal = prev[key];
-      const oVal = obj[key];
-
-      if (Array.isArray(pVal) && Array.isArray(oVal)) {
-        prev[key] = pVal.concat(...oVal);
-      } else if (isObject(pVal) && isObject(oVal)) {
-        prev[key] = mergeDeep(pVal, oVal);
-      } else {
-        prev[key] = oVal;
-      }
-    });
-
-    return prev;
-  }, {});
-}
-
-const removeNull = function() {
-  let nullCount = 0;
-  let { length } = this;
-  for (let i = 0, len = this.length; i < len; i++) {
-    if (!this[i]) {
-      nullCount++;
-    }
-  }
-  // no item is null
-  if (!nullCount) {
-    return this;
-  }
-  // all items are null
-  if (nullCount == length) {
-    this.length = 0;
-    return this;
-  }
-  // mix of null // non-null
-  let idest = 0;
-  let isrc = length - 1;
-  length -= nullCount;
-  while (true) {
-    while (!this[isrc]) {
-      isrc--;
-      nullCount--;
-    } // find a non null (source) slot on the right
-    if (!nullCount) {
-      break;
-    } // break if found all null
-    while (this[idest]) {
-      idest++;
-    } // find one null slot on the left (destination)
-    // perform copy
-    this[idest] = this[isrc];
-    if (!--nullCount) {
-      break;
-    }
-    idest++;
-    isrc--;
-  }
-  this.length = length;
-  return this;
-};
 
 // eslint-disable-next-line no-extend-native
 Object.defineProperty(Array.prototype, "removeNull", {
@@ -567,7 +503,6 @@ class URLImportPlugin {
     }
 
     compiler.hooks.compilation.tap("URLImportPlugin", compilation => {
-      const thing = {};
       if (this.afterOptimizations) {
         compilation.hooks.beforeOptimizeChunkAssets.tap(
           "URLImportPlugin",
@@ -576,13 +511,13 @@ class URLImportPlugin {
             wrapChunks(compilation, chunks);
           }
         );
-        compilation.hooks.afterOptimizeChunkAssets.tap(
-          "URLImportPlugin",
-          chunks => {
-            console.log(chunks);
-            wrapChunks(compilation, chunks);
-          }
-        );
+        // compilation.hooks.afterOptimizeChunkAssets.tap(
+        //   "URLImportPlugin",
+        //   chunks => {
+        //     console.log(chunks);
+        //     wrapChunks(compilation, chunks);
+        //   }
+        // );
       } else {
         compilation.hooks.optimizeChunkAssets.tapAsync(
           "URLImportPlugin",
@@ -595,15 +530,16 @@ class URLImportPlugin {
     });
 
     function wrapFile(compilation, fileName, allModulesNeeded, chunkKeys) {
-      // const headerContent =
-      //   typeof header === "function" ? header(fileName, chunkHash) : header;
-      // const footerContent =
-      //   typeof footer === "function" ? footer(fileName, chunkHash) : footer;
-      // compilation.assets[fileName] = compilation.assets[fileName].replace('(function(module, __webpack_exports__, __webpack_require__) {','(function(module, __webpack_exports__, __webpack_require__) { //zackwashere');
-
+      const pushArguments = JSON.stringify([
+        // pass the source compilation hash to figure out if a chunk is being required by its own build - if so, dont register anything
+        compilation.hash,
+        chunkKeys,
+        allModulesNeeded
+      ]);
+      // write source to the top of the file
       compilation.assets[fileName] = new ConcatSource(
         String(
-          `(window["webpackRegister"] = window["webpackRegister"] || []).push([${JSON.stringify(chunkKeys)},${JSON.stringify(allModulesNeeded)}]);\n`
+          `(window["webpackRegister"] = window["webpackRegister"] || []).push(${pushArguments});\n`
         ),
         compilation.assets[fileName]
       );
@@ -612,7 +548,6 @@ class URLImportPlugin {
     const wrapChunks = (compilation, chunks) => {
       const map = { ignoredChunk: new Set() };
       const orgs = {};
-
       chunks.forEach(chunk => {
         // map weak maps and weak sets for better organization & perf
         // console.group(group)
@@ -724,19 +659,6 @@ class URLImportPlugin {
         "manifest"
       ]);
 
-      const addInterleaveExtention = (source, chunk, hash) => {
-        return [
-          source,
-          "// adding local registration function",
-          "function registerLocals(chunkMap) { chunkMap[0].forEach(function(key){",
-          "//keys 0 map 1",
-          "console.log(chunkMap[1][key].filter((neededModule)=>{return !modules[neededModule]}));//modules.filter((module)=>{console.log(module)})",
-          // "Object.keys(chunkMap).forEach(function(key){",
-          // "interleaveMap[key] = chunkMap[key]",
-          "})",
-          "};"
-        ].join("\n");
-      };
       const addLocalVars = (source, chunk, hash) => {
         return [source, "// interleaving map", "var interleaveMap = {};"].join(
           "\n"
@@ -744,9 +666,10 @@ class URLImportPlugin {
       };
       compiler.hooks.compilation.tap("URLImportPlugin", function(compilation) {
         const { mainTemplate } = compilation;
+        const webpackHash = `${mainTemplate.requireFn}.h`;
         mainTemplate.hooks.requireExtensions.tap(
           "URLImportPlugin",
-          addInterleaveExtention
+          (source, chunk) => addInterleaveExtention(source, chunk, webpackHash)
         );
         mainTemplate.hooks.beforeStartup.tap(
           "URLImportPlugin",
