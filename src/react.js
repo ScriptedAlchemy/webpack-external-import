@@ -2,12 +2,10 @@ import React, { useCallback, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import './polyfill';
 
-const ExternalComponent = React.forwardRef((props, ref) => {
+const ExternalComponent = (props) => {
   const {
-    src, module, export: exportName, extendClass, cors, ...rest
+    src, module, export: exportName, extendClass, cors, forwardRef, ...rest
   } = props;
-  console.log('external component ref', ref);
-  const [loaded, setLoaded] = useState(false);
   const [Component, setComponent] = useState({ component: null });
   const importPromise = useCallback(() => {
     const isPromise = src instanceof Promise;
@@ -51,7 +49,6 @@ const ExternalComponent = React.forwardRef((props, ref) => {
           ? requiredComponent.default
           : requiredComponent[exportName];
         setComponent({ component });
-        setLoaded(true);
       })
       .catch((e) => {
         throw new Error(`dynamic-import: ${e.message}`);
@@ -62,19 +59,27 @@ const ExternalComponent = React.forwardRef((props, ref) => {
 
   if (extendClass) {
     const ExtendedComponent = Component.component(extendClass);
-    return <ExtendedComponent ref={ref} {...rest} />;
+    // eslint-disable-next-line react/jsx-props-no-spreading
+    return <ExtendedComponent ref={forwardRef} {...rest} />;
   }
-  return <Component.component ref={ref} {...rest} />;
-});
+  // eslint-disable-next-line react/jsx-props-no-spreading
+  return <Component.component ref={forwardRef} {...rest} />;
+};
 
 ExternalComponent.propTypes = {
   src: PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.string])
     .isRequired,
   module: PropTypes.string.isRequired,
   cors: PropTypes.bool,
-  export: PropTypes.string
+  export: PropTypes.string,
+  extendClass: PropTypes.any,
+  forwardRef: PropTypes.oneOfType([
+    // Either a function
+    PropTypes.func,
+    // Or the instance of a DOM native element (see the note about SSR)
+    PropTypes.shape({ current: PropTypes.any }),
+  ]),
 };
-
 ExternalComponent.defaultProps = {
   cors: false,
   export: null
