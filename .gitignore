@@ -3,15 +3,12 @@
 node_modules
 .idea
 dist
-manual/**/babelOutput
 manual/**/dist
 manual/**/build
 manual/yarn.lock
 package-lock.json
-webpack
-babel
+/webpack
 index.js
-loader
 corsImport.js
 polyfill.js
 react.js
