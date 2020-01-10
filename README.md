@@ -523,7 +523,7 @@ React Component
 
 **`cors`: bool** - If asset is being loaded from a url which throws a CORS error. This will inject a script to the browser
 
-**`forwardRef`: React.ref** - Pass a react ref which can be passed down as a ref to the interleaved component
+**`ref`: React.createRef** - Pass a react ref which can be passed down as a ref to the interleaved component
 
 **`extendClass`: class** - Allows `class Example extends OtherComponent {}` if you want to interleave an extended class. 
 

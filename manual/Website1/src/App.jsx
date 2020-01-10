@@ -46,7 +46,7 @@ class App extends Component {
       return 'Loading...';
     }
 
-
+console.log(this.someRef)
     return (
       <div>
         <HelloWorld />
