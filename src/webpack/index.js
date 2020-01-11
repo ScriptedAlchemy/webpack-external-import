@@ -4,7 +4,7 @@ const createHash = require("webpack/lib/util/createHash");
 const FunctionModuleTemplatePlugin = require("webpack/lib/FunctionModuleTemplatePlugin");
 const fs = require("fs");
 const webpack = require("webpack");
-const { mergeDeep, removeNull } = require("./utils");
+const { mergeDeep } = require("./utils");
 const { addInterleaveExtention } = require("./requireExtentions");
 const { addWebpackRegister } = require("./beforeStartup");
 const { interleaveConfig } = require("./chunkSplitting");
@@ -479,6 +479,7 @@ class URLImportPlugin {
       ]);
       compiler.hooks.compilation.tap("URLImportPlugin", compilation => {
         const { mainTemplate } = compilation;
+        // mainTemplate.hooks.requireEnsure.tap("URLImportPlugin",)
         mainTemplate.hooks.requireExtensions.tap(
           "URLImportPlugin",
           (source, chunk, hash) => addInterleaveExtention(source, chunk, hash)
