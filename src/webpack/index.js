@@ -485,14 +485,17 @@ class URLImportPlugin {
         );
         // TODO add an option for this
         if (this.afterOptimizations) {
+          // before chunk files are optimized
           compilation.hooks.beforeOptimizeChunkAssets.tap(
             "URLImportPlugin",
             chunks => {
-              console.log(chunks);
+              // access all chunks webpack created, then add some code to each chunk file, which is run when a chunk is
+              // loaded on a page as <script>
               wrapChunks(compilation, chunks, this.moduleHashMap);
             }
           );
         } else {
+          // adfter chunk files are optimized
           compilation.hooks.optimizeChunkAssets.tapAsync(
             "URLImportPlugin",
             (chunks, done) => {
@@ -501,11 +504,18 @@ class URLImportPlugin {
             }
           );
         }
+
+        // Expose chunk registration functions and bindings from webpack runtime to the window
+        // webpack does this and its how code splitting works. It exposes window.webpackJsonP
+        // This registration system works just like webpacks, it exposes a function that allows information to be passed
+        // into webpack runtime, because the function is in webpack runtime, i have access to all of webpacks internals
         mainTemplate.hooks.beforeStartup.tap(
           "URLImportPlugin",
           addWebpackRegister
         );
 
+        // add variables to webpack runtime which are available throughout all functions and closures within the runtime
+        // localVars are like global variables for webpack, anything can access them.
         mainTemplate.hooks.localVars.tap("URLImportPlugin", addLocalVars);
       });
 
