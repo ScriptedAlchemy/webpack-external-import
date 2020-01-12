@@ -10,7 +10,7 @@ export const addInterleaveExtention = source => {
     // add another function below webpack require, this function
     // has access to any and all functions and variables within the webpack bootstrap
     "// webpack chunk self registration",
-    //TODO: use the interleave map added via localVars already within the runtime
+    // TODO: use the interleave map added via localVars already within the runtime
     "var additionalChunksRequired = {}",
     // this is called whenever registerLocalswindow.webpackRegister.push is executed
     // chunkMap is what the chunk pushes into the registration, containing the chunks build hash, chunk names and modules ids it needs
