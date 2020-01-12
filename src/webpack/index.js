@@ -20,7 +20,7 @@ class FunctionModulePlugin {
     });
   }
 }
-
+// will likely remove this emit mapping
 const emitCountMap = new Map();
 
 class URLImportPlugin {
@@ -77,17 +77,17 @@ class URLImportPlugin {
       console.info("To disable this, set plugin options {debug:false}");
     }
     const options = compiler?.options;
+    // add to the existing webpack config
+    // adding a new splitChunks cache group called interleave
     const chunkSplitting =
       options?.optimization?.splitChunks?.cacheGroups || {};
+    // interleaveConfig figures out if a file meets the paramaters for interleaving
     chunkSplitting.interleave = interleaveConfig(this.opts.testPath);
-    chunkSplitting.rselect = {
-      test: /[\\/]node_modules[\\/]react-select/,
-      enforce: true
-    };
     // dont rename exports when hoisting and tree shaking
     Object.assign(options.optimization, {
       providedExports: false
     });
+    // likely will be refactored or removed, used for entryManifest.js to map chunks (this is V1 where its outside the runtime still)
     this.moduleHashMap = {};
     if (this.opts.debug) {
       console.groupCollapsed("interleaveConfig");
@@ -95,7 +95,7 @@ class URLImportPlugin {
       console.groupEnd();
       console.groupCollapsed("New webpack optimization config");
     }
-
+    // merge my added splitChunks config into the webpack config object passed in
     mergeDeep(options, {
       optimization: {
         runtimeChunk: "multiple",
@@ -108,6 +108,7 @@ class URLImportPlugin {
     });
 
     Object.assign(options.optimization, {
+      // node debugger breaks with TerserPlugin
       minimizer: this.opts.debug ? [] : options.optimization.minimizer,
       splitChunks: options.optimization?.splitChunks || {}
     });
@@ -465,8 +466,6 @@ class URLImportPlugin {
         callback();
       }
     }
-
-
 
     if (compiler.hooks) {
       const { SyncWaterfallHook } = require("tapable");

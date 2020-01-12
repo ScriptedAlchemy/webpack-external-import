@@ -20,7 +20,7 @@ export function interleaveConfig(test) {
     },
     // eslint-disable-next-line no-unused-vars
     name(module, chunks, cacheGroupKey) {
-      // Chunk if module is externalized
+      // Check if module is externalized
       const moduleSource = hasExternalizedModule(module);
       if (moduleSource) {
         // get externalize name from module source
