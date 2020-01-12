@@ -521,6 +521,7 @@ class URLImportPlugin {
 
       compiler.hooks.compilation.tap("URLImportPlugin", compilation => {
         const usedIds = new Set();
+        // creates hashed module IDs based on the contents of the file - works like [contenthash] but for each module
         compilation.hooks.beforeModuleIds.tap("URLImportPlugin", modules => {
           // eslint-disable-next-line no-restricted-syntax
           for (const module of modules) {
@@ -580,9 +581,11 @@ class URLImportPlugin {
       });
 
       compiler.hooks.compilation.tap(pluginOptions, ({ hooks }) => {
+        // TODO: remove in V2
         hooks.moduleAsset.tap(pluginOptions, moduleAsset);
       });
 
+      // writes the importManifest file containing a map of Chunk IDs to the cache busted JS files
       compiler.hooks.emit.tap(pluginOptions, emit);
 
       compiler.hooks.run.tap(pluginOptions, beforeRun);
