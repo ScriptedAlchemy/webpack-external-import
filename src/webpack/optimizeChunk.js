@@ -2,13 +2,16 @@ const ModuleFilenameHelpers = require("webpack/lib/ModuleFilenameHelpers");
 const { ConcatSource } = require("webpack-sources");
 
 function wrapFile(compilation, fileName, allModulesNeeded, chunkKeys) {
+  // create a stringified array
   const pushArguments = JSON.stringify([
     // pass the source compilation hash to figure out if a chunk is being required by its own build - if so, dont register anything
     compilation.hash,
+    // array of keys to look up values in the allModulesNeeded hashmap
     chunkKeys,
     allModulesNeeded
   ]);
-  // write source to the top of the file
+
+  // add chunk registration code that will push all chunk requirements into webpack
   compilation.assets[fileName] = new ConcatSource(
     String(
       `(window["webpackRegister"] = window["webpackRegister"] || []).push(${pushArguments});\n`
@@ -78,7 +81,7 @@ export function wrapChunks(compilation, chunks, moduleHashMap) {
       Array.from(orgs[key]).forEach(subSet => {
         if (orgs[subSet]) {
           orgs[subSet].delete(...map.ignoredChunk);
-          // dont walk entry module
+          // dont walk entry or runtime chunks
           if (!map.ignoredChunk.has(subSet)) {
             orgs[key].add(...orgs[subSet]);
           }
@@ -86,11 +89,14 @@ export function wrapChunks(compilation, chunks, moduleHashMap) {
       });
     });
 
+    // This is part of V1 and will be removed in V2
     const chunkMap = Array.from(chunk.modulesIterable).reduce((acc, module) => {
       acc[module.id] =
         module.name || module.userRequest || module.rawRequest || module.id;
       return acc;
     }, {});
+
+    // This is part of V1 and will be removed in V2
     moduleHashMap = { ...moduleHashMap, [chunk.id]: chunkMap };
     // delete this
     // for (const fileName of chunk.files) {
@@ -103,26 +109,34 @@ export function wrapChunks(compilation, chunks, moduleHashMap) {
     //   }
     // }
   });
+
+  // to ensure the chunk maps are complete, i run another loop over the chunks - the previous loop creates a complete map
+  // this loop uses the completed map to write the chunk registration data into each chunk file
   chunks.forEach(chunk => {
     if (!chunk.rendered || map.ignoredChunk.has(chunk.id)) {
       return;
     }
-
+    // loop over all files that make up this chunk
     for (const fileName of chunk.files) {
+      // check that its a javascript file (might be an image, html, css)
       if (
         ModuleFilenameHelpers.matchObject({}, fileName) &&
         fileName.indexOf(".js") !== -1
       ) {
+        // get all the chunksID's the current chunk might need
         const AllChunksNeeded = Array.from(orgs[chunk.id]);
+        // create the final map which contains an array of chunkID as well as a object of chunk of what each chunk needs
         const AllModulesNeeded = AllChunksNeeded.reduce(
           (allDependencies, dependentChunk) => {
             return {
               ...allDependencies,
-              [dependentChunk]: [...new Set(map[dependentChunk])]
+              [dependentChunk]: [...new Set(map[dependentChunk])] // {"vendors-main":[modules], "somechunk": [modules]}
             };
           },
           {}
         );
+
+        // now that we have maps of what the current file being iterated needs, write additional code to the file
         wrapFile(compilation, fileName, AllModulesNeeded, AllChunksNeeded);
       }
     }
