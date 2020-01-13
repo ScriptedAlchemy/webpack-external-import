@@ -487,7 +487,13 @@ class URLImportPlugin {
         mainTemplate.hooks.requireExtensions.tap(
           "URLImportPlugin",
           (source, chunk, hash) => {
-            return addInterleaveExtention(source, chunk, hash);
+            // TODO: write composer function
+            return  addInterleaveExtention(source, chunk, hash)
+            return addInterleaveRequire(
+              addInterleaveExtention(source, chunk, hash),
+              chunk,
+              hash
+            );
           }
         );
         // TODO add an option for this
