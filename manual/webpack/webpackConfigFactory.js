@@ -33,15 +33,15 @@ module.exports = (siteId, options) => {
         new URLImportPlugin({
           manifestName,
           fileName: "importManifest.js",
-          basePath: "",
-          publicPath: "/",
+          basePath: ``,
+          publicPath: `//localhost:300${siteId}/`,
           transformExtensions: /^(gz|map)$/i,
           writeToFileEmit: false,
           seed: null,
           filter: null,
           map: null,
           generate: null,
-          sort: null,
+          sort: null
         }),
         new HtmlWebpackPlugin({
           template: templatePath,

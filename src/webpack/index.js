@@ -110,6 +110,15 @@ class URLImportPlugin {
       }
     });
 
+    // Object.keys(chunkSplitting).forEach(key => {
+    //   if (key === "interleave") {
+    //     return;
+    //   }
+    //   chunkSplitting[
+    //     key
+    //   ].automaticNamePrefix = `${this.opts.manifestName}~${chunkSplitting[key].automaticNamePrefix}`;
+    // });
+
     Object.assign(options.optimization, {
       // node debugger breaks with TerserPlugin
       minimizer: this.opts.debug ? [] : options.optimization.minimizer,
