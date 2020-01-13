@@ -484,16 +484,10 @@ class URLImportPlugin {
         // work in progress to add another webpack__require method to the webpack runtime
         // this new method will allow a interleaved component to be required and automatically download its dependencies
         // it returns a promise so the actual interleaved module is not executed until any missing dependencies are loaded
-        mainTemplate.hooks.requireEnsure.tap("URLImportPlugin", console.log);
         mainTemplate.hooks.requireExtensions.tap(
           "URLImportPlugin",
           (source, chunk, hash) => {
-            // TODO: write composer function
-            return addInterleaveRequire(
-              addInterleaveExtention(source, chunk, hash),
-              chunk,
-              hash
-            );
+            return addInterleaveExtention(source, chunk, hash);
           }
         );
         // TODO add an option for this
