@@ -3,9 +3,10 @@ const { ConcatSource } = require("webpack-sources");
 
 function wrapFile(compilation, fileName, allModulesNeeded, chunkKeys) {
   // create a stringified array
+  const outputOptions = compilation.output;
   const pushArguments = JSON.stringify([
     // pass the source compilation hash to figure out if a chunk is being required by its own build - if so, dont register anything
-    compilation.hash,
+    { hash: compilation.hash, publicPath: outputOptions?.publicPath || "/" },
     // array of keys to look up values in the allModulesNeeded hashmap
     chunkKeys,
     allModulesNeeded
@@ -36,6 +37,7 @@ export function wrapChunks(compilation, chunks, moduleHashMap) {
       chunk.hasEntryModule(),
       chunk.hasRuntime()
     );
+
     // check if this chunk is an entrypoint or has the webpack runtime
     // if it does, dont bother mapping registration data or include them in any other chunks registration maps
     if (chunk.hasEntryModule() || chunk.hasRuntime()) {
