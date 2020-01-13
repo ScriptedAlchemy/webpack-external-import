@@ -5,7 +5,10 @@ const FunctionModuleTemplatePlugin = require("webpack/lib/FunctionModuleTemplate
 const fs = require("fs");
 const webpack = require("webpack");
 const { mergeDeep } = require("./utils");
-const { addInterleaveExtention } = require("./requireExtentions");
+const {
+  addInterleaveExtention,
+  addInterleaveRequire
+} = require("./requireExtentions");
 const { addWebpackRegister } = require("./beforeStartup");
 const { interleaveConfig } = require("./chunkSplitting");
 const { addLocalVars } = require("./localVars");
@@ -478,10 +481,20 @@ class URLImportPlugin {
       ]);
       compiler.hooks.compilation.tap("URLImportPlugin", compilation => {
         const { mainTemplate } = compilation;
-        // mainTemplate.hooks.requireEnsure.tap("URLImportPlugin",)
+        // work in progress to add another webpack__require method to the webpack runtime
+        // this new method will allow a interleaved component to be required and automatically download its dependencies
+        // it returns a promise so the actual interleaved module is not executed until any missing dependencies are loaded
+        mainTemplate.hooks.requireEnsure.tap("URLImportPlugin", console.log);
         mainTemplate.hooks.requireExtensions.tap(
           "URLImportPlugin",
-          (source, chunk, hash) => addInterleaveExtention(source, chunk, hash)
+          (source, chunk, hash) => {
+            // TODO: write composer function
+            return addInterleaveRequire(
+              addInterleaveExtention(source, chunk, hash),
+              chunk,
+              hash
+            );
+          }
         );
         // TODO add an option for this
         if (this.afterOptimizations) {
