@@ -7,7 +7,7 @@ const { ConcatSource } = require("webpack-sources");
  * @returns {string}
  */
 export const addInterleaveExtention = source => {
-  return [
+  return Template.asString([
     // get the current source template that holds webpack require
     source,
     // add another function below webpack require, this function
@@ -18,33 +18,36 @@ export const addInterleaveExtention = source => {
     // this is called whenever registerLocalswindow.webpackRegister.push is executed
     // chunkMap is what the chunk pushes into the registration, containing the chunks build hash, chunk names and modules ids it needs
     "function registerLocals(chunkMap) {",
-    "var chunkCompileHash = chunkMap[0];",
-    "var chunkDependencyKeys = chunkMap[1];",
-    "var chunkModuleHashMap = chunkMap[2];",
-    "console.log({chunkBelongsToThisBuild:compilationHash === chunkCompileHash, chunkCompileHash:chunkCompileHash, chunkDependencyKeys:chunkDependencyKeys,chunkModuleHashMap:chunkModuleHashMap,webpackModules: modules})",
-    // check if compilationHash (from webpack runtime) matches the hash the chunk is reporting, if it does then do nothing
-    // because the chunk isnt being interleaved, its being consumed by the app it actually belongs to
-    "if(compilationHash !== chunkCompileHash) {",
-    // this still needs to be written, so its mostly logging at the moment - what goes here will be a mix of webpack functions instructing webpack to download urls
-    "chunkDependencyKeys.forEach(function(key){",
-    "console.log('key',key,'modules',chunkModuleHashMap[key],'webpack modules',modules)",
-    "chunkModuleHashMap[key].find(function(moduleId){",
-    "if(!modules[moduleId]) {additionalChunksRequired[key] = true; return true}",
-    "})",
-    "console.log(additionalChunksRequired)",
-    "})",
-    "}",
+    Template.indent([
+      "var chunkCompileHash = chunkMap[0];",
+      "var chunkDependencyKeys = chunkMap[1];",
+      "var chunkModuleHashMap = chunkMap[2];",
+      "console.log({chunkBelongsToThisBuild:compilationHash === chunkCompileHash, chunkCompileHash:chunkCompileHash, chunkDependencyKeys:chunkDependencyKeys,chunkModuleHashMap:chunkModuleHashMap,webpackModules: modules})",
+      // check if compilationHash (from webpack runtime) matches the hash the chunk is reporting, if it does then do nothing
+      // because the chunk isnt being interleaved, its being consumed by the app it actually belongs to
+      "if(compilationHash !== chunkCompileHash) {",
+      // this still needs to be written, so its mostly logging at the moment - what goes here will be a mix of webpack functions instructing webpack to download urls
+      "chunkDependencyKeys.forEach(function(key){",
+      "console.log('key',key,'modules',chunkModuleHashMap[key],'webpack modules',modules)",
+      "chunkModuleHashMap[key].find(function(moduleId){",
+      "if(!modules[moduleId]) {additionalChunksRequired[key] = true; return true}",
+      "})",
+      "console.log(additionalChunksRequired)",
+      "})",
+      "}"
+    ]),
     "};"
-  ].join("\n");
+  ]);
 };
 
 // setting up async require capabilities
 export const addInterleaveRequire = source => {
   const webpackInterleaved = Template.asString([
+    source,
     `var promises = [];
-    
+
     // registerLocals chunk loading for javascript
-    __webpack_require__['interleaved'] = function () {
+    __webpack_require__['interleaved'] = function (chunkId) {
         var installedChunkData = installedChunks[chunkId];
         if (installedChunkData !== 0) { // 0 means "already installed".
 
@@ -82,7 +85,7 @@ export const addInterleaveRequire = source => {
                         if (chunk) {
                             var errorType = event && (event.type === 'load' ? 'missing' : event.type);
                             var realSrc = event && event.target && event.target.src;
-                            error.message = 'Loading chunk ' + chunkId + ' failed.\n(' + errorType + ': ' + realSrc + ')';
+                            error.message = 'Loading chunk ' + chunkId + ' failed. (' + errorType + ': ' + realSrc + ')';
                             error.name = 'ChunkLoadError';
                             error.type = errorType;
                             error.request = realSrc;
@@ -98,8 +101,7 @@ export const addInterleaveRequire = source => {
                 document.head.appendChild(script);
             }
         }
-    };`
+    }`
   ]);
-  console.log( new ConcatSource(String(webpackInterleaved), source))
-    return source
+  return webpackInterleaved;
 };

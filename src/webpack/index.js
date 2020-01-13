@@ -488,7 +488,7 @@ class URLImportPlugin {
           "URLImportPlugin",
           (source, chunk, hash) => {
             // TODO: write composer function
-            return  addInterleaveExtention(source, chunk, hash)
+
             return addInterleaveRequire(
               addInterleaveExtention(source, chunk, hash),
               chunk,
