@@ -14,7 +14,8 @@ export const addInterleaveExtention = source => {
     // has access to any and all functions and variables within the webpack bootstrap
     "// webpack chunk self registration",
     // TODO: use the interleave map added via localVars already within the runtime
-    "var additionalChunksRequired = {}",
+    "var additionalChunksRequired = []",
+    "var intreleaveDeferred = []",
     // this is called whenever registerLocalswindow.webpackRegister.push is executed
     // chunkMap is what the chunk pushes into the registration, containing the chunks build hash, chunk names and modules ids it needs
     "function registerLocals(chunkMap) {",
@@ -30,9 +31,8 @@ export const addInterleaveExtention = source => {
       "chunkDependencyKeys.forEach(function(key){",
       "console.log('key',key,'modules',chunkModuleHashMap[key],'webpack modules',modules)",
       "chunkModuleHashMap[key].find(function(moduleId){",
-      "if(!modules[moduleId]) {additionalChunksRequired[key] = true; return true}",
+      "if(!modules[moduleId]) {additionalChunksRequired.push(key);console.log('pushing keys',key);intreleaveDeferred.push(key); return true}",
       "})",
-      "console.log(additionalChunksRequired)",
       "})",
       "}"
     ]),
@@ -44,7 +44,7 @@ export const addInterleaveExtention = source => {
 export const addInterleaveRequire = source => {
   const webpackInterleaved = Template.asString([
     source,
-    `var promises = [];
+    `var interleavePromises = [];
 
     // registerLocals chunk loading for javascript
     __webpack_require__['interleaved'] = function (moduleIdWithNamespace) {
@@ -58,19 +58,20 @@ export const addInterleaveRequire = source => {
       namespaceObj:namespaceObj,
       foundChunk:foundChunk,
     })
-    
-        var installedChunkData = interleavedChunks[chunkId];
+
+        var installedChunkData = installedChunks[chunkId];
         if (installedChunkData !== 0) { // 0 means "already installed".
+            // Object.defineProperty(installedChunks,chunkId,{set: function(value){ this[chunkId]=value}})
 
             // a Promise means "currently loading".
             if (installedChunkData) {
-                promises.push(installedChunkData[2]);
+                interleavePromises.push(installedChunkData[2]);
             } else {
                 // setup Promise in chunk cache
                 var promise = new Promise(function (resolve, reject) {
-                    installedChunkData = interleavedChunks[chunkId] = [resolve, reject];
+                    installedChunkData = installedChunks[chunkId] = [resolve, reject];
                 });
-                promises.push(installedChunkData[2] = promise);
+                interleavePromises.push(installedChunkData[2] = promise);
 
                 // start chunk loading
                 var script = document.createElement('script');
@@ -89,12 +90,16 @@ export const addInterleaveRequire = source => {
                     // avoid mem leaks in IE.
                     script.onerror = script.onload = null;
                     clearTimeout(timeout);
-                    var chunk = interleavedChunks[chunkId];
-                   
-                    Object.keys(additionalChunksRequired).forEach((extraChunk)=>{__webpack_require__['interleaved'](namespace + '/' + extraChunk); delete additionalChunksRequired[extraChunk] })
+                    var chunk = installedChunks[chunkId];
+                    console.log('interleave require:installedChunks',installedChunks)
+
+                    var additionalChunkPromises = additionalChunksRequired.map((extraChunk)=>{console.log('extra chunk',extraChunk);  delete additionalChunksRequired[extraChunk];return __webpack_require__['interleaved'](namespace + '/' + extraChunk);  })
+                    // console.log('additionalChunkPromises',additionalChunkPromises)
+                    // if(modules[chunkId] || event.type === 'load') {
+                    // console.log('chunk',chunk)
+                    //   chunk[0]()
+                    // }
                   
-                    console.log({interleavedChunks,promises})
-                    
                     if (chunk !== 0) {
                         if (chunk) {
                             var errorType = event && (event.type === 'load' ? 'missing' : event.type);
@@ -105,7 +110,7 @@ export const addInterleaveRequire = source => {
                             error.request = realSrc;
                             chunk[1](error);
                         }
-                        // interleavedChunks[chunkId] = undefined;
+                        installedChunks[chunkId] = undefined;
                     }
                 };
                 var timeout = setTimeout(function () {
@@ -115,7 +120,19 @@ export const addInterleaveRequire = source => {
                 document.head.appendChild(script);
             }
         }
-        return Promise.all(promises);
+        
+        console.log('interleavePromises',interleavePromises)
+        return Promise.all(interleavePromises).then(()=>{
+         return new Promise(resolve =>{
+           var pollInstalled = setInterval(()=>{
+          var chunkProgress =  intreleaveDeferred.every(function(chunk) {
+           return installedChunks.hasOwnProperty(chunkId)  === true
+           })
+            if(chunkProgress ) {clearInterval(pollInstalled);console.log('installedChunks',Object.create(installedChunks)); resolve()}
+            
+            },10)
+          })
+        });
     }`
   ]);
   return webpackInterleaved;

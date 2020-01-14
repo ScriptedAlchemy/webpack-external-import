@@ -21,21 +21,20 @@ class App extends Component {
   }
 
   componentDidMount() {
-    console.log(
-      "didMount __webpack_require__.interleaved",
-      __webpack_require__.interleaved("website-two/SomeExternalModule").then(()=>{
-        console.log(__webpack_require__('SomeExternalModule'))
-      })
-    );
+    __webpack_require__
+      .interleaved("website-two/SomeExternalModule")
+      .then(() => {
+        console.log('without timeout', __webpack_require__("SomeExternalModule"))
+      });
     corsImport("http://localhost:3002/importManifest.js").then(() => {
       this.setState({ manifestLoaded: true });
-      importDependenciesOf(
-        "http://localhost:3002/",
-        "website-two",
-        "TitleComponent"
-      ).then(url => {
-        this.setState({ titleUrl: url });
-      });
+      // importDependenciesOf(
+      //   "http://localhost:3002/",
+      //   "website-two",
+      //   "TitleComponent"
+      // ).then(url => {
+      //   this.setState({ titleUrl: url });
+      // });
 
       import(
         /* webpackIgnore:true */ getChunkPath(
@@ -55,8 +54,7 @@ class App extends Component {
   renderDynamic = () => {
     const { loaded } = this.state;
     if (!loaded) return null;
-    console.log(__webpack_require__("SomeExternalModule"));
-    return __webpack_require__("SomeExternalModule").default();
+    return null
   };
 
   render() {
@@ -68,7 +66,7 @@ class App extends Component {
     return (
       <div>
         <HelloWorld />
-        {titleUrl && (
+        {false && (
           <ExternalComponent
             src={titleUrl}
             module="TitleComponent"
