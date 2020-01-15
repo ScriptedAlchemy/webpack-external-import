@@ -21,7 +21,7 @@ function wrapFile(compilation, fileName, allModulesNeeded, chunkKeys) {
   );
 }
 
-export function wrapChunks(compilation, chunks, moduleHashMap) {
+export function wrapChunks(compilation, chunks) {
   // create a maps
   const map = { ignoredChunk: new Set() };
   const orgs = {};
@@ -90,26 +90,6 @@ export function wrapChunks(compilation, chunks, moduleHashMap) {
         }
       });
     });
-
-    // This is part of V1 and will be removed in V2
-    const chunkMap = Array.from(chunk.modulesIterable).reduce((acc, module) => {
-      acc[module.id] =
-        module.name || module.userRequest || module.rawRequest || module.id;
-      return acc;
-    }, {});
-
-    // This is part of V1 and will be removed in V2
-    moduleHashMap = { ...moduleHashMap, [chunk.id]: chunkMap };
-    // delete this
-    // for (const fileName of chunk.files) {
-    //   if (
-    //     ModuleFilenameHelpers.matchObject({}, fileName) &&
-    //     fileName.indexOf(".js") !== -1
-    //   ) {
-    //     console.log(`#####${chunk.id}###`);
-    //     wrapFile(compilation, fileName, map[chunk.id], orgs[chunk.id]);
-    //   }
-    // }
   });
 
   // to ensure the chunk maps are complete, i run another loop over the chunks - the previous loop creates a complete map
