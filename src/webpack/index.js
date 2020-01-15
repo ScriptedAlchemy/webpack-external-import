@@ -500,7 +500,7 @@ class URLImportPlugin {
 
             return addInterleaveRequire(
               addInterleaveExtention(source, mainTemplate.requireFn, hash),
-                mainTemplate.requireFn,
+              mainTemplate.requireFn,
               hash
             );
           }
