@@ -24,56 +24,29 @@ class App extends Component {
     __webpack_require__
       .interleaved("website-two/SomeExternalModule")
       .then(() => {
-        console.log('without timeout', __webpack_require__("SomeExternalModule"))
+        this.setState({ loaded: true });
       });
-    corsImport("http://localhost:3002/importManifest.js").then(() => {
-      this.setState({ manifestLoaded: true });
-      // importDependenciesOf(
-      //   "http://localhost:3002/",
-      //   "website-two",
-      //   "TitleComponent"
-      // ).then(url => {
-      //   this.setState({ titleUrl: url });
-      // });
-
-      import(
-        /* webpackIgnore:true */ getChunkPath(
-          "http://localhost:3002",
-          "website-two",
-          "SomeExternalModule.js"
-        )
-      ).then(() => {
-        console.log("got module, will render it in 2 seconds");
-        setTimeout(() => {
-          this.setState({ loaded: true });
-        }, 2000);
-      });
-    });
   }
 
   renderDynamic = () => {
     const { loaded } = this.state;
     if (!loaded) return null;
-    return null
+    return __webpack_require__("SomeExternalModule").default();
   };
 
   render() {
-    const { manifestLoaded, titleUrl } = this.state;
-    if (!manifestLoaded) {
-      return "Loading...";
-    }
-
     return (
       <div>
         <HelloWorld />
-        {false && (
-          <ExternalComponent
-            src={titleUrl}
-            module="TitleComponent"
-            export="Title"
-            title="Some Heading"
-          />
-        )}
+
+        <ExternalComponent
+          interleave={__webpack_require__
+            .interleaved("website-two/TitleComponent")
+            .then(() => __webpack_require__("TitleComponent"))}
+          module="TitleComponent"
+          export="Title"
+          title="Some Heading"
+        />
         {this.renderDynamic()}
       </div>
     );
