@@ -1,6 +1,5 @@
 const webpack = require('webpack');
 const configFactory = require('../webpack/webpackConfigFactory');
-const RequirePerformancePlugin = require('webpack-require-performance-plugin');
 
 const siteId = 2;
 

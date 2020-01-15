@@ -1,5 +1,4 @@
 const Template = require("webpack/lib/Template");
-const { ConcatSource } = require("webpack-sources");
 
 /**
  * addInterleaveExtention - adds a function to webpack runtime which helps register interleaved chunks requirements

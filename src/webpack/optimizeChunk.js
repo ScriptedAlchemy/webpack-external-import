@@ -21,6 +21,7 @@ function wrapFile(compilation, fileName, allModulesNeeded, chunkKeys) {
   );
 }
 
+// eslint-disable-next-line import/prefer-default-export
 export function wrapChunks(compilation, chunks) {
   // create a maps
   const map = { ignoredChunk: new Set() };
@@ -99,6 +100,7 @@ export function wrapChunks(compilation, chunks) {
       return;
     }
     // loop over all files that make up this chunk
+    // eslint-disable-next-line no-restricted-syntax
     for (const fileName of chunk.files) {
       // check that its a javascript file (might be an image, html, css)
       if (
