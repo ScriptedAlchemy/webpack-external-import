@@ -94,7 +94,9 @@ const requiredPropsCheck = (props, propName, componentName) => {
 };
 
 ExternalComponent.propTypes = {
+  // eslint-disable-next-line react/require-default-props
   src: requiredPropsCheck,
+  // eslint-disable-next-line react/require-default-props
   interleave: requiredPropsCheck,
   module: PropTypes.string.isRequired,
   cors: PropTypes.bool,

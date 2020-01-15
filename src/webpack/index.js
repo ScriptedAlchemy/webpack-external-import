@@ -1,9 +1,8 @@
 const path = require("path");
 const fse = require("fs-extra");
 const createHash = require("webpack/lib/util/createHash");
-const FunctionModuleTemplatePlugin = require("webpack/lib/FunctionModuleTemplatePlugin");
+// const FunctionModuleTemplatePlugin = require("webpack/lib/FunctionModuleTemplatePlugin");
 const fs = require("fs");
-const webpack = require("webpack");
 const { mergeDeep } = require("./utils");
 const {
   addInterleaveExtention,
@@ -14,15 +13,15 @@ const { interleaveConfig } = require("./chunkSplitting");
 const { addLocalVars } = require("./localVars");
 const { wrapChunks } = require("./optimizeChunk");
 // use this
-class FunctionModulePlugin {
-  apply(compiler) {
-    compiler.hooks.compilation.tap("FunctionModulePlugin", compilation => {
-      new FunctionModuleTemplatePlugin().apply(
-        compilation.moduleTemplates.javascript
-      );
-    });
-  }
-}
+// class FunctionModulePlugin {
+//   apply(compiler) {
+//     compiler.hooks.compilation.tap("FunctionModulePlugin", compilation => {
+//       new FunctionModuleTemplatePlugin().apply(
+//         compilation.moduleTemplates.javascript
+//       );
+//     });
+//   }
+// }
 // will likely remove this emit mapping
 const emitCountMap = new Map();
 
