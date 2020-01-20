@@ -83,6 +83,12 @@ class URLImportPlugin {
     // adding a new splitChunks cache group called interleave
     const chunkSplitting =
       options?.optimization?.splitChunks?.cacheGroups || {};
+    chunkSplitting.styles = {
+      name: "styles",
+      test: /\.css$/,
+      chunks: "all",
+      enforce: true
+    };
     // interleaveConfig figures out if a file meets the paramaters for interleaving
     chunkSplitting.interleave = interleaveConfig(this.opts.testPath);
     // dont rename exports when hoisting and tree shaking
