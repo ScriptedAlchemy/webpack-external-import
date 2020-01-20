@@ -1,5 +1,5 @@
 {
-  "name": "demo-two",
+  "name": "website-two",
   "version": "0.0.0-development",
   "repository": {
     "type": "git",
@@ -7,8 +7,8 @@
   },
   "author": "Zack Jackson <zack@ScriptedAlchemy.com> (https://github.com/ScriptedAlchemy)",
   "scripts": {
-    "manual:prod": "cd ../../ && yarn link  && cd manual/Website2 && yarn link  webpack-external-import && cross-env NODE_ENV=production node node_modules/webpack-dev-server/bin/webpack-dev-server.js",
-    "manual:dev": "cd ../../ && yarn link  && cd manual/Website2 && yarn link  webpack-external-import && cross-env NODE_ENV=development node node_modules/webpack-dev-server/bin/webpack-dev-server.js",
+    "manual:prod": "cd ../../ && yarn link  && cd manual/Website2 && yarn link  webpack-external-import && cross-env NODE_ENV=production node  node_modules/webpack-dev-server/bin/webpack-dev-server.js",
+    "manual:dev": "cd ../../ && yarn link  && cd manual/Website2 && yarn link  webpack-external-import && cross-env NODE_ENV=development node  node_modules/webpack-dev-server/bin/webpack-dev-server.js",
     "babel": "babel src -d babelOutput"
   },
   "devDependencies": {
@@ -29,11 +29,6 @@
     "webpack-merge": "^4.2.1",
     "webpack-require-performance-plugin": "^0.2.1",
     "write-file-webpack-plugin": "^4.5.0"
-  },
-  "interface": {},
-  "peerDependencies": {
-    "react": ">=16.8.0",
-    "redux": ">=4.0.0"
   },
   "dependencies": {
     "@babel/helper-module-imports": "^7.0.0",

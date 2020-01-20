@@ -28,6 +28,7 @@ export function wrapChunks(compilation, chunks) {
   const orgs = {};
   // loop over each chunk
   chunks.forEach(chunk => {
+    console.log("chunk", chunk);
     // map weak maps and weak sets for better organization & perf
     // console.group(group)
     console.log(
@@ -43,6 +44,8 @@ export function wrapChunks(compilation, chunks) {
     // if it does, dont bother mapping registration data or include them in any other chunks registration maps
     if (chunk.hasEntryModule() || chunk.hasRuntime()) {
       map.ignoredChunk.add(chunk.id);
+    } else {
+      console.log("ignored chunk", chunk);
     }
 
     // dont run if this has already been done on the chunk
@@ -92,7 +95,7 @@ export function wrapChunks(compilation, chunks) {
       });
     });
   });
-
+console.log('internal map', map)
   // to ensure the chunk maps are complete, i run another loop over the chunks - the previous loop creates a complete map
   // this loop uses the completed map to write the chunk registration data into each chunk file
   chunks.forEach(chunk => {

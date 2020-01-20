@@ -23,7 +23,7 @@ export const addInterleaveExtention = source => {
     // chunkMap is what the chunk pushes into the registration, containing the chunks build hash, chunk names and modules ids it needs
     "function registerLocals(chunkMap) {",
     Template.indent([
-      "var options = chunkMap[0];",
+      "console.log(chunkMap);var options = chunkMap[0];",
       "var chunkDependencyKeys = chunkMap[1];",
       "var chunkModuleHashMap = chunkMap[2];",
       "console.log({chunkBelongsToThisBuild:compilationHash === options.hash, chunkCompileHash:options.hash, chunkDependencyKeys:chunkDependencyKeys,chunkModuleHashMap:chunkModuleHashMap,webpackModules: modules})",
@@ -35,7 +35,7 @@ export const addInterleaveExtention = source => {
         Template.indent([
           "chunkDependencyKeys.forEach(function(key){",
           Template.indent([
-            "chunkModuleHashMap[key].find(function(moduleId){",
+            "console.log('module hashmap key',chunkModuleHashMap,chunkModuleHashMap[key],key);chunkModuleHashMap[key].find(function(moduleId){",
             Template.indent([
               "if(!modules[moduleId]) {",
               Template.indent([

@@ -1,4 +1,6 @@
 {
+  "private": true,
+  "workspaces": ["website-one", "website-two"],
   "name": "external-import-demo",
   "version": "0.0.0-development",
   "repository": {
@@ -23,19 +25,19 @@
     "webpack-cli": "^3.3.0",
     "write-file-webpack-plugin": "^4.5.1"
   },
-  "peerDependencies": {
-    "react": ">=16.8.0",
-    "redux": ">=4.0.0"
-  },
   "dependencies": {
     "@babel/helper-module-imports": "^7.0.0",
     "@babel/plugin-proposal-class-properties": "^7.4.4",
     "clean-webpack-plugin": "^2.0.2",
     "crc-32": "^1.2.0",
     "cross-env": "^5.2.0",
+    "css-loader": "^3.4.2",
     "html-webpack-plugin": "^3.2.0",
     "mini-css-extract-plugin": "^0.6.0",
+    "node-sass": "^4.13.1",
     "optimize-css-assets-webpack-plugin": "^5.0.1",
+    "sass-loader": "^8.0.2",
+    "style-loader": "^1.1.3",
     "webpack": "^4.29.6",
     "webpack-dev-server": "^3.2.1",
     "webpack-merge": "^4.2.1"
