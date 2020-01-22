@@ -1,0 +1,34 @@
+{
+  "presets": [
+    "@babel/preset-react",
+    "@babel/preset-env"
+  ],
+  "plugins": [
+    [
+      "@babel/plugin-transform-runtime",
+      {
+        "regenerator": true
+      }
+    ],
+    "@babel/plugin-proposal-class-properties"
+  ],
+  "env": {
+    "test": {
+      "presets": [
+        "@babel/preset-react",
+        [
+          "@babel/preset-env",
+          {
+            "targets": {
+              "node": true
+            }
+          }
+        ]
+      ],
+      "plugins": [
+        "@babel/plugin-syntax-dynamic-import",
+        "@babel/plugin-proposal-class-properties"
+      ]
+    }
+  }
+}
