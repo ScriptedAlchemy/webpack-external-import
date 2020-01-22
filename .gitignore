@@ -8,7 +8,7 @@ manual/**/build
 manual/yarn.lock
 package-lock.json
 /webpack
-index.js
+/index.js
 corsImport.js
 polyfill.js
 react.js
