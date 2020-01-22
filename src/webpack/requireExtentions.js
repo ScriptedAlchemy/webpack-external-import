@@ -82,7 +82,7 @@ export const addInterleaveRequire = (source, requireFn) => {
       'var namespace = moduleIdWithNamespace.split("/")[0]',
       "var namespaceObj = window.entryManifest[namespace]",
       "var foundChunk = namespaceObj[chunkId] || namespaceObj[chunkId + '.js'];",
-      "console.log('chunk id', chunkId)",
+      "if(!foundChunk) {return}",
 
       "if(!isNested){",
       Template.indent("initialRequestMap[moduleIdWithNamespace] = chunkId;"),
@@ -117,7 +117,7 @@ export const addInterleaveRequire = (source, requireFn) => {
           ),
           "});",
           "interleavePromises.push(installedChunkData[2] = promise);",
-
+          "console.log('chunkID:',chunkId);",
           "// start chunk loading",
           "var script = document.createElement('script');",
           "var onScriptComplete;",
@@ -128,6 +128,7 @@ export const addInterleaveRequire = (source, requireFn) => {
             'script.setAttribute("nonce", __webpack_require__.nc);'
           ),
           "}",
+          "isNested && console.log('foundChunk',foundChunk,namespaceObj,chunkId);",
           "script.src = foundChunk.path;",
           "// create error before stack unwound to get useful stacktrace later",
           "var error = new Error();",

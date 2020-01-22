@@ -6,7 +6,7 @@ export const Title = ({ title }) => {
   window.wasExternalFunctionCalled = true;
   console.log("TitleComponent interleaving successful");
   return (
-    <h1>
+    <h1 className="inline-css">
       TITLE COMPONENT:
       {title}
     </h1>

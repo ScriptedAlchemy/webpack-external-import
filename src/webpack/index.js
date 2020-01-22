@@ -575,7 +575,7 @@ class URLImportPlugin {
               module.id = hashId.substr(0, len);
               usedIds.add(module.id);
             } else {
-              console.log(module);
+              console.log('no module id',module);
             }
             const moduleSource = module?.originalSource?.().source?.() || "";
             if (moduleSource?.indexOf("externalize") > -1 || false) {

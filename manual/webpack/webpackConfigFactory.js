@@ -18,7 +18,7 @@ const envConfig = require(`./webpack.${env}.js`);
 
 module.exports = (siteId, options) => {
   const commonPaths = paths(siteId);
-  const manifestName = siteId === 1 ? "website-one" : "website-two";
+  const manifestName = `website-${siteId}`;
   const templatePath = path.resolve(
     __dirname,
     `../Website${siteId}/template.html`
