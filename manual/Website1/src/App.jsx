@@ -22,9 +22,9 @@ class App extends Component {
 
   componentDidMount() {
     // __webpack_require__
-    //   .interleaved("website-2/SomeExternalModule")
+    //   .interleaved("website-3/TitleComponentWithCSSFile")
     //   .then(() => {
-    //     this.setState({ loaded: true });
+    //    __webpack_require__('TitleComponentWithCSSFile')
     //   });
   }
 

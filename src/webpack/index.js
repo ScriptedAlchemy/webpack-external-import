@@ -83,7 +83,12 @@ class URLImportPlugin {
     // adding a new splitChunks cache group called interleave
     const chunkSplitting =
       options?.optimization?.splitChunks?.cacheGroups || {};
-
+    chunkSplitting.styles = {
+      name: "styles",
+      test: /\.css$/,
+      chunks: "all",
+      enforce: true
+    };
     // interleaveConfig figures out if a file meets the paramaters for interleaving
     chunkSplitting.interleave = interleaveConfig(this.opts.testPath);
     // dont rename exports when hoisting and tree shaking
@@ -497,7 +502,6 @@ class URLImportPlugin {
           "URLImportPlugin",
           (source, chunk, hash) => {
             // TODO: write composer function
-
             return addInterleaveRequire(
               addInterleaveExtention(source, mainTemplate.requireFn, hash),
               mainTemplate.requireFn,
@@ -570,7 +574,7 @@ class URLImportPlugin {
               module.id = hashId.substr(0, len);
               usedIds.add(module.id);
             } else {
-              console.log('no module id',module);
+              console.log("no module id", module);
             }
             const moduleSource = module?.originalSource?.().source?.() || "";
             if (moduleSource?.indexOf("externalize") > -1 || false) {
