@@ -12,12 +12,12 @@
     "babel": "babel src -d babelOutput"
   },
   "devDependencies": {
-    "@babel/cli": "7.7.7",
-    "@babel/core": "7.7.7",
-    "@babel/plugin-syntax-dynamic-import": "7.7.4",
-    "@babel/plugin-transform-runtime": "7.7.6",
-    "@babel/preset-env": "7.7.7",
-    "@babel/preset-react": "7.7.4",
+    "@babel/cli": "7.8.3",
+    "@babel/core": "7.8.3",
+    "@babel/plugin-syntax-dynamic-import": "7.8.3",
+    "@babel/plugin-transform-runtime": "7.8.3",
+    "@babel/preset-env": "7.8.3",
+    "@babel/preset-react": "7.8.3",
     "babel-core": "7.0.0-bridge.0",
     "babel-loader": "8.0.6",
     "eslint-loader": "3.0.3",
