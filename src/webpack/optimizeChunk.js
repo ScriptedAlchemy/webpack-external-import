@@ -71,9 +71,15 @@ export function wrapChunks(compilation, chunks) {
               orgs[reasonChunk.id] = new Set();
             }
 
+            chunk.files.forEach(file => {
+              if (file.includes(".css")) {
+                orgs[reasonChunk.id].add(file);
+              }
+            });
+
             // orgs[chunk.id].add(`${module.id}-${module.rawRequest}`);
             // add the chunkID that depends on this module
-            orgs[reasonChunk.id].add(chunk.id);
+            if (chunk.id) orgs[reasonChunk.id].add(chunk.id);
           });
         }
       });
@@ -95,7 +101,8 @@ export function wrapChunks(compilation, chunks) {
       });
     });
   });
-console.log('internal map', map)
+  console.log("internal map", map);
+  console.log("internal org", orgs);
   // to ensure the chunk maps are complete, i run another loop over the chunks - the previous loop creates a complete map
   // this loop uses the completed map to write the chunk registration data into each chunk file
   chunks.forEach(chunk => {
