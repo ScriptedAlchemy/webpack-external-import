@@ -1,6 +1,6 @@
 {
   "extends": [
-    "combinePatchMinorReleases",
+    ":combinePatchMinorReleases",
     "ignoreUnstable",
     "prImmediately",
     "semanticPrefixFixDepsChoreOthers",
