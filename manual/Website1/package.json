@@ -8,7 +8,7 @@
   "author": "Zack Jackson <zack@ScriptedAlchemy.com> (https://github.com/ScriptedAlchemy)",
   "scripts": {
     "manual:prod": "cross-env NODE_ENV=production node  node_modules/webpack-dev-server/bin/webpack-dev-server.js",
-    "manual:dev": "cross-env NODE_ENV=development node --inspect node_modules/webpack-dev-server/bin/webpack-dev-server.js",
+    "manual:dev": "cross-env NODE_ENV=development node node_modules/webpack-dev-server/bin/webpack-dev-server.js",
     "babel": "babel src -d babelOutput"
   },
   "devDependencies": {
