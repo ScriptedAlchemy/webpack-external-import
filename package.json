@@ -49,6 +49,7 @@
     "prepare": "yarn compile && cd manual && yarn",
     "semantic-release": "semantic-release",
     "commit": "npx git-cz",
+    "travis-github-status": "travis-github-status",
     "commitlint": "npx commitlint  --from=HEAD~1 || yarn commitlinterror",
     "commitlinterror": "echo \"$(tput setaf 1)Red text $(tput setab 7)and white background$(tput sgr 0)\""
   },
@@ -94,6 +95,7 @@
     "regenerator-runtime": "0.13.3",
     "semantic-release": "15.14.0",
     "source-map": "0.7.3",
+    "travis-github-status": "^1.6.3",
     "webpack": "4.41.5",
     "webpack-cli": "3.3.10",
     "webpack-dev-server": "3.10.1"
