@@ -523,6 +523,30 @@ React Component
 
 **`cors`: bool** - If asset is being loaded from a url which throws a CORS error. This will inject a script to the browser
 
+**`ref`: React.createRef** - Pass a react ref which can be passed down as a ref to the interleaved component
+
+**`extendClass`: class** - Allows `class Example extends OtherComponent {}` if you want to interleave an extended class. 
+
+####Example of `extendClass`
+```js 
+// Website1
+import OriginalComponent from './index.js'
+<ExternalComponent src={helloWorldUrl} module="ExampleModule" export='Title' extendClass={OriginalComponent}/>
+
+
+// Website2
+export default OriginalComponent => {
+  return class ExtendedComponent extends OriginalComponent {
+    componentDidMount() {
+      if (super.componentDidMount) super.componentDidMount();
+      this.setState();
+    }
+  };
+};
+
+/* externalize: SomeExtendedComponent */
+
+```
 
 #### Usage
 ```js

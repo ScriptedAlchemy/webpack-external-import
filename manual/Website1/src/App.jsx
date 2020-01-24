@@ -13,9 +13,11 @@ class App extends Component {
       manifestLoaded: false,
       loaded: false,
     };
+    this.someRef = React.createRef()
   }
 
   componentDidMount() {
+    window.com = this;
     corsImport('http://localhost:3002/importManifest.js').then(() => {
       this.setState({ manifestLoaded: true });
       importDependenciesOf('http://localhost:3002/', 'website-two', 'TitleComponent').then((url) => {
@@ -34,7 +36,7 @@ class App extends Component {
   renderDynamic = () => {
     const { loaded } = this.state;
     if (!loaded) return null;
-console.log(__webpack_require__('SomeExternalModule'));
+    console.log(__webpack_require__('SomeExternalModule'));
     return __webpack_require__('SomeExternalModule').default();
   }
 
@@ -44,11 +46,11 @@ console.log(__webpack_require__('SomeExternalModule'));
       return 'Loading...';
     }
 
-
+console.log(this.someRef)
     return (
       <div>
         <HelloWorld />
-        {titleUrl && <ExternalComponent src={titleUrl} module="TitleComponent" export="Title" title="Some Heading" />}
+        {titleUrl ? <ExternalComponent src={titleUrl} module="TitleComponent" export="Title" title="Some Heading" ref={this.someRef} />:<span ref={this.someRef}>Loading</span>}
         {this.renderDynamic()}
       </div>
     );

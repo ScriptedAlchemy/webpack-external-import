@@ -2,8 +2,8 @@ import React, { useCallback, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import "./polyfill";
 
-const ExternalComponent = props => {
-  const { src, module, export: exportName, cors, ...rest } = props;
+const ExternalComponent = React.forwardRef((props, ref) => {
+  const { src, module, export: exportName, extendClass, cors, ...rest } = props;
   const [Component, setComponent] = useState({ component: null });
   const importPromise = useCallback(() => {
     const isPromise = src instanceof Promise;
@@ -56,18 +56,24 @@ const ExternalComponent = props => {
 
   if (!Component.component) return null;
 
+  if (extendClass) {
+    const ExtendedComponent = Component.component(extendClass);
+    // eslint-disable-next-line react/jsx-props-no-spreading
+    return <ExtendedComponent ref={ref} {...rest} />;
+  }
   // eslint-disable-next-line react/jsx-props-no-spreading
-  return <Component.component {...rest} />;
-};
+  return <Component.component ref={ref} {...rest} />;
+});
 
 ExternalComponent.propTypes = {
   src: PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.string])
     .isRequired,
   module: PropTypes.string.isRequired,
   cors: PropTypes.bool,
-  export: PropTypes.string
+  export: PropTypes.string,
+  // eslint-disable-next-line
+  extendClass: PropTypes.any
 };
-
 ExternalComponent.defaultProps = {
   cors: false,
   export: null
