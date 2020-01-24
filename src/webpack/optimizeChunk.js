@@ -55,11 +55,18 @@ export function wrapChunks(compilation, chunks) {
     // get all the modules in a chunk and loop over them
     chunk.getModules().forEach(module => {
       // add the chunk ID as a key and create an empty array if one isnt there already
-      if (!Array.isArray(map[chunk.id])) {
-        map[chunk.id] = [];
+      if (!(map[chunk.id] instanceof Object)) {
+        map[chunk.id] = { js: [], css: [] };
       }
       // push each module in a chunk into its array within the map
-      map[chunk.id].push(`${module.id}`);
+      if (module.id) map[chunk.id].js.push(`${module.id}`);
+
+      chunk.files.forEach(file => {
+        if (file.includes(".css")) {
+          // convert these to sets
+          map[chunk.id].css.push(file);
+        }
+      });
 
       // check the reason a chunk exists, this is an array which returns any and all modules that depend on the current module
       module.reasons.forEach(reason => {
@@ -67,19 +74,18 @@ export function wrapChunks(compilation, chunks) {
           // if theres a module, loop over the chunks this module is in
           reason.module.chunksIterable.forEach(reasonChunk => {
             // add the chunkID of where this module exists
-            if (!orgs[reasonChunk.id]) {
-              orgs[reasonChunk.id] = new Set();
-            }
-
-            chunk.files.forEach(file => {
+            if (!orgs[reasonChunk.id])
+              orgs[reasonChunk.id] = { js: new Set(), css: new Set() };
+            reasonChunk.files.forEach(file => {
               if (file.includes(".css")) {
-                orgs[reasonChunk.id].add(file);
+                // convert these to sets
+                orgs[reasonChunk.id].css.add(file);
               }
             });
-
+            // console.log("reasonChunk", reasonChunk);
             // orgs[chunk.id].add(`${module.id}-${module.rawRequest}`);
             // add the chunkID that depends on this module
-            if (chunk.id) orgs[reasonChunk.id].add(chunk.id);
+            if (chunk.id) orgs[reasonChunk.id].js.add(chunk.id);
           });
         }
       });
@@ -90,12 +96,13 @@ export function wrapChunks(compilation, chunks) {
     // chunks usually wont contain ALL the dependencies they need, so i need to make sure that i record what files contain dependencies
     // this chunk needs in order to be executed successfully
     Object.keys(orgs).forEach(key => {
-      Array.from(orgs[key]).forEach(subSet => {
+      Array.from(orgs[key].js).forEach(subSet => {
         if (orgs[subSet]) {
-          orgs[subSet].delete(...map.ignoredChunk);
+          orgs[subSet].js.delete(...map.ignoredChunk);
           // dont walk entry or runtime chunks
           if (!map.ignoredChunk.has(subSet)) {
-            orgs[key].add(...orgs[subSet]);
+            orgs[key].js.add(...orgs[subSet].js);
+            if (orgs[subSet].css.size) orgs[key].css.add(...orgs[subSet].css);
           }
         }
       });
@@ -118,18 +125,20 @@ export function wrapChunks(compilation, chunks) {
         fileName.indexOf(".js") !== -1
       ) {
         // get all the chunksID's the current chunk might need
-        const AllChunksNeeded = Array.from(orgs[chunk.id]);
+        const AllChunksNeeded = Array.from(orgs[chunk.id].js);
         // create the final map which contains an array of chunkID as well as a object of chunk of what each chunk needs
         const AllModulesNeeded = AllChunksNeeded.reduce(
           (allDependencies, dependentChunk) => {
             return {
               ...allDependencies,
-              [dependentChunk]: [...new Set(map[dependentChunk])] // {"vendors-main":[modules], "somechunk": [modules]}
+              [dependentChunk]: {
+                js: [...new Set(map[dependentChunk].js)],
+                css: [...new Set(map[dependentChunk].css)]
+              } // {"vendors-main":[modules], "somechunk": [modules]}
             };
           },
           {}
         );
-
         // now that we have maps of what the current file being iterated needs, write additional code to the file
         wrapFile(compilation, fileName, AllModulesNeeded, AllChunksNeeded);
       }
