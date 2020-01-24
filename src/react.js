@@ -1,38 +1,37 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
-import './polyfill';
+import React, { useCallback, useEffect, useState } from "react";
+import PropTypes from "prop-types";
+import "./polyfill";
 
 const ExternalComponent = React.forwardRef((props, ref) => {
-  const {
-    src, module, export: exportName, extendClass, cors, ...rest
-  } = props;
+  const { src, module, export: exportName, extendClass, cors, ...rest } = props;
   const [Component, setComponent] = useState({ component: null });
   const importPromise = useCallback(() => {
     const isPromise = src instanceof Promise;
     if (!src) return Promise.reject();
     if (props.cors) {
       if (isPromise) {
-        return src.then((src) => require('./corsImport').default(src));
+        return src.then(src => require("./corsImport").default(src));
       }
-      return require('./corsImport').default(src);
+      return require("./corsImport").default(src);
     }
     if (isPromise) {
       return src.then(
-        (src) => new Promise((resolve) => {
-          resolve(new Function(`return import("${src}")`)());
-        }),
+        src =>
+          new Promise(resolve => {
+            resolve(new Function(`return import("${src}")`)());
+          })
       );
     }
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       resolve(new Function(`return import("${src}")`)());
     });
   }, [src, cors]);
 
   useEffect(() => {
-    require('./polyfill');
+    require("./polyfill");
     if (!src) {
       throw new Error(
-        `dynamic-import: no url, props: ${JSON.stringify(props, null, 2)}`,
+        `dynamic-import: no url, props: ${JSON.stringify(props, null, 2)}`
       );
     }
 
@@ -40,7 +39,7 @@ const ExternalComponent = React.forwardRef((props, ref) => {
       .then(() => {
         // patch into loadable
         if (window.__LOADABLE_LOADED_CHUNKS__) {
-          window.webpackJsonp.forEach((item) => {
+          window.webpackJsonp.forEach(item => {
             window.__LOADABLE_LOADED_CHUNKS__.push(item);
           });
         }
@@ -50,7 +49,7 @@ const ExternalComponent = React.forwardRef((props, ref) => {
           : requiredComponent[exportName];
         setComponent({ component });
       })
-      .catch((e) => {
+      .catch(e => {
         throw new Error(`dynamic-import: ${e.message}`);
       });
   }, []);
@@ -72,7 +71,8 @@ ExternalComponent.propTypes = {
   module: PropTypes.string.isRequired,
   cors: PropTypes.bool,
   export: PropTypes.string,
-  extendClass: PropTypes.any,
+  // eslint-disable-next-line
+  extendClass: PropTypes.any
 };
 ExternalComponent.defaultProps = {
   cors: false,
