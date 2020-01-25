@@ -101,7 +101,7 @@ export function wrapChunks(compilation, chunks) {
           orgs[subSet].js.delete(...map.ignoredChunk);
           // dont walk entry or runtime chunks
           if (!map.ignoredChunk.has(subSet)) {
-            orgs[key].js.add(...orgs[subSet].js);
+            if (orgs[subSet].js.size) orgs[key].js.add(...orgs[subSet].js);
             if (orgs[subSet].css.size) orgs[key].css.add(...orgs[subSet].css);
           }
         }
@@ -139,6 +139,7 @@ export function wrapChunks(compilation, chunks) {
           },
           {}
         );
+        console.log("AllModulesNeeded", AllModulesNeeded);
         // now that we have maps of what the current file being iterated needs, write additional code to the file
         wrapFile(compilation, fileName, AllModulesNeeded, AllChunksNeeded);
       }
