@@ -180,7 +180,6 @@ export const addInterleaveExtention = source => {
     "function registerLocals(chunkMap) {",
     chunkPromise,
     Template.indent([
-      "console.log('chunkMap',chunkMap);",
       "var options = chunkMap[0];",
       "var chunkDependencyKeys = chunkMap[1];",
       "var chunkModuleHashMap = chunkMap[2];",
@@ -193,16 +192,23 @@ export const addInterleaveExtention = source => {
           "chunkDependencyKeys.forEach(function(chunkName){",
           Template.indent([
             // if its a stylesheet, immediately exit the loop and go to the next key
-            "if(chunkName.indexOf('.css') !== -1) {",
-            Template.indent("chunkPromise(chunkName)"),
-            "}",
-            "chunkModuleHashMap[chunkName].find(function(moduleId){",
+            "var cssChunks = chunkModuleHashMap[chunkName].css",
+            "console.log('chunkName',chunkName)",
+            "console.log('chunkModuleHashMap[chunkName].css',chunkModuleHashMap[chunkName].css)",
+            "chunkModuleHashMap[chunkName].js.find(function(moduleId){",
             Template.indent([
               "if(!modules[moduleId]) {",
               Template.indent("return chunkPromise(chunkName)"),
               "}"
             ]),
-            "})"
+            "});",
+            "if(cssChunks && cssChunks.length) {",
+            Template.indent([
+              "cssChunks.forEach(function(styleChunk){",
+              Template.indent(["chunkPromise(styleChunk)"]),
+              "});"
+            ]),
+            "}"
           ]),
           "})",
           // resolve the promise
