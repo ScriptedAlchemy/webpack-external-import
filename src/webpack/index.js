@@ -498,17 +498,14 @@ class URLImportPlugin {
         // work in progress to add another webpack__require method to the webpack runtime
         // this new method will allow a interleaved component to be required and automatically download its dependencies
         // it returns a promise so the actual interleaved module is not executed until any missing dependencies are loaded
-        mainTemplate.hooks.requireExtensions.tap(
-          "URLImportPlugin",
-          (source, chunk, hash) => {
-            // TODO: write composer function
-            return addInterleaveRequire(
-              addInterleaveExtention(source, mainTemplate.requireFn, hash),
-              mainTemplate.requireFn,
-              hash
-            );
-          }
-        );
+        mainTemplate.hooks.requireExtensions.tap("URLImportPlugin", source => {
+          return [addInterleaveExtention, addInterleaveRequire].reduce(
+            (sourceCode, extension) => {
+              return extension(sourceCode, mainTemplate.requireFn, this.opts);
+            },
+            source
+          );
+        });
         // TODO add an option for this
         if (this.afterOptimizations) {
           // before chunk files are optimized
@@ -574,7 +571,7 @@ class URLImportPlugin {
               module.id = hashId.substr(0, len);
               usedIds.add(module.id);
             } else {
-              console.log("no module id", module);
+              console.log("Module with no ID", module);
             }
             const moduleSource = module?.originalSource?.().source?.() || "";
             if (moduleSource?.indexOf("externalize") > -1 || false) {
@@ -596,11 +593,6 @@ class URLImportPlugin {
               } catch (error) {
                 throw new Error("external-import", error.message);
               }
-            }
-            if (module.rawRequest) {
-              // this.moduleHashMap[module.id] = module.rawRequest;
-            } else {
-              console.log(module);
             }
           }
         });
