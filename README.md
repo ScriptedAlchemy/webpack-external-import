@@ -79,7 +79,8 @@ import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App.jsx";
 
-corsImport("http://localhost:3002/importManifest.js").then(() => {
+// using Date.now() for cache busting the file. It should only less than 2kb
+corsImport(`http://localhost:3002/importManifest.js?${Date.now()}`).then(() => {
   ReactDOM.render(<App />, document.getElementById("app"));
 });
 
@@ -92,46 +93,61 @@ import(
 });
 ```
 
-4. import an external resource
-   We use raw `import()` with a polyfill to act as a script loader. We also have a fallback script loader for loading CORS.
+## Usage
+
+This plugin works with any Webpack driven application
+
+#### Vanilla JS
+
+This assumes a import manifest was loaded somewhere else in the application already.
+
+If you have not imported manifest then wrap your function in another promise:
 
 ```js
-// App.jsx
-// import a chunk from another website build with webpack-external-import
-  import {corsImport} from "webpack-external-import"
-
-  componentDidMount() {
-      corsImport('http://localhost:3002/importManifest.js').then(() => {
-        this.setState({ manifestLoaded: true });
-        importDependenciesOf('http://localhost:3002', 'website-two', 'TitleComponent').then((url) => {
-          this.setState({ titleUrl: url });
-        });
-
-        // if CORS isnt a problem, you can use native import (its polyfilled)
-        import(/* webpackIgnore:true */getChunkPath('http://localhost:3002', 'website-two', 'SomeExternalModule.js')).then(() => {
-          console.log('got module, will render it in 2 seconds');
-          setTimeout(() => {
-            this.setState({ loaded: true });
-          }, 2000);
-        });
-      });
-    }
+corsImport("http://localhost:3002/importManifest.js").then(() => {
+  someFunction();
+});
 ```
 
-Or with JSX and a react component
+As long as the `importManifest` was loaded - this is how it would be used
+`__webpack_require_.interleaved()` expects a module to contain both the module.id and the namespace
+
+This allows external-import to know where to interleave from.
+`__webpack_require_.interleaved([namespace]/[module.id])`
+
+Below is an example of interleaving a module from `website-2`
 
 ```js
-import {ExternalComponent, getChunkPath} from 'webpack-external-import'
- render() {
-    const { manifestLoaded } = this.state;
+// import a chunk from another website build with webpack-external-import
 
+__webpack_require__.interleaved("website-2/ValidationRules").then(() => {
+  const validationRules = __webpack_require__("ValidationRules");
+  // proceed to use as a you would with a normal require statement
+  validationRules.validateObject(someObject);
+});
+```
+
+### With JSX
+
+`ExternalComponent` exists for ease of use with React Components and is as SFC using React.Hooks
+
+```js
+import { ExternalComponent } from "webpack-external-import";
+class SomeComponent extends Component {
+  render() {
     return (
       <div>
-        <HelloWorld />
-        { manifestLoaded && <ExternalComponent src={getChunkPath('http://localhost:3002', 'website-two', 'TitleComponent.js')} module="TitleComponent" export="Title" title="Some Heading" />}
+        <ExternalComponent
+          interleave={__webpack_require__
+            .interleaved("website-2/TitleComponent")
+            .then(() => __webpack_require__("TitleComponent"))}
+          export="Title"
+          title="Some Heading"
+        />
       </div>
     );
   }
+}
 ```
 
 ## What is the use of `webpack-external-import` ?
@@ -168,114 +184,22 @@ const URLImportPlugin = require("webpack-external-import/webpack");
 
 Pretend we have two separate apps that each have their _independent_ build. We want to share a module from one of our apps with the other.
 
-To do this, we add an `externalize` comment to the module. The Externalize magic comment tells the plugin to make the module available externally with the name `ExampleModule`:
+To do this, you must add an `externalize` object to `package.json`.
+The `externalize` object tells the plugin to make the module accessible through a predictable name.
 
-<table>
-<tr>
-<th>
-<!-- empty -->
-</th>
-<th>
-Application A
-</th>
-<th>
-Application B 
-</th>
-</tr>
-<tr>
+For example:
 
-<td>
-  <strong>Provider: Javascript Asset</strong>
-</td>
-
-<td>
-
-```js
-// Title.js
-
-import React from "react";
-
-export const Title = ({ title }) => {
-  return title;
-};
-
-export const alert = message => {
-  alert(message);
-};
-
-/*externalize:ExampleModule*/
+```json
+// wbsite-two package.json
+  "interleave": {
+    "src/components/Title/index.js": "TitleComponent",
+    "src/components/hello-world/index.js": "SomeExternalModule"
+  },
 ```
 
-</td>
+This ensures a easy way for other consumers, teams, engineers to look up what another project or team is willing
+to allow for interleaving
 
-</tr>
-<tr>
-
-<td>
-    <strong>
-        Provider: <br/>Code-Splits <br/>asset into title-cnk
-   </strong>
-</td>
-
-<td>
-
-empty
-
-<td>
-
-<td>empty<td>
-
-</tr>
-
-<tr>
-<td>
-    <strong>Consumer File</strong>
-</td>
-<td><!--        --></td>
-
-<td>
-
-```js
-// App.js
-
-import(/* webpackIgnore:true */ "http://website1.com/js/ExampleModule.js").then(
-  () => {
-    const ExampleModule = __webpack_require__("ExampleModule");
-    ExampleModule.alert("custom alert");
-  }
-);
-```
-
-</td>
-</tr>
-
-<tr>
-<td>
-    <strong>React Example</strong>
-</td>
-    
-<td><!--        --></td>
-
-<td>
-
-```js
-import { ExternalComponent } from "webpack-external-import";
-
-const SomeComponent = props => {
-  return (
-    <ExternalComponent
-      src={this.state.url}
-      module="ExampleModule"
-      export="Title"
-      title={"Some Heading"}
-    />
-  );
-};
-```
-
-</td>
-</tr>
-</table>
 
 ## Explanation
 

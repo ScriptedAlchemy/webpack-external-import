@@ -43,7 +43,6 @@ class App extends Component {
           interleave={__webpack_require__
             .interleaved("website-2/TitleComponent")
             .then(() => __webpack_require__("TitleComponent"))}
-          module="TitleComponent"
           export="Title"
           title="Some Heading"
         />
