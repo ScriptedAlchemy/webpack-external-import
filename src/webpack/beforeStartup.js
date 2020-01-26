@@ -19,7 +19,7 @@ export function addWebpackRegister(source) {
         Template.indent([
           "if (interleaveDeferred[chunkId]) {",
           Template.indent(
-            "console.log('interleaveDeferred',interleaveDeferred);interleaveDeferred[chunkId].resolver[0](interleaveDeferred);"
+            "interleaveDeferred[chunkId].resolver[0](interleaveDeferred);"
           ),
           "}"
         ]),
