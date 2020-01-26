@@ -12,6 +12,10 @@
     "manual:debug": "cd ../../ && yarn link && cd manual/Website3 && yarn link webpack-external-import && cross-env NODE_ENV=development node --inspect node_modules/webpack-dev-server/bin/webpack-dev-server.js",
     "babel": "babel src -d babelOutput"
   },
+  "interleave": {
+    "src/components/Title/index.js": "TitleComponentWithCSSFile",
+    "src/components/hello-world/index.js": "SomeExternalModule"
+  },
   "devDependencies": {
     "@babel/cli": "^7.4.3",
     "@babel/core": "^7.4.3",

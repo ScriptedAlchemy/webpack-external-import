@@ -1,12 +1,23 @@
-export function hasExternalizedModule(module) {
-  // check original module source
-  const moduleSource = module?.originalSource?.()?.source?.() || "";
-  // check if module contains magic comment
-  if (moduleSource?.indexOf("externalize") > -1) {
-    return moduleSource;
-  }
-  return false;
+const pkgUp = require("pkg-up").sync();
+
+let packageJson;
+if (pkgUp) {
+  // eslint-disable-next-line import/no-dynamic-require
+  packageJson = require(pkgUp);
 }
+
+export const hasExternalizedModuleViaJson = moduleResource => {
+  const interleaveMap = packageJson.interleave;
+  if (!moduleResource || !interleaveMap) return;
+  const interleaveKeys = Object.keys(packageJson.interleave || {});
+
+  if (interleaveKeys) {
+    const foundMatch = interleaveKeys.find(item =>
+      moduleResource.includes(item)
+    );
+    return interleaveMap[foundMatch] || false;
+  }
+};
 
 export function interleaveConfig(test) {
   return {
@@ -14,18 +25,18 @@ export function interleaveConfig(test) {
       // check if module has a resource path (not virtual modules)
       if (module.resource) {
         return (
-          module.resource.includes(test) && !!hasExternalizedModule(module)
+          module.resource.includes(test) &&
+          !!hasExternalizedModuleViaJson(module.resource)
         );
       }
     },
     // eslint-disable-next-line no-unused-vars
     name(module, chunks, cacheGroupKey) {
       // Check if module is externalized
-      const moduleSource = hasExternalizedModule(module);
-      if (moduleSource) {
-        // get externalize name from module source
-        return moduleSource.match(/\/\*\s*externalize\s*:\s*(\S+)\s*\*\//)[1];
-      }
+      const foundValue = hasExternalizedModuleViaJson(module.resource);
+
+      if (foundValue) return foundValue;
+      return false;
     },
     // force module into a chunk regardless of how its used
     enforce: true
@@ -34,4 +45,3 @@ export function interleaveConfig(test) {
     // reuseExistingChunk: false,
   };
 }
-
