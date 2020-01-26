@@ -21,11 +21,11 @@ class App extends Component {
   }
 
   componentDidMount() {
-    // __webpack_require__
-    //   .interleaved("website-3/TitleComponentWithCSSFile")
-    //   .then(() => {
-    //    __webpack_require__('TitleComponentWithCSSFile')
-    //   });
+    __webpack_require__
+      .interleaved("website-3/TitleComponentWithCSSFile")
+      .then(() => {
+        console.log(__webpack_require__("TitleComponentWithCSSFile"));
+      });
   }
 
   renderDynamic = () => {
@@ -39,14 +39,14 @@ class App extends Component {
       <div>
         <HelloWorld />
 
-        {/*<ExternalComponent*/}
-        {/*  interleave={__webpack_require__*/}
-        {/*    .interleaved("website-2/TitleComponent")*/}
-        {/*    .then(() => __webpack_require__("TitleComponent"))}*/}
-        {/*  module="TitleComponent"*/}
-        {/*  export="Title"*/}
-        {/*  title="Some Heading"*/}
-        {/*/>*/}
+        <ExternalComponent
+          interleave={__webpack_require__
+            .interleaved("website-2/TitleComponent")
+            .then(() => __webpack_require__("TitleComponent"))}
+          module="TitleComponent"
+          export="Title"
+          title="Some Heading"
+        />
 
         <ExternalComponent
           interleave={__webpack_require__

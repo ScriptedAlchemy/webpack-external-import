@@ -40,8 +40,8 @@ module.exports = commonPaths => ({
     // Keep the runtime chunk seperated to enable long term caching
     // https://twitter.com/wSokra/status/969679223278505985
     runtimeChunk: {
-      name: "webpackRuntime",
-    },
+      name: "webpackRuntime"
+    }
   },
 
   module: {
