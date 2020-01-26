@@ -200,7 +200,6 @@ For example:
 This ensures a easy way for other consumers, teams, engineers to look up what another project or team is willing
 to allow for interleaving
 
-
 ## Explanation
 
 Pretend we have two separate apps that each have their own independent build. We want to share a module from one of our apps with the other.
