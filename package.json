@@ -55,7 +55,7 @@
     "commitlint": "npx commitlint  --from=HEAD~1 || yarn commitlinterror",
     "commitlinterror": "echo \"$(tput setaf 1)Red text $(tput setab 7)and white background$(tput sgr 0)\""
   },
-  "license": "GNU GPLv3",
+  "license": "GPL-3.0-only",
   "devDependencies": {
     "@babel/cli": "^7.6.0",
     "@babel/core": "^7.6.0",
@@ -68,7 +68,6 @@
     "@babel/preset-env": "^7.6.0",
     "@babel/preset-react": "^7.0.0",
     "@babel/traverse": "^7.7.4",
-    "@typescript-eslint/eslint-plugin": "^2.3.0",
     "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^10.0.3",
     "babel-loader": "^8.0.6",
@@ -84,6 +83,7 @@
     "eslint-plugin-jsx-a11y": "^6.2.3",
     "eslint-plugin-prettier": "^3.1.2",
     "eslint-plugin-react": "^7.14.3",
+    "eslint-plugin-react-hooks": "^1.7.0",
     "html-webpack-plugin": "^3.2.0",
     "jest": "^24.9.0",
     "jest-haste-map": "^24.9.0",
