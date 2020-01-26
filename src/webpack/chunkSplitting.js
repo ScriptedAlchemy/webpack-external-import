@@ -6,7 +6,7 @@ if (pkgUp) {
   packageJson = require(pkgUp);
 }
 
-export const hasExternalizedModuleViaJson = moduleResource => {
+export const hasExternalizedModuleViaJson = (moduleResource, manifestName) => {
   const interleaveMap = packageJson.interleave;
   if (!moduleResource || !interleaveMap) return;
   const interleaveKeys = Object.keys(packageJson.interleave || {});
@@ -19,21 +19,24 @@ export const hasExternalizedModuleViaJson = moduleResource => {
   }
 };
 
-export function interleaveConfig(test) {
+export function interleaveConfig({ testPath, manifestName }) {
   return {
     test(module) {
       // check if module has a resource path (not virtual modules)
       if (module.resource) {
         return (
-          module.resource.includes(test) &&
-          !!hasExternalizedModuleViaJson(module.resource)
+          module.resource.includes(testPath) &&
+          !!hasExternalizedModuleViaJson(module.resource, manifestName)
         );
       }
     },
     // eslint-disable-next-line no-unused-vars
     name(module, chunks, cacheGroupKey) {
-      // Check if module is externalized
-      const foundValue = hasExternalizedModuleViaJson(module.resource);
+      // Check if module is listed in the interleave interface
+      const foundValue = hasExternalizedModuleViaJson(
+        module.resource,
+        manifestName
+      );
 
       if (foundValue) return foundValue;
       return false;

@@ -11,13 +11,8 @@
     "es6": true,
     "node": true
   },
-  "plugins": [
-    "prettier"
-  ],
-  "extends": [
-    "airbnb",
-    "plugin:prettier/recommended"
-  ],
+  "plugins": ["prettier"],
+  "extends": ["airbnb", "plugin:prettier/recommended"],
   "rules": {
     "no-console": "off",
     "no-shadow": "warn",

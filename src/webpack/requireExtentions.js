@@ -13,7 +13,8 @@ const chunkPromise = Template.asString([
     "var resolver;",
     detachedPromise("promise", "resolver"),
     "additionalChunksRequired.push(chunkName);",
-    "interleaveDeferred[chunkName] = {promise:promise, resolver:resolver};",
+    // never overwrite existing promises
+    "if(!interleaveDeferred[chunkName])interleaveDeferred[chunkName] = {promise:promise, resolver:resolver};",
     "return true"
   ]),
   "}"
@@ -49,7 +50,7 @@ const CssRequireTemplate = Template.asString([
       'var linkTag = document.createElement("link");',
       'linkTag.rel = "stylesheet";',
       'linkTag.type = "text/css";',
-      "linkTag.onload = interleaveDeferred[chunkId].resolver[0];",
+      "linkTag.onload = function(){interleaveDeferred[chunkId].resolver[0](interleaveDeferred)}",
       "linkTag.onerror = function(event) {",
       Template.indent([
         "var request = event && event.target && event.target.src || fullhref;",
@@ -103,6 +104,7 @@ const scriptLoaderTemplate = debug =>
       ),
       "interleavePromises.push(installedChunkData[2] = promise);",
       debug ? "console.log('Chunk ID to be loaded:', chunkId);" : "",
+      debug ? "console.log('interleaveDeferred:', interleaveDeferred);" : "",
       "// start chunk loading",
       "var script = document.createElement('script');",
       "var onScriptComplete;",
@@ -145,7 +147,9 @@ const scriptLoaderTemplate = debug =>
 
         "var additionalChunksPromise = additionalChunksRequired.reduce(function(additionalPromises, extraChunk) {",
         Template.indent([
-          "additionalChunksRequired.shift();",
+          Template.indent(
+            "additionalChunksRequired = additionalChunksRequired.filter(function(i){return i !== extraChunk});"
+          ),
           "if(extraChunk instanceof Promise) return additionalPromises;",
           Template.indent(
             "additionalPromises.push(__webpack_require__['interleaved'](namespace + '/' + extraChunk, true));"
@@ -164,7 +168,7 @@ const scriptLoaderTemplate = debug =>
       ]),
       "}, 120000);",
       "script.onerror = script.onload = onScriptComplete;",
-      "document.head.appendChild(script);",
+      "document.head.appendChild(script);"
     ]),
     "}"
   ]);

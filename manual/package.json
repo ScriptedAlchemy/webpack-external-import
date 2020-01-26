@@ -1,6 +1,9 @@
 {
   "private": true,
-  "workspaces": ["website-one", "website-two"],
+  "workspaces": [
+    "website-one",
+    "website-two"
+  ],
   "name": "external-import-demo",
   "version": "0.0.0-development",
   "repository": {

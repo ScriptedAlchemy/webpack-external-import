@@ -11,4 +11,3 @@ export const Title = ({ title }) => {
     </h1>
   );
 };
-

@@ -27,10 +27,10 @@ const { wrapChunks } = require("./optimizeChunk");
 // }
 // will likely remove this emit mapping
 const emitCountMap = new Map();
+console.clear();
 
 class URLImportPlugin {
   constructor(opts) {
-    console.clear();
     const debug =
       typeof v8debug === "object" ||
       /--debug|--inspect/.test(process.execArgv.join(" "));
@@ -87,13 +87,13 @@ class URLImportPlugin {
     const chunkSplitting =
       options?.optimization?.splitChunks?.cacheGroups || {};
     chunkSplitting.styles = {
-      name: "styles",
+      name: `${this.opts.manifestName}-styles`,
       test: /\.css$/,
       chunks: "all",
       enforce: true
     };
     // interleaveConfig figures out if a file meets the paramaters for interleaving
-    chunkSplitting.interleave = interleaveConfig(this.opts.testPath);
+    chunkSplitting.interleave = interleaveConfig(this.opts);
     // dont rename exports when hoisting and tree shaking
     Object.assign(options.optimization, {
       providedExports: false
