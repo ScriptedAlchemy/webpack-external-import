@@ -12,5 +12,3 @@ export const Title = ({ title }) => {
     </h1>
   );
 };
-
-/* externalize:TitleComponent */

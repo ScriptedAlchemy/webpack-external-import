@@ -9,7 +9,10 @@ const {
   addInterleaveRequire
 } = require("./requireExtentions");
 const { addWebpackRegister } = require("./beforeStartup");
-const { interleaveConfig } = require("./chunkSplitting");
+const {
+  interleaveConfig,
+  hasExternalizedModuleViaJson
+} = require("./chunkSplitting");
 const { addLocalVars } = require("./localVars");
 const { wrapChunks } = require("./optimizeChunk");
 // use this
@@ -573,25 +576,17 @@ class URLImportPlugin {
             } else {
               console.log("Module with no ID", module);
             }
-            const moduleSource = module?.originalSource?.().source?.() || "";
-            if (moduleSource?.indexOf("externalize") > -1 || false) {
-              module.buildMeta = mergeDeep(module.buildMeta, {
-                isExternalized: true
-              });
+            const externalModule = hasExternalizedModuleViaJson(
+              module.resource
+            );
 
+            if (externalModule || false) {
               // add exports back to usedExports, prevents tree shaking on module
               Object.assign(module, {
                 usedExports: module?.buildMeta?.providedExports || true
               });
-
-              try {
-                // look at refactoring this to use buildMeta not mutate id
-                module.id = moduleSource.match(
-                  /\/\*\s*externalize\s*:\s*(\S+)\s*\*\//
-                )[1];
-                externalModules[module.id] = {};
-              } catch (error) {
-                throw new Error("external-import", error.message);
+              if (externalModule) {
+                module.id = externalModule;
               }
             }
           }

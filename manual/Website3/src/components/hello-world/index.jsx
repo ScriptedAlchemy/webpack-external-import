@@ -11,7 +11,6 @@ export const externalFunction = () => {
   console.log('some function thats externalized');
 };
 
-/* externalize: SomeExternalModule */
 
 const TestThree = (props, state, actions) => (
   <button onClick={() => dispatch({

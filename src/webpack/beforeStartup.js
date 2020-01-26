@@ -3,10 +3,10 @@ const Template = require("webpack/lib/Template");
 // eslint-disable-next-line import/prefer-default-export
 export function addWebpackRegister(source) {
   if (source) {
-    const splitSrouce = source.split("jsonpArray.push = webpackJsonpCallback;");
+    const splitSource = source.split("jsonpArray.push = webpackJsonpCallback;");
 
     return Template.asString([
-      splitSrouce[0].replace(
+      splitSource[0].replace(
         'var jsonpArray = window["webpackJsonp"] = window["webpackJsonp"] || [];',
         Template.asString([
           'var jsonpArray = window["webpackJsonp"] = window["webpackJsonp"] || [];',
@@ -19,7 +19,7 @@ export function addWebpackRegister(source) {
         Template.indent([
           "if (interleaveDeferred[chunkId]) {",
           Template.indent(
-            "console.log('interleaveDeferred',interleaveDeferred);interleaveDeferred[chunkId].resolver[0](interleaveDeferred);"
+            "interleaveDeferred[chunkId].resolver[0](interleaveDeferred);"
           ),
           "}"
         ]),
@@ -28,7 +28,7 @@ export function addWebpackRegister(source) {
       Template.indent("webpackJsonpCallback(data);"),
       "};",
       "webpackRegister.push = registerLocals;",
-      splitSrouce[1]
+      splitSource[1]
     ]);
   }
 }
