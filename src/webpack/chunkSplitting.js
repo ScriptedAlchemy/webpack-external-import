@@ -6,7 +6,7 @@ if (pkgUp) {
   packageJson = require(pkgUp);
 }
 
-export const hasExternalizedModuleViaJson = (moduleResource, manifestName) => {
+export const hasExternalizedModuleViaJson = moduleResource => {
   const interleaveMap = packageJson.interleave;
   if (!moduleResource || !interleaveMap) return;
   const interleaveKeys = Object.keys(packageJson.interleave || {});
