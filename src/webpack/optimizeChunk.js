@@ -60,7 +60,6 @@ export function wrapChunks(compilation, chunks) {
       }
       // push each module in a chunk into its array within the map
       if (module.id) map[chunk.id].js.push(`${module.id}`);
-
       chunk.files.forEach(file => {
         if (file.includes(".css")) {
           // convert these to sets
@@ -96,7 +95,7 @@ export function wrapChunks(compilation, chunks) {
     // chunks usually wont contain ALL the dependencies they need, so i need to make sure that i record what files contain dependencies
     // this chunk needs in order to be executed successfully
     Object.keys(orgs).forEach(key => {
-      Array.from(orgs[key].js).forEach(subSet => {
+      orgs[key].js.forEach(subSet => {
         if (orgs[subSet]) {
           orgs[subSet].js.delete(...map.ignoredChunk);
           // dont walk entry or runtime chunks
@@ -124,24 +123,29 @@ export function wrapChunks(compilation, chunks) {
         ModuleFilenameHelpers.matchObject({}, fileName) &&
         fileName.indexOf(".js") !== -1
       ) {
-        // get all the chunksID's the current chunk might need
-        const AllChunksNeeded = Array.from(orgs[chunk.id].js);
-        // create the final map which contains an array of chunkID as well as a object of chunk of what each chunk needs
-        const AllModulesNeeded = AllChunksNeeded.reduce(
-          (allDependencies, dependentChunk) => {
-            return {
-              ...allDependencies,
-              [dependentChunk]: {
-                js: [...new Set(map[dependentChunk].js)],
-                css: [...new Set(map[dependentChunk].css)]
-              } // {"vendors-main":[modules], "somechunk": [modules]}
-            };
-          },
-          {}
-        );
-        console.log("AllModulesNeeded", AllModulesNeeded);
-        // now that we have maps of what the current file being iterated needs, write additional code to the file
-        wrapFile(compilation, fileName, AllModulesNeeded, AllChunksNeeded);
+        try {
+          // get all the chunksID's the current chunk might need
+          const AllChunksNeeded = Array.from(orgs[chunk.id].js);
+          // create the final map which contains an array of chunkID as well as a object of chunk of what each chunk needs
+          const AllModulesNeeded = AllChunksNeeded.reduce(
+            (allDependencies, dependentChunk) => {
+              return {
+                ...allDependencies,
+                [dependentChunk]: {
+                  js: [...new Set(map[dependentChunk].js)],
+                  css: [...new Set(map[dependentChunk].css)]
+                } // {"vendors-main":[modules], "somechunk": [modules]}
+              };
+            },
+            {}
+          );
+
+          console.log("AllModulesNeeded", AllModulesNeeded);
+          // now that we have maps of what the current file being iterated needs, write additional code to the file
+          wrapFile(compilation, fileName, AllModulesNeeded, AllChunksNeeded);
+        } catch (e) {
+          console.error(e);
+        }
       }
     }
   });

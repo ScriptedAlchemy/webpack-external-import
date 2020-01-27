@@ -48,3 +48,42 @@ export function interleaveConfig({ testPath, manifestName }) {
     // reuseExistingChunk: false,
   };
 }
+
+export function interleaveStyleConfig({ testPath, manifestName }) {
+  let count = 0;
+  return {
+    test(module) {
+      // check if module has a resource path (not virtual modules)
+      if (module.resource) {
+        if (module.resource.includes(".css")) {
+          console.log(
+            "CSS",
+            module.resource.includes(testPath),
+            !!hasExternalizedModuleViaJson(module.resource, manifestName),
+            module.resource
+          );
+        }
+        return (
+          module.resource.includes(testPath) &&
+          !!hasExternalizedModuleViaJson(module.resource, manifestName)
+        );
+      }
+    },
+    // eslint-disable-next-line no-unused-vars
+    name(module, chunks, cacheGroupKey) {
+      // Check if module is listed in the interleave interface
+      const foundValue = hasExternalizedModuleViaJson(
+        module.resource,
+        manifestName
+      );
+
+      if (foundValue) return `thing`;
+      // return false;
+    },
+    // force module into a chunk regardless of how its used
+    enforce: true,
+    chunks: "all",
+    // might need for next.js
+    reuseExistingChunk: false,
+  };
+}

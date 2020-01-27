@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import Title from "../Title";
-
+import './hello-world.css'
 const Test = props => <div>{props.title}</div>;
 
 const TestTwo = (props, state, actions) => <div>{state.title}</div>;
