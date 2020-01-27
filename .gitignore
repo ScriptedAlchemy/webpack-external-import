@@ -1,5 +1,6 @@
 *~
 *.swp
+.nodecypherrc
 node_modules
 .idea
 dist
@@ -13,3 +14,4 @@ corsImport.js
 polyfill.js
 react.js
 yarn-error.log
+/src/
