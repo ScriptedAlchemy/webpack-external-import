@@ -14,4 +14,4 @@ corsImport.js
 polyfill.js
 react.js
 yarn-error.log
-/src/
+#/src/

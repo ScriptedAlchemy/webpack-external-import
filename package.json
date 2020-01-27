@@ -54,8 +54,8 @@
     "commit": "npx git-cz",
     "commitlint": "npx commitlint  --from=HEAD~1 || yarn commitlinterror",
     "commitlinterror": "echo \"$(tput setaf 1)Red text $(tput setab 7)and white background$(tput sgr 0)\"",
-    "encrypt": "nodecipher encrypt src/*.js secure-src"
-    "encrypt": "nodecipher encrypt src/*.js secure-src"
+    "encrypt": "node encrypt.js",
+    "decrypt": "node decrypt.js"
   },
   "license": "GPL-3.0-only",
   "devDependencies": {
