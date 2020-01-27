@@ -117,6 +117,7 @@
   },
   "dependencies": {
     "dimport": "^1.0.0",
+    "federati": "0.0.0",
     "fs-extra": "^8.1.0",
     "loadjs": "^4.2.0",
     "url-join": "^4.0.1"
