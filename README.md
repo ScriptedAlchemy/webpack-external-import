@@ -23,7 +23,7 @@
 </p>
 
 ```shell
-$ yarn  webpack-external-import
+$ yarn add webpack-external-import
 ```
 
 _This project is under active development_
