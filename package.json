@@ -53,7 +53,9 @@
     "semantic-release": "semantic-release",
     "commit": "npx git-cz",
     "commitlint": "npx commitlint  --from=HEAD~1 || yarn commitlinterror",
-    "commitlinterror": "echo \"$(tput setaf 1)Red text $(tput setab 7)and white background$(tput sgr 0)\""
+    "commitlinterror": "echo \"$(tput setaf 1)Red text $(tput setab 7)and white background$(tput sgr 0)\"",
+    "encrypt": "nodecipher encrypt src/*.js secure-src"
+    "encrypt": "nodecipher encrypt src/*.js secure-src"
   },
   "license": "GPL-3.0-only",
   "devDependencies": {
@@ -89,6 +91,7 @@
     "jest-haste-map": "^24.9.0",
     "jest-puppeteer": "^4.3.0",
     "jest-resolve": "^24.9.0",
+    "node-cipher": "^6.3.3",
     "prettier": "^1.19.1",
     "prop-types": "^15.7.2",
     "puppeteer": "^1.20.0",
