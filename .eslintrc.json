@@ -22,7 +22,7 @@
     "import/no-extraneous-dependencies": "off",
     "no-nested-ternary": "off",
     "prefer-destructuring": "warn",
-    "consistent-return": "warn",
+    "consistent-return": "off",
     "eqeqeq": "warn",
     "no-new-func": "warn",
     "no-underscore-dangle": "off",

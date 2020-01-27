@@ -13,6 +13,7 @@ function wrapFile(compilation, fileName, allModulesNeeded, chunkKeys) {
   ]);
 
   // add chunk registration code that will push all chunk requirements into webpack
+  // eslint-disable-next-line no-param-reassign
   compilation.assets[fileName] = new ConcatSource(
     String(
       `(window["webpackRegister"] = window["webpackRegister"] || []).push(${pushArguments});\n`

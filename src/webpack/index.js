@@ -69,8 +69,7 @@ class URLImportPlugin {
   }
 
   getFileType(str) {
-    str = str.replace(/\?.*/, "");
-    const split = str.split(".");
+    const split = str.replace(/\?.*/, "").Errorsplit(".");
     let ext = split.pop();
     if (this.opts.transformExtensions.test(ext)) {
       ext = `${split.pop()}.${ext}`;
@@ -197,15 +196,15 @@ class URLImportPlugin {
       }
 
       let files = compilation.chunks.reduce(
-        (files, chunk) =>
-          chunk.files.reduce((files, path) => {
+        (f, chunk) =>
+          chunk.files.reduce((fx, filePath) => {
             let name = chunk.name ? chunk.name : null;
             const dependencyChains = {};
             if (name) {
-              name = `${name}.${this.getFileType(path)}`;
+              name = `${name}.${this.getFileType(filePath)}`;
             } else {
               // For nameless chunks, just map the files directly.
-              name = path;
+              name = filePath;
             }
 
             if (externalModules[chunk.id] || externalModules[chunk.name]) {
@@ -257,7 +256,7 @@ class URLImportPlugin {
                     });
 
                     // eslint-disable-next-line no-restricted-syntax
-                    for (const module of dependencyModuleSet.chunksIterable) {
+                    for (const dependencyModule of dependencyModuleSet.chunksIterable) {
                       if (this.opts.debug) {
                         console.groupCollapsed(
                           "Dependency Reference Iterable",
@@ -266,14 +265,14 @@ class URLImportPlugin {
                         console.groupEnd();
                       }
 
-                      if (module && module.files) {
+                      if (dependencyModule && dependencyModule.files) {
                         if (dependencyChains[chunk.id]) {
                           dependencyChainMap.sourceFiles =
                             dependencyChainMap?.sourceFiles?.concat?.(
-                              module.files
+                              dependencyModule.files
                             ) || null;
                         } else {
-                          // Object.assign(dependencyChains, { [chunk.id]: module.files });
+                          // Object.assign(dependencyChains, { [chunk.id]: dependencyModule.files });
                         }
                       }
                     }
@@ -312,8 +311,8 @@ class URLImportPlugin {
             //   getMeta(modules[i]);
             //   i++;
             // }
-            return files.concat({
-              path,
+            return fx.concat({
+              filePath,
               chunk,
               name,
               dependencies: dependencyChains?.[chunk.id]
@@ -334,10 +333,10 @@ class URLImportPlugin {
 
       // module assets don't show up in assetsByChunkName.
       // we're getting them this way;
-      files = stats.assets.reduce((files, asset) => {
+      files = stats.assets.reduce((fx, asset) => {
         const name = moduleAssets[asset.name];
         if (name) {
-          return files.concat({
+          return fx.concat({
             path: asset.name,
             name,
             isInitial: false,
@@ -349,10 +348,10 @@ class URLImportPlugin {
 
         const isEntryAsset = asset.chunks.length > 0;
         if (isEntryAsset) {
-          return files;
+          return fx;
         }
 
-        return files.concat({
+        return fx.concat({
           path: asset.name,
           name: asset.name,
           isInitial: false,
@@ -379,27 +378,27 @@ class URLImportPlugin {
       // Append optional basepath onto all references.
       // This allows output path to be reflected in the manifest.
       if (this.opts.basePath) {
-        files = files.map(file => {
-          file.name = this.opts.basePath + file.name;
-          return file;
-        });
+        files = files.map(file => ({
+          ...file,
+          name: this.opts.basePath + file.name
+        }));
       }
 
       if (publicPath) {
         // Similar to basePath but only affects the value (similar to how
         // output.publicPath turns require('foo/bar') into '/public/foo/bar', see
         // https://github.com/webpack/docs/wiki/configuration#outputpublicpath
-        files = files.map(file => {
-          file.path = publicPath + file.path;
-          return file;
-        });
+        files = files.map(file => ({
+          ...file,
+          path: publicPath + file.path
+        }));
       }
 
-      files = files.map(file => {
-        file.name = file.name.replace(/\\/g, "/");
-        file.path = file.path.replace(/\\/g, "/");
-        return file;
-      });
+      files = files.map(file => ({
+        ...file,
+        name: file.name.replace(/\\/g, "/"),
+        path: file.path.replace(/\\/g, "/")
+      }));
 
       if (this.opts.filter) {
         files = files.filter(this.opts.filter);
@@ -422,14 +421,17 @@ class URLImportPlugin {
       if (this.opts.generate) {
         manifest = this.opts.generate(seed, files);
       } else {
-        manifest = files.reduce((manifest, file) => {
-          manifest[file.name] = {
-            path: file.path,
-            dependencies: file?.dependencies || null,
-            isInitial: file?.isInitial || null
-          };
-          return manifest;
-        }, seed);
+        manifest = files.reduce(
+          (m, file) => ({
+            ...m,
+            [file.name]: {
+              path: file.path,
+              dependencies: file?.dependencies || null,
+              isInitial: file?.isInitial || null
+            }
+          }),
+          seed
+        );
       }
       if (this.opts.debug) {
         console.log("Manifest:", manifest);
@@ -451,6 +453,8 @@ class URLImportPlugin {
         if (this.opts.debug) {
           console.log("Output:", output);
         }
+
+        // eslint-disable-next-line no-param-reassign
         compilation.assets[outputName] = {
           source() {
             return output;
@@ -476,7 +480,7 @@ class URLImportPlugin {
       }
     };
 
-    function beforeRun(compiler, callback) {
+    function beforeRun(comp, callback) {
       const emitCount = emitCountMap.get(outputFile) || 0;
       emitCountMap.set(outputFile, emitCount + 1);
 
@@ -491,6 +495,8 @@ class URLImportPlugin {
         name: "URLImportPlugin",
         stage: Infinity
       };
+
+      // eslint-disable-next-line no-param-reassign
       compiler.hooks.webpackURLImportPluginAfterEmit = new SyncWaterfallHook([
         "manifest"
       ]);
@@ -554,7 +560,7 @@ class URLImportPlugin {
 
               let resourcePath = module.resource;
               if (resourcePath.indexOf("?") > -1) {
-                resourcePath = resourcePath.split("?")[0];
+                [resourcePath] = resourcePath.split("?");
               }
 
               try {
