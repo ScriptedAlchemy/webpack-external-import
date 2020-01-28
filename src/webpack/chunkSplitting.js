@@ -18,6 +18,23 @@ export const hasExternalizedModuleViaJson = moduleResource => {
     return interleaveMap[foundMatch] || false;
   }
 };
+export const hasExternalizedModuleViaJson2 = moduleResource => {
+  const interleaveMap = packageJson.interleave;
+  if (!moduleResource || !interleaveMap) return;
+  const interleaveKeys = Object.keys(packageJson.interleave || {});
+
+  if (interleaveKeys) {
+    const foundMatch = interleaveKeys.find(item => {
+      console.log({
+        moduleResource,
+        item,
+        includes: moduleResource.includes(item)
+      });
+      return moduleResource.includes(item);
+    });
+    return interleaveMap[foundMatch] || false;
+  }
+};
 
 export function interleaveConfig({ testPath, manifestName }) {
   return {
@@ -50,7 +67,6 @@ export function interleaveConfig({ testPath, manifestName }) {
 }
 
 export function interleaveStyleConfig({ testPath, manifestName }) {
-  let count = 0;
   return {
     test(module) {
       // check if module has a resource path (not virtual modules)
@@ -68,22 +84,27 @@ export function interleaveStyleConfig({ testPath, manifestName }) {
           !!hasExternalizedModuleViaJson(module.resource, manifestName)
         );
       }
+      if (module.constructor.name === "CssModule") {
+        return !!hasExternalizedModuleViaJson2(
+          module.identifier(),
+          manifestName
+        );
+      }
     },
     // eslint-disable-next-line no-unused-vars
     name(module, chunks, cacheGroupKey) {
       // Check if module is listed in the interleave interface
       const foundValue = hasExternalizedModuleViaJson(
-        module.resource,
+        module.resource || module.identifier(),
         manifestName
       );
-
-      if (foundValue) return `thing`;
-      // return false;
+      console.log("foundValue", foundValue);
+      if (foundValue) return foundValue + "-style";
     },
     // force module into a chunk regardless of how its used
     enforce: true,
-    chunks: "all",
+    chunks: "all"
     // might need for next.js
-    reuseExistingChunk: false,
+    // reuseExistingChunk: false
   };
 }

@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { hot } from "react-hot-loader";
 import { Title } from "./components/Title";
+import "./other.css";
 class App extends Component {
   constructor(props) {
     super(props);
