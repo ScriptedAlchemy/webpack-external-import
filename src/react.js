@@ -6,6 +6,7 @@ const v2Effect = (props, importPromise, setComponent) => {
   const { interleave, export: exportName } = props;
   interleave
     .then(module => {
+      console.log("MODULE", module);
       const Component = module.default ? module.default : module[exportName];
       setComponent({ Component });
     })

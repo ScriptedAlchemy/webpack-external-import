@@ -18,6 +18,7 @@ export const hasExternalizedModuleViaJson = moduleResource => {
     return interleaveMap[foundMatch] || false;
   }
 };
+
 export const hasExternalizedModuleViaJson2 = moduleResource => {
   const interleaveMap = packageJson.interleave;
   if (!moduleResource || !interleaveMap) return;
