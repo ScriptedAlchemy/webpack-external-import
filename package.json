@@ -41,6 +41,7 @@
     "demo:one:prod": "cd manual/Website1; yarn && yarn link \"webpack-external-import\" && yarn manual:prod",
     "demo:two": "cd manual/Website2; yarn && yarn link \"webpack-external-import\" && yarn manual:dev",
     "demo:two:prod": "cd manual/Website2; yarn && yarn link \"webpack-external-import\" && yarn manual:prod",
+    "demo:two:debug": "cd manual/Website2; yarn && yarn link \"webpack-external-import\" && yarn manual:debug",
     "demo:three": "cd manual/Website3; yarn && yarn link \"webpack-external-import\" && yarn manual:dev",
     "demo:three:debug": "cd manual/Website3; yarn && yarn link \"webpack-external-import\" && yarn manual:debug",
     "demo:three:prod": "cd manual/Website3; yarn && yarn link \"webpack-external-import\" && yarn manual:prod",

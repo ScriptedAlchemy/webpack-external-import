@@ -123,29 +123,25 @@ export function wrapChunks(compilation, chunks) {
         ModuleFilenameHelpers.matchObject({}, fileName) &&
         fileName.indexOf(".js") !== -1
       ) {
-        try {
-          // get all the chunksID's the current chunk might need
-          const AllChunksNeeded = Array.from(orgs[chunk.id].js);
-          // create the final map which contains an array of chunkID as well as a object of chunk of what each chunk needs
-          const AllModulesNeeded = AllChunksNeeded.reduce(
-            (allDependencies, dependentChunk) => {
-              return {
-                ...allDependencies,
-                [dependentChunk]: {
-                  js: [...new Set(map[dependentChunk].js)],
-                  css: [...new Set(map[dependentChunk].css)]
-                } // {"vendors-main":[modules], "somechunk": [modules]}
-              };
-            },
-            {}
-          );
+        // get all the chunksID's the current chunk might need
+        const AllChunksNeeded = Array.from(orgs?.[chunk.id]?.js || new Set());
+        // create the final map which contains an array of chunkID as well as a object of chunk of what each chunk needs
+        const AllModulesNeeded = AllChunksNeeded.reduce(
+          (allDependencies, dependentChunk) => {
+            return {
+              ...allDependencies,
+              [dependentChunk]: {
+                js: [...new Set(map[dependentChunk].js)],
+                css: [...new Set(map[dependentChunk].css)]
+              } // {"vendors-main":[modules], "somechunk": [modules]}
+            };
+          },
+          {}
+        );
 
-          console.log("AllModulesNeeded", AllModulesNeeded);
-          // now that we have maps of what the current file being iterated needs, write additional code to the file
-          wrapFile(compilation, fileName, AllModulesNeeded, AllChunksNeeded);
-        } catch (e) {
-          console.error(e);
-        }
+        console.log("AllModulesNeeded", AllModulesNeeded);
+        // now that we have maps of what the current file being iterated needs, write additional code to the file
+        wrapFile(compilation, fileName, AllModulesNeeded, AllChunksNeeded);
       }
     }
   });

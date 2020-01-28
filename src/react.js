@@ -2,37 +2,11 @@ import React, { useCallback, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import "./polyfill";
 
-const v1Effect = (props, importPromise, setComponent) => {
-  require("./polyfill");
-  const { src, export: exportName } = props;
-  if (!src) {
-    throw new Error(
-      `dynamic-import: no url, props: ${JSON.stringify(props, null, 2)}`
-    );
-  }
-
-  importPromise(src)
-    .then(() => {
-      // patch into loadable
-      if (window.__LOADABLE_LOADED_CHUNKS__) {
-        window.webpackJsonp.forEach(item => {
-          window.__LOADABLE_LOADED_CHUNKS__.push(item);
-        });
-      }
-      const requiredComponent = __webpack_require__(module);
-      const Component = requiredComponent.default
-        ? requiredComponent.default
-        : requiredComponent[exportName];
-      setComponent({ Component });
-    })
-    .catch(e => {
-      throw new Error(`interleaving: ${e}`);
-    });
-};
 const v2Effect = (props, importPromise, setComponent) => {
   const { interleave, export: exportName } = props;
   interleave
     .then(module => {
+      console.log("MODULE", module);
       const Component = module.default ? module.default : module[exportName];
       setComponent({ Component });
     })
@@ -72,11 +46,7 @@ const ExternalComponent = props => {
   }, [src, cors, interleave]);
 
   useEffect(() => {
-    if (!interleave) {
-      v1Effect(props, importPromise, setComponent);
-    } else {
-      v2Effect(props, importPromise, setComponent);
-    }
+    v2Effect(props, importPromise, setComponent);
   }, []);
   if (!Component) {
     return null;
@@ -98,7 +68,6 @@ ExternalComponent.propTypes = {
   src: requiredPropsCheck,
   // eslint-disable-next-line react/require-default-props
   interleave: requiredPropsCheck,
-  module: PropTypes.string.isRequired,
   cors: PropTypes.bool,
   export: PropTypes.string
 };

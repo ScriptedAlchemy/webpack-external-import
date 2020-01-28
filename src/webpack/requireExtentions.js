@@ -306,7 +306,12 @@ export const addInterleaveRequire = (source, requireFn, { debug }) => {
             "});"
           ])
         : "",
-      "if(!foundChunk) {return}",
+      "if (!foundChunk) {",
+      Template.indent([
+        'finalResolve[1]("webpack-external-import: unable to find " + chunkId);',
+        "return finalPromise"
+      ]),
+      "}",
       // TODO: improve how css files are determined
       "var isCSS = chunkId.indexOf('.css') !== -1;",
       "if(!isNested){",
@@ -330,7 +335,6 @@ export const addInterleaveRequire = (source, requireFn, { debug }) => {
         "Promise.all(allPromises).then(finalResolve[0]);"
       ]),
       "})",
-
       "return finalPromise;"
     ]),
     debug ? "if(isNested) console.endGroup();" : "",

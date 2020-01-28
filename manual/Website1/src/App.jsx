@@ -20,13 +20,11 @@ class App extends Component {
     };
   }
 
-  componentDidMount() {
-    __webpack_require__
-      .interleaved("website-3/TitleComponentWithCSSFile")
-      .then(() => {
-        console.log(__webpack_require__("TitleComponentWithCSSFile"));
-      });
-  }
+  // componentDidMount() {
+  //   __webpack_require__
+  //     .interleaved("website-3/TitleComponentWithCSSFile")
+  //     .then(() => __webpack_require__("TitleComponentWithCSSFile"))
+  // }
 
   renderDynamic = () => {
     const { loaded } = this.state;
@@ -44,6 +42,7 @@ class App extends Component {
             .interleaved("website-2/TitleComponent")
             .then(() => __webpack_require__("TitleComponent"))}
           export="Title"
+          module="TitleComponent"
           title="Some Heading"
         />
 
