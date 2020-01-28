@@ -11,6 +11,7 @@ const {
 const { addWebpackRegister } = require("./beforeStartup");
 const {
   interleaveStyleConfig,
+  interleaveStyleJsConfig,
   interleaveConfig,
   hasExternalizedModuleViaJson
 } = require("./chunkSplitting");
@@ -87,35 +88,7 @@ class URLImportPlugin {
     // adding a new splitChunks cache group called interleave
     const chunkSplitting =
       options?.optimization?.splitChunks?.cacheGroups || {};
-    let count = 0;
-    // chunkSplitting.styles = {
-    //   test: /\.css$/,
-    //   // test: module => {
-    //   //   // check if module has a resource path (not virtual modules)
-    //   //   if (module.resource) {
-    //   //     return (
-    //   //       module.resource.includes(".css") &&
-    //   //       module.resource.includes(this.opts.testPath) &&
-    //   //       !!hasExternalizedModuleViaJson(
-    //   //         module.resource,
-    //   //         this.opts.manifestName
-    //   //       )
-    //   //     );
-    //   //   }
-    //   // },
-    //   name: module => {
-    //     const foundValue = hasExternalizedModuleViaJson(
-    //       module.resource,
-    //       this.opts.manifestName
-    //     );
-    //     console.log(foundValue);
-    //
-    //     // if (foundValue) return `thing`;
-    //     return `styles-${foundValue}`;
-    //   },
-    //   chunks: "all",
-    //   enforce: true
-    // };
+    chunkSplitting.stylejs = interleaveStyleJsConfig(this.opts);
     chunkSplitting.style = interleaveStyleConfig(this.opts);
     // interleaveConfig figures out if a file meets the paramaters for interleaving
     chunkSplitting.interleave = interleaveConfig(this.opts);

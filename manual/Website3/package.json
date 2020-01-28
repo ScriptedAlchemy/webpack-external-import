@@ -13,7 +13,8 @@
     "babel": "babel src -d babelOutput"
   },
   "interleave": {
-    "src/components/Title": "TitleComponentWithCSSFile",
+    "src/components/Title/index.js": "TitleComponentWithCSSFile",
+    "src/components/Title/style.css": "TitleComponentWithCSSFileCSS",
     "src/components/hello-world/index.js": "SomeExternalModule"
   },
   "devDependencies": {
