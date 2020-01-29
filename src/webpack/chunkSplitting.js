@@ -72,20 +72,20 @@ export function interleaveStyleConfig({ testPath, manifestName }) {
           manifestName
         );
       }
-      if (module.resource) {
-        if (module.resource.includes(".css")) {
-          console.log(
-            "CSS",
-            module.resource.includes(testPath),
-            !!hasExternalizedModuleViaJson(module.resource, manifestName),
-            module.resource
-          );
-          return (
-            module.resource.includes(testPath) &&
-            !!hasExternalizedModuleViaJson(module.resource, manifestName)
-          );
-        }
-      }
+      // if (module.resource) {
+      //   if (module.resource.includes(".css")) {
+      //     console.log(
+      //       "CSS",
+      //       module.resource.includes(testPath),
+      //       !!hasExternalizedModuleViaJson(module.resource, manifestName),
+      //       module.resource
+      //     );
+      //     return (
+      //       module.resource.includes(testPath) &&
+      //       !!hasExternalizedModuleViaJson(module.resource, manifestName)
+      //     );
+      //   }
+      // }
     },
     // eslint-disable-next-line no-unused-vars
     name(module, chunks, cacheGroupKey) {
@@ -120,7 +120,7 @@ export function interleaveStyleJsConfig({ manifestName }) {
       return false;
     },
     name() {
-      return `${manifestName}stylejs`;
+      return `${manifestName}-stylejs`;
     },
     chunks: "all",
     enforce: false

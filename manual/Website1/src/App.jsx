@@ -9,7 +9,6 @@ import {
 import HelloWorld from "./components/goodbye-world";
 import "react-select";
 
-import("moment");
 class App extends Component {
   constructor(props) {
     super(props);
@@ -20,11 +19,11 @@ class App extends Component {
     };
   }
 
-  // componentDidMount() {
-  //   __webpack_require__
-  //     .interleaved("website-3/TitleComponentWithCSSFile")
-  //     .then(() => __webpack_require__("TitleComponentWithCSSFile"))
-  // }
+  componentDidMount() {
+    __webpack_require__
+      .interleaved("website-3/TitleComponentWithCSSFile")
+      .then(() => __webpack_require__("TitleComponentWithCSSFile"))
+  }
 
   renderDynamic = () => {
     const { loaded } = this.state;
@@ -42,7 +41,6 @@ class App extends Component {
             .interleaved("website-2/TitleComponent")
             .then(() => __webpack_require__("TitleComponent"))}
           export="Title"
-          module="TitleComponent"
           title="Some Heading"
         />
 
@@ -50,7 +48,6 @@ class App extends Component {
           interleave={__webpack_require__
             .interleaved("website-3/TitleComponentWithCSSFile")
             .then(() => __webpack_require__("TitleComponentWithCSSFile"))}
-          module="TitleComponentWithCSSFile"
           export="Title"
           title="Title Component With CSS File Import"
         />
