@@ -3,7 +3,7 @@
 > **import() other chunks and modules from third parties, or other webpack builds themselves! At runtime!**
 
 <p align="center">
- <img src="docs/webpack-external-import.png" style="max-width:50%" alt="webpack-external-import" />
+ <img src="docs/webpack-external-import.png" width="40%" alt="webpack-external-import" />
 </p>
 
 <p align="center">
