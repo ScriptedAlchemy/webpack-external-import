@@ -2,9 +2,7 @@
 
 > **import() other chunks and modules from third parties, or other webpack builds themselves! At runtime!**
 
-<p align="center">
- <img src="docs/webpack-external-import.png" width="40%" alt="webpack-external-import" />
-</p>
+[![webpack-external-import](/docs/webpack-external-import.png | width=50%)](https://www.npmjs.com/package/webpack-external-import)
 
 <p align="center">
     
