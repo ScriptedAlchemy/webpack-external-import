@@ -1,18 +1,8 @@
-const webpack = require("webpack");
 const path = require("path");
 
 module.exports = commonPaths => ({
   module: {
     rules: [
-      // {
-      //   enforce: 'pre',
-      //   test: /\.(js|jsx)$/,
-      //   loader: 'eslint-loader',
-      //   exclude: /(node_modules)/,
-      //   options: {
-      //     emitWarning: process.env.NODE_ENV !== 'production',
-      //   },
-      // },
       {
         test: /\.(js|jsx)$/,
         loader: "babel-loader",
