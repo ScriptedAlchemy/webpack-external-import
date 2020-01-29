@@ -6,7 +6,7 @@ jobs:
   include:
     - stage: Build
       name: Travis Status
-      script: npx travis-github-status
+      script: yarn travis-github-status
     - stage: Linting
       name: ESlint
       script: npm run lint
@@ -15,4 +15,4 @@ jobs:
         provider: script
         skip_cleanup: true
         script:
-          - npx semantic-release
+          - yarn semantic-release
