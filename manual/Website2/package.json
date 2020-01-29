@@ -24,7 +24,7 @@
     "@babel/preset-react": "7.7.4",
     "babel-core": "7.0.0-bridge.0",
     "babel-loader": "8.0.6",
-    "eslint-loader": "2.2.1",
+    "eslint-loader": "3.0.3",
     "react": "16.8.6",
     "react-hot-loader": "4.12.18",
     "webpack": "4.41.5",
