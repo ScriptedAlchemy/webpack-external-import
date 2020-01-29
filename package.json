@@ -91,7 +91,7 @@
     "jest-haste-map": "24.9.0",
     "jest-puppeteer": "4.4.0",
     "jest-resolve": "24.9.0",
-    "marked": "0.7.0",
+    "marked": "0.8.0",
     "node-cipher": "6.3.3",
     "prettier": "1.19.1",
     "prop-types": "15.7.2",
