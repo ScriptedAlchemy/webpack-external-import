@@ -69,7 +69,7 @@ class URLImportPlugin {
   }
 
   getFileType(str) {
-    const split = str.replace(/\?.*/, "").Errorsplit(".");
+    const split = str.replace(/\?.*/, "").split(".");
     let ext = split.pop();
     if (this.opts.transformExtensions.test(ext)) {
       ext = `${split.pop()}.${ext}`;
@@ -312,7 +312,7 @@ class URLImportPlugin {
             //   i++;
             // }
             return fx.concat({
-              filePath,
+              path: filePath,
               chunk,
               name,
               dependencies: dependencyChains?.[chunk.id]
@@ -327,7 +327,7 @@ class URLImportPlugin {
               isAsset: false,
               isModuleAsset: false
             });
-          }, files),
+          }, f),
         []
       );
 
