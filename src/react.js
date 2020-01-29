@@ -28,6 +28,7 @@ const ExternalComponent = props => {
 };
 
 ExternalComponent.propTypes = {
+  // eslint-disable-next-line react/forbid-prop-types
   interleave: PropTypes.object.isRequired,
   cors: PropTypes.bool,
   export: PropTypes.string
