@@ -1,13 +1,13 @@
 language: node_js
 node_js:
-  - 8
   - 10
 install: yarn --ignore-engines # ignore engines to test node 6, otherwise it fails on engine check
+cache: yarn
 jobs:
   include:
     - stage: Build
       name: Travis Status
-      script: npx travis-github-status
+      script: yarn travis-github-status
     - stage: Linting
       name: ESlint
       script: npm run lint
@@ -16,4 +16,4 @@ jobs:
         provider: script
         skip_cleanup: true
         script:
-          - npx semantic-release
+          - yarn semantic-release
