@@ -1,7 +1,10 @@
 # Webpack External Import
 
-> **import() URLs and other external resources from third parties, or other webpack builds themselves!**
+> **import() other chunks and modules from third parties, or other webpack builds themselves! At runtime!**
 
+<p align="center">
+ <img src="/docs/webpack-external-import" width="50%" />
+</p>
 <p align="center">
     
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
@@ -180,7 +183,7 @@ const URLImportPlugin = require("webpack-external-import/webpack");
 }
 ```
 
-## Example Usage
+## Mark Files for interleaving
 
 Pretend we have two separate apps that each have their _independent_ build. We want to share a module from one of our apps with the other.
 
@@ -191,75 +194,35 @@ For example:
 
 ```json
 // wbsite-two package.json
+{
+  "name": "some-package-name",
   "interleave": {
     "src/components/Title/index.js": "TitleComponent",
     "src/components/hello-world/index.js": "SomeExternalModule"
-  },
+  }
+}
+```
+
+```js
+// website-one App.js
+__webpack_require__
+  .interleaved("website-3/TitleComponentWithCSSFile")
+  .then(() => __webpack_require__("TitleComponentWithCSSFile"));
 ```
 
 This ensures a easy way for other consumers, teams, engineers to look up what another project or team is willing
 to allow for interleaving
 
-## Explanation
-
-Pretend we have two separate apps that each have their own independent build. We want to share a module from one of our apps with the other.
-
-To do this, we add an externalize comment to the module. This tells the plugin to make the module available externally with the name `ExampleModule` and webpack will chunk this file into `dist/ExampleModule.js`
-
-```js
-// Title.js
-
-import React from "react";
-
-export const Title = ({ title }) => {
-  return <h1>{title}</h1>;
-};
-
-export const alert = message => {
-  alert(message);
-};
-
-/*externalize:ExampleModule*/
-```
-
-The `ExampleModule` can now be pulled into our other app using `import`:
-
-```js
-import(/* webpackIgnore:true */ "http://website1.com/js/ExampleModule.js").then(
-  ({ ExampleModule }) => {
-    ExampleModule.alert("custom alert");
-  }
-);
-```
-
-There is also a React component, `ExternalComponent`, that can be useful for importing React components:
-
-```js
-import { ExternalComponent } from "webpack-external-import";
-
-() => {
-  return (
-    <ExternalComponent
-      src={helloWorldUrl}
-      module="ExampleModule"
-      export="Title"
-      title={"Some Heading"}
-      cors
-    />
-  );
-};
-```
-
 ## Full Example
 
-```js
-// WEBSITE-ONE
-//app.js
+WEBSITE-ONE
+app.js
 
+```js
 import React, { Component } from "react";
-import { hot } from "react-hot-loader";
-import HelloWorld from "./components/hello-world";
-import { ExternalComponent, corsImport } from "webpack-external-import";
+import { ExternalComponent } from "webpack-external-import";
+import HelloWorld from "./components/goodbye-world";
+import "react-select";
 
 class App extends Component {
   constructor(props) {
@@ -272,109 +235,120 @@ class App extends Component {
   }
 
   componentDidMount() {
-    corsImport("http://localhost:3002/importManifest.js").then(() => {
-      this.setState({ manifestLoaded: true });
-      importDependenciesOf(
-        "http://localhost:3002",
-        "website-two",
-        "TitleComponent"
-      ).then(url => {
-        this.setState({ titleUrl: url });
-      });
-
-      import(
-        /* webpackIgnore:true */ getChunkPath(
-          "http://localhost:3002",
-          "website-two",
-          "SomeExternalModule.js"
-        )
-      ).then(() => {
-        console.log("got module, will render it in 2 seconds");
-        setTimeout(() => {
-          this.setState({ loaded: true });
-        }, 2000);
-      });
-    });
+    __webpack_require__
+      .interleaved("website-3/TitleComponentWithCSSFile")
+      .then(() => __webpack_require__("TitleComponentWithCSSFile"));
   }
 
   renderDynamic = () => {
     const { loaded } = this.state;
     if (!loaded) return null;
-
     return __webpack_require__("SomeExternalModule").default();
   };
 
   render() {
-    const { manifestLoaded, titleUrl } = this.state;
-    if (!manifestLoaded) {
-      return "Loading...";
-    }
-
     return (
       <div>
         <HelloWorld />
-        {titleUrl && (
-          <ExternalComponent
-            src={titleUrl}
-            module="TitleComponent"
-            export="Title"
-            title="Some Heading"
-          />
-        )}
+
+        <ExternalComponent
+          interleave={__webpack_require__
+            .interleaved("website-2/TitleComponent")
+            .then(() => __webpack_require__("TitleComponent"))}
+          export="Title"
+          module="TitleComponent"
+          title="Some Heading"
+        />
+
+        <ExternalComponent
+          interleave={__webpack_require__
+            .interleaved("website-3/TitleComponentWithCSSFile")
+            .then(() => __webpack_require__("TitleComponentWithCSSFile"))}
+          export="Title"
+          title="Title Component With CSS File Import"
+        />
         {this.renderDynamic()}
       </div>
     );
   }
 }
 
-export default App;
+Promise.all([
+  corsImport(`http://localhost:3002/importManifest.js?${Date.now()}`),
+  corsImport(`http://localhost:3003/importManifest.js?${Date.now()}`)
+]).then(() => {
+  ReactDOM.render(<App />, document.getElementById("app"));
+});
+```
 
-//WEBSITE-TWO
-//App.js
-class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      component: null
-    };
-  }
+WEBSITE-TWO:
+package.json
 
-  componentDidMount() {
-    import("./components/hello-world").then(HelloWorld => {
-      this.setState({ component: HelloWorld.default });
-    });
-  }
-
-  render() {
-    if (!this.state.component) return <div />;
-    const { component: HelloWorld } = this.state;
-    return <HelloWorld title="Hello from React webpack" />;
+```json
+{
+  "name": "website-two",
+  "version": "0.0.0-development",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/faceyspacey/remixx.git"
+  },
+  "author": "Zack Jackson <zack@ScriptedAlchemy.com> (https://github.com/ScriptedAlchemy)",
+  "interleave": {
+    "src/components/Title/index.js": "TitleComponentWithCSSFile",
+    "src/components/Title/style.css": "TitleComponentWithCSSFileCSS",
+    "src/components/hello-world/index.js": "SomeExternalModule"
   }
 }
-
-export default hot(module)(App);
-
-// Title.js
-
-import React from "react";
-
-export const Title = ({ title }) => {
-  return <h1>{title}</h1>;
-};
-
-/*externalize:TitleComponent*/
 ```
 
 ## API:
 
 ```js
-// webpack.config.js
+// Website Two -  webpack.config.js
 
 module.exports = {
   output: {
     publicPath
   },
-  plugins: [new URLImportPlugin(options)]
+  plugins: [
+    new URLImportPlugin({
+      manifestName: "website-two",
+      fileName: "importManifest.js",
+      basePath: ``,
+      publicPath: `//localhost:3002/`,
+      transformExtensions: /^(gz|map)$/i,
+      writeToFileEmit: false,
+      seed: null,
+      filter: null,
+      debug: true,
+      map: null,
+      generate: null,
+      sort: null
+    })
+  ]
+};
+
+// Website One webpack.config.js
+module.exports = {
+  output: {
+    publicPath
+  },
+  plugins: [
+    new URLImportPlugin({
+      manifestName: "website-one",
+      fileName: "importManifest.js",
+      basePath: ``,
+      publicPath: `//localhost:3001/`,
+      transformExtensions: /^(gz|map)$/i,
+      writeToFileEmit: false,
+      seed: null,
+      filter: null,
+      debug: true,
+      map: null,
+      generate: null,
+      sort: null
+    })
+  ]
 };
 ```
 
@@ -416,8 +390,6 @@ A cache of key/value pairs to used to seed the manifest. This may include a set 
 
 Type: `Function(FileDescriptor): Boolean`
 
-Filter out files. [FileDescriptor typings](#filedescriptor)
-
 ### `options.test`
 
 Type: `Function(Object, FileDescriptor): Object`<br>
@@ -457,38 +429,11 @@ React Component
 
 #### **Props**:
 
-**`src`: string** - Import source URL
+**`src`: string** - a url to a javascript file, note it will need to be built by another webpack build running this plugin
 
-**`module`: string** - Module name, must match what was declared using /_externalize:ExampleModule_/
+**`interleave`: function** - the `__webpack_require__.interleave()` function, which will return a module
 
 **`export`: string** - The named export to use as a component from the module being imported
-
-**`cors`: bool** - If asset is being loaded from a url which throws a CORS error. This will inject a script to the browser
-
-#### Usage
-
-```js
-<ExternalComponent
-  src={helloWorldUrl}
-  module="ExampleModule"
-  export="Title"
-  title={"Some Heading"}
-/>
-```
-
-## FileDescriptor
-
-```ts
-FileDescriptor {
-  path: string;
-  name: string | null;
-  isInitial: boolean;
-  isChunk: boolean;
-  chunk?: Chunk;
-  isAsset: boolean;
-  isModuleAsset: boolean;
-}
-```
 
 ### The entry manifest
 
@@ -501,21 +446,15 @@ Below is an example of using the manifest.
 In this file, I am importing code from another website/build. My application is loading website two's manifest, which is automatically added to `window.entryManifest` under the `manifestName` I set in the webpack plugin. After that, I'm importing a chunk from website-two, in this case - the chunk is code-split.
 
 ```js
-    componentDidMount() {
-      corsImport('http://localhost:3002/importManifest.js').then(() => {
-        this.setState({ manifestLoaded: true });
-        importDependenciesOf('http://localhost:3002', 'website-two', 'TitleComponent').then((url) => {
-          this.setState({ titleUrl: url });
-        });
+componentDidMount() {
+  corsImport('http://localhost:3002/importManifest.js').then(() => {
+      const Title = __webpack_require__
+        .interleaved("website-two/TitleComponent")
+        .then(() => __webpack_require__("TitleComponent"))
 
-        import(/* webpackIgnore:true */getChunkPath('http://localhost:3002', 'website-two', 'SomeExternalModule.js')).then(() => {
-          console.log('got module, will render it in 2 seconds');
-          setTimeout(() => {
-            this.setState({ loaded: true });
-          }, 2000);
-        });
-      });
-    }
+        console.log(Title) // => Module {default: ()=>{}, Title: ()=>{}}
+  });
+}
 ```
 
 ## DEMO
@@ -525,7 +464,7 @@ In the _root directory_, run the following
 
 1. run `yarn install`
 2. run `yarn demo` from the root directory
-3. browse to [localhost:3001](http://localhost:3001) or [localhost:3002](http://localhost:3002)
+3. browse to [localhost:3001](http://localhost:3001) and you will see components from two other websites
 
 This command will install, all dependencies, build the source for the plugin, install the demo dependencies, run all builds and start serving
 
@@ -539,7 +478,7 @@ In the root directory, run the following
 
 1. `yarn install`
 2. `yarn demo:debug` from the root directory
-3. browse to [localhost:3001](http://localhost:3001) or [localhost:3002](http://localhost:3002)
+3. browse to [localhost:3001](http://localhost:3001)
 
 **Note:** _[localhost:3001](http://localhost:3001) is the "consumer app, while the other is the provider app". Both apps work independently and you should check both of them out (they are extremely basic)_
 
