@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 export function mergeDeep(...objects) {
   const isObject = obj => obj && typeof obj === "object";
 
@@ -18,6 +19,7 @@ export function mergeDeep(...objects) {
     return prev;
   }, {});
 }
+/* eslint-enable no-param-reassign */
 
 // TODO: delete this function in V2
 export function removeNull() {
@@ -33,7 +35,7 @@ export function removeNull() {
     return this;
   }
   // all items are null
-  if (nullCount == length) {
+  if (nullCount === length) {
     this.length = 0;
     return this;
   }
@@ -41,7 +43,7 @@ export function removeNull() {
   let idest = 0;
   let isrc = length - 1;
   length -= nullCount;
-  while (true) {
+  while (nullCount) {
     while (!this[isrc]) {
       isrc--;
       nullCount--;
