@@ -3,10 +3,6 @@
 > **import() other chunks and modules from third parties, or other webpack builds themselves! At runtime!**
 
 <p align="center">
- <img src="docs/webpack-external-import.png" width="40%" alt="webpack-external-import" />
-</p>
-
-<p align="center">
     
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
   <a href="https://www.npmjs.com/package/webpack-external-import">
@@ -24,6 +20,10 @@
   <a href="https://www.npmjs.com/package/webpack-external-import">
     <img src="https://img.shields.io/npm/l/webpack-external-import.svg" alt="License" />
   </a>
+</p>
+
+<p align="center">
+ <img src="docs/webpack-external-import.png" width="40%" alt="webpack-external-import" />
 </p>
 
 ```shell
