@@ -1,6 +1,10 @@
 # Webpack External Import
-> **import() URLs and other external resources from third parties, or other webpack builds themselves!**
 
+> **import() other chunks and modules from third parties, or other webpack builds themselves! At runtime!**
+
+<p align="center">
+ <img src="/docs/webpack-external-import" width="50%" />
+</p>
 <p align="center">
     
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
@@ -22,13 +26,12 @@
 </p>
 
 ```shell
-$ yarn  webpack-external-import
+$ yarn add webpack-external-import
 ```
-*This project is under active development*
 
-**To jump to the _development_ section [click here](#development)
+_This project is under active development_
 
-
+\*\*To jump to the _development_ section [click here](#development)
 
 # Installation
 
@@ -41,291 +44,185 @@ npm install webpack-external-import --save
 ### Yarn
 
 ```sh
-yarn add webpack-external-import --save
+yarn add webpack-external-import
 ```
 
 ## Getting Started
 
 1.  Add `webpack-external-import/webpack` to your webpack plugins:
+
 ```js
 // techblog.webpack.config.js
-const URLImportPlugin = require('webpack-external-import/webpack')
+const URLImportPlugin = require("webpack-external-import/webpack");
 {
-    plugins: [
-        new URLImportPlugin({
-          manifestName: 'website-one'
-        })
-    ]
+  plugins: [
+    new URLImportPlugin({
+      manifestName: "website-one"
+    })
+  ];
+}
+
+// otherblog.webpack.config
+const URLImportPlugin = require("webpack-external-import/webpack");
+{
+  plugins: [
+    new URLImportPlugin({
+      manifestName: "website-two"
+    })
+  ];
 }
 ```
 
-2. Add the `import()` polyfill (recommended)
+2. If you are interleaving webpack bundles, load their manifests somewhere
+
 ```js
 // index.js
-import 'webpack-external-import/polyfill';
+import { corsImport } from "webpack-external-import";
+import React from "react";
+import ReactDOM from "react-dom";
+import App from "./App.jsx";
 
-import React from 'react';
-import ReactDOM from 'react-dom';
-import App from './App.jsx';
+// using Date.now() for cache busting the file. It should only less than 2kb
+corsImport(`http://localhost:3002/importManifest.js?${Date.now()}`).then(() => {
+  ReactDOM.render(<App />, document.getElementById("app"));
+});
 
-ReactDOM.render(<App />, document.getElementById('app'));
+// you could also use native imports
+
+import(
+  /* webpackIgnore:true */ `http://localhost:3002/importManifest.js?${Date.now()}`
+).then(() => {
+  ReactDOM.render(<App />, document.getElementById("app"));
+});
 ```
-3. If you are interleaving webpack bundles, load their manifests
-```js
-  import {corsImport} from "webpack-external-import"
-  // if importing on the same domain and CORS isnt an issue
-  import(/* webpackIgnore:true */'http://localhost:3002/importManifest.js')
 
-  // if you need to import from a third party where CORS is an issue
-  corsImport('http://localhost:3002/importManifest.js')
+## Usage
+
+This plugin works with any Webpack driven application
+
+#### Vanilla JS
+
+This assumes a import manifest was loaded somewhere else in the application already.
+
+If you have not imported manifest then wrap your function in another promise:
+
+```js
+corsImport("http://localhost:3002/importManifest.js").then(() => {
+  someFunction();
+});
 ```
-4. import an external resource 
-We use raw `import()` with a polyfill to act as a script loader. We also have a fallback script loader for loading CORS. 
+
+As long as the `importManifest` was loaded - this is how it would be used
+`__webpack_require_.interleaved()` expects a module to contain both the module.id and the namespace
+
+This allows external-import to know where to interleave from.
+`__webpack_require_.interleaved([namespace]/[module.id])`
+
+Below is an example of interleaving a module from `website-2`
 
 ```js
-// App.jsx
 // import a chunk from another website build with webpack-external-import
-  import {corsImport} from "webpack-external-import"
 
-  componentDidMount() {
-      corsImport('http://localhost:3002/importManifest.js').then(() => {
-        this.setState({ manifestLoaded: true });
-        importDependenciesOf('http://localhost:3002', 'website-two', 'TitleComponent').then((url) => {
-          this.setState({ titleUrl: url });
-        });
-  
-        // if CORS isnt a problem, you can use native import (its polyfilled) 
-        import(/* webpackIgnore:true */getChunkPath('http://localhost:3002', 'website-two', 'SomeExternalModule.js')).then(() => {
-          console.log('got module, will render it in 2 seconds');
-          setTimeout(() => {
-            this.setState({ loaded: true });
-          }, 2000);
-        });
-      });
-    }
+__webpack_require__.interleaved("website-2/ValidationRules").then(() => {
+  const validationRules = __webpack_require__("ValidationRules");
+  // proceed to use as a you would with a normal require statement
+  validationRules.validateObject(someObject);
+});
 ```
 
-Or with JSX and a react component
-```js
-import {ExternalComponent, getChunkPath} from 'webpack-external-import'
- render() {
-    const { manifestLoaded } = this.state;
+### With JSX
 
+`ExternalComponent` exists for ease of use with React Components and is as SFC using React.Hooks
+
+```js
+import { ExternalComponent } from "webpack-external-import";
+class SomeComponent extends Component {
+  render() {
     return (
       <div>
-        <HelloWorld />
-        { manifestLoaded && <ExternalComponent src={getChunkPath('http://localhost:3002', 'website-two', 'TitleComponent.js')} module="TitleComponent" export="Title" title="Some Heading" />}
+        <ExternalComponent
+          interleave={__webpack_require__
+            .interleaved("website-2/TitleComponent")
+            .then(() => __webpack_require__("TitleComponent"))}
+          export="Title"
+          title="Some Heading"
+        />
       </div>
     );
   }
+}
 ```
 
-## What is the use of  `webpack-external-import` ?
+## What is the use of `webpack-external-import` ?
 
 - **Load components over the wire** - Pull in components at runtime.
-- **Build leaner micro-frontends (MFE)** - 
-Micro-frontends can share bundle chunks and resources with each other while remaining self-contained, removing needless code duplication.
+- **Build leaner micro-frontends (MFE)** -
+  Micro-frontends can share bundle chunks and resources with each other while remaining self-contained, removing needless code duplication.
 - **Split a large, multi-team app into separate deployable chunks while keeping it as one SPA** - Large apps can be split into separate feature bundles that can be deployed independently, reducing deployment bottlenecks.
 - **Manage common js/vendor files automatically.** - Instead of dealing with peer dependencies, externals, or anything else, you can load the dependency from a remote source.
 - **LOSA Style frontend architecture** - Run multiple apps on a single page.
 - **FOSA Style frontend orchestration** - Powerful frontend orchestration, self-organizing application architecture. Many builds act as one
 
-
 ### Advanced Setup - Injecting Webpack modules from another build
 
-Use the webpack plugin to inject webpack modules from another build into your build. 
+Use the webpack plugin to inject webpack modules from another build into your build.
 
 _**Important**: Make sure manifestName_ is unique per webpack build.
 If you have multiple builds, they all need to have a unique manifestName
 
 **webpack.config.js**
+
 ```js
-const URLImportPlugin = require('webpack-external-import/webpack')
+const URLImportPlugin = require("webpack-external-import/webpack");
 {
-    plugins: [
-        new URLImportPlugin({
-          manifestName: 'website-one'
-        })
-    ]
+  plugins: [
+    new URLImportPlugin({
+      manifestName: "website-one"
+    })
+  ];
 }
 ```
 
+## Mark Files for interleaving
 
-## Example Usage
-Pretend we have two separate apps that each have their _independent_ build.  We want to share a module from one of our apps with the other.
+Pretend we have two separate apps that each have their _independent_ build. We want to share a module from one of our apps with the other.
 
-To do this, we add an `externalize` comment to the module. The Externalize magic comment tells the plugin to make the module available externally with the name `ExampleModule`:
+To do this, you must add an `externalize` object to `package.json`.
+The `externalize` object tells the plugin to make the module accessible through a predictable name.
 
+For example:
 
-<table>
-<tr>
-<th>
-<!-- empty -->
-</th>
-<th>
-Application A
-</th>
-<th>
-Application B 
-</th>
-</tr>
-<tr>
-
-<td>
-  <strong>Provider: Javascript Asset</strong>
-</td>
-
-<td>
-
-    
-```js
-// Title.js
-
-import React from 'react';
-
-export 
- const Title = ({title}) => {
-  return title
+```json
+// wbsite-two package.json
+{
+  "name": "some-package-name",
+  "interleave": {
+    "src/components/Title/index.js": "TitleComponent",
+    "src/components/hello-world/index.js": "SomeExternalModule"
+  }
 }
-
-export 
- const alert = (message) => {
-  alert(message)
-}
-
-
-/*externalize:ExampleModule*/
 ```
-
-</td>
-
-</tr>
-<tr>
-
-<td>
-    <strong>
-        Provider: <br/>Code-Splits <br/>asset into title-cnk
-   </strong>
-</td>
-
-<td>
-
-empty
-<td>
-
-<td>empty<td>
-
-</tr>
-
-<tr>
-<td>
-    <strong>Consumer File</strong>
-</td>
-<td><!--        --></td>
-
-<td>
 
 ```js
-    
-// App.js
-
-import(/* webpackIgnore:true */'http://website1.com/js/ExampleModule.js')
-.then(()=>{
-  const ExampleModule = __webpack_require__("ExampleModule");
-  ExampleModule.alert('custom alert')
-});
-    
+// website-one App.js
+__webpack_require__
+  .interleaved("website-3/TitleComponentWithCSSFile")
+  .then(() => __webpack_require__("TitleComponentWithCSSFile"));
 ```
 
-</td>
-</tr>
-
-<tr>
-<td>
-    <strong>React Example</strong>
-</td>
-    
-<td><!--        --></td>
-
-<td>
-
-```js
-import {
-  ExternalComponent
-} from 'webpack-external-import'
-
-const SomeComponent = (props)=>{
-  return (
-    <ExternalComponent 
-    src={
-      this.state.url
-    } 
-    module="ExampleModule"
-    export='Title' 
-    title={'Some Heading'}
-       />
-  )
-}
-```
-</td>
-</tr>
-</table>
-
-
-## Explanation
-    
-Pretend we have two separate apps that each have their own independent build. We want to share a module from one of our apps with the other.
-    
-To do this, we add an externalize comment to the module. This tells the plugin to make the module available externally with the name `ExampleModule` and webpack will chunk this file into `dist/ExampleModule.js`
-
-```js
-// Title.js
-
-import React from 'react';
-
-export const Title = ({title}) => {
-  return (<h1>{title}</h1>)
-}
-
-export const alert = (message) => {
-  alert(message)
-}
-
-
-/*externalize:ExampleModule*/
-
-```
-
-The `ExampleModule` can now be pulled into our other app using `import`:
-
-```js
-import(/* webpackIgnore:true */'http://website1.com/js/ExampleModule.js').then(({ExampleModule})=>{
-  ExampleModule.alert('custom alert')
-});
-```
-
-There is also a React component, `ExternalComponent`, that can be useful for importing React components:
-
-```js
-import {ExternalComponent} from 'webpack-external-import'
-
-()=>{
-  return (
-    <ExternalComponent src={helloWorldUrl} module="ExampleModule" export='Title' title={'Some Heading'} cors/>
-  )
-}
-```
+This ensures a easy way for other consumers, teams, engineers to look up what another project or team is willing
+to allow for interleaving
 
 ## Full Example
 
-```js
-// WEBSITE-ONE
-//app.js
+WEBSITE-ONE
+app.js
 
-import React, {Component} from 'react';
-import {hot} from 'react-hot-loader';
-import HelloWorld from './components/hello-world';
-import {ExternalComponent,corsImport} from 'webpack-external-import'
+```js
+import React, { Component } from "react";
+import { ExternalComponent } from "webpack-external-import";
+import HelloWorld from "./components/goodbye-world";
+import "react-select";
 
 class App extends Component {
   constructor(props) {
@@ -333,105 +230,126 @@ class App extends Component {
     this.state = {
       titleUrl: null,
       manifestLoaded: false,
-      loaded: false,
+      loaded: false
     };
   }
 
   componentDidMount() {
-    corsImport('http://localhost:3002/importManifest.js').then(() => {
-      this.setState({ manifestLoaded: true });
-      importDependenciesOf('http://localhost:3002', 'website-two', 'TitleComponent').then((url) => {
-        this.setState({ titleUrl: url });
-      });
-
-      import(/* webpackIgnore:true */getChunkPath('http://localhost:3002', 'website-two', 'SomeExternalModule.js')).then(() => {
-        console.log('got module, will render it in 2 seconds');
-        setTimeout(() => {
-          this.setState({ loaded: true });
-        }, 2000);
-      });
-    });
+    __webpack_require__
+      .interleaved("website-3/TitleComponentWithCSSFile")
+      .then(() => __webpack_require__("TitleComponentWithCSSFile"));
   }
 
   renderDynamic = () => {
     const { loaded } = this.state;
     if (!loaded) return null;
-
-    return __webpack_require__('SomeExternalModule').default();
-  }
+    return __webpack_require__("SomeExternalModule").default();
+  };
 
   render() {
-    const { manifestLoaded, titleUrl } = this.state;
-    if (!manifestLoaded) {
-      return 'Loading...';
-    }
-
-
     return (
       <div>
         <HelloWorld />
-        {titleUrl && <ExternalComponent src={titleUrl} module="TitleComponent" export="Title" title="Some Heading" />}
+
+        <ExternalComponent
+          interleave={__webpack_require__
+            .interleaved("website-2/TitleComponent")
+            .then(() => __webpack_require__("TitleComponent"))}
+          export="Title"
+          module="TitleComponent"
+          title="Some Heading"
+        />
+
+        <ExternalComponent
+          interleave={__webpack_require__
+            .interleaved("website-3/TitleComponentWithCSSFile")
+            .then(() => __webpack_require__("TitleComponentWithCSSFile"))}
+          export="Title"
+          title="Title Component With CSS File Import"
+        />
         {this.renderDynamic()}
       </div>
     );
   }
 }
 
-export default App
+Promise.all([
+  corsImport(`http://localhost:3002/importManifest.js?${Date.now()}`),
+  corsImport(`http://localhost:3003/importManifest.js?${Date.now()}`)
+]).then(() => {
+  ReactDOM.render(<App />, document.getElementById("app"));
+});
+```
 
-//WEBSITE-TWO
-//App.js
-class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      component: null
-    };
-  }
+WEBSITE-TWO:
+package.json
 
-  componentDidMount() {
-    import('./components/hello-world').then((HelloWorld) => {
-      this.setState({component: HelloWorld.default})
-    })
-  }
-
-  render() {
-    if (!this.state.component) return <div/>
-    const {component: HelloWorld} = this.state
-    return <HelloWorld title="Hello from React webpack"/>;
-
+```json
+{
+  "name": "website-two",
+  "version": "0.0.0-development",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/faceyspacey/remixx.git"
+  },
+  "author": "Zack Jackson <zack@ScriptedAlchemy.com> (https://github.com/ScriptedAlchemy)",
+  "interleave": {
+    "src/components/Title/index.js": "TitleComponentWithCSSFile",
+    "src/components/Title/style.css": "TitleComponentWithCSSFileCSS",
+    "src/components/hello-world/index.js": "SomeExternalModule"
   }
 }
-
-export default hot(module)(App);
-
-// Title.js
-
-import React from 'react';
-
-export const Title = ({title}) => {
-  return (<h1>{title}</h1>)
-}
-
-
-/*externalize:TitleComponent*/
-
-
 ```
 
 ## API:
 
 ```js
-// webpack.config.js
+// Website Two -  webpack.config.js
 
 module.exports = {
   output: {
     publicPath
   },
   plugins: [
-    new URLImportPlugin(options)
+    new URLImportPlugin({
+      manifestName: "website-two",
+      fileName: "importManifest.js",
+      basePath: ``,
+      publicPath: `//localhost:3002/`,
+      transformExtensions: /^(gz|map)$/i,
+      writeToFileEmit: false,
+      seed: null,
+      filter: null,
+      debug: true,
+      map: null,
+      generate: null,
+      sort: null
+    })
   ]
-}
+};
+
+// Website One webpack.config.js
+module.exports = {
+  output: {
+    publicPath
+  },
+  plugins: [
+    new URLImportPlugin({
+      manifestName: "website-one",
+      fileName: "importManifest.js",
+      basePath: ``,
+      publicPath: `//localhost:3001/`,
+      transformExtensions: /^(gz|map)$/i,
+      writeToFileEmit: false,
+      seed: null,
+      filter: null,
+      debug: true,
+      map: null,
+      generate: null,
+      sort: null
+    })
+  ]
+};
 ```
 
 ### `options.fileName`
@@ -454,14 +372,12 @@ Type: `String`
 
 A path prefix for all keys. Useful for including your output path in the manifest.
 
-
 ### `options.writeToFileEmit`
 
 Type: `Boolean`<br>
 Default: `false`
 
 If set to `true` will emit to build folder and memory in combination with `webpack-dev-server`
-
 
 ### `options.seed`
 
@@ -474,15 +390,12 @@ A cache of key/value pairs to used to seed the manifest. This may include a set 
 
 Type: `Function(FileDescriptor): Boolean`
 
-Filter out files. [FileDescriptor typings](#filedescriptor)
-
 ### `options.test`
 
 Type: `Function(Object, FileDescriptor): Object`<br>
 Default: `src`
 
 Test resource path to see if plugin should apply transformations
-
 
 ### `options.map`
 
@@ -511,61 +424,16 @@ Default: `(manifest) => JSON.stringify(manifest, null, 2)`
 Output manifest file in a different format then json (i.e., yaml).
 
 ### **ExternalComponent**
+
 React Component
 
 #### **Props**:
 
-**`src`: string** - Import source URL
+**`src`: string** - a url to a javascript file, note it will need to be built by another webpack build running this plugin
 
-**`module`: string** - Module name, must match what was declared using /*externalize:ExampleModule*/
+**`interleave`: function** - the `__webpack_require__.interleave()` function, which will return a module
 
 **`export`: string** - The named export to use as a component from the module being imported
-
-**`cors`: bool** - If asset is being loaded from a url which throws a CORS error. This will inject a script to the browser
-
-**`ref`: React.createRef** - Pass a react ref which can be passed down as a ref to the interleaved component
-
-**`extendClass`: class** - Allows `class Example extends OtherComponent {}` if you want to interleave an extended class. 
-
-####Example of `extendClass`
-```js 
-// Website1
-import OriginalComponent from './index.js'
-<ExternalComponent src={helloWorldUrl} module="ExampleModule" export='Title' extendClass={OriginalComponent}/>
-
-
-// Website2
-export default OriginalComponent => {
-  return class ExtendedComponent extends OriginalComponent {
-    componentDidMount() {
-      if (super.componentDidMount) super.componentDidMount();
-      this.setState();
-    }
-  };
-};
-
-/* externalize: SomeExtendedComponent */
-
-```
-
-#### Usage
-```js
-<ExternalComponent src={helloWorldUrl} module="ExampleModule" export='Title' title={'Some Heading'}/>
-```
-
-## FileDescriptor
-
-```ts
-FileDescriptor {
-  path: string;
-  name: string | null;
-  isInitial: boolean;
-  isChunk: boolean;
-  chunk?: Chunk;
-  isAsset: boolean;
-  isModuleAsset: boolean;
-}
-```
 
 ### The entry manifest
 
@@ -575,47 +443,44 @@ The manifest allows you to find a chunk that you want, even if the name has been
 
 Below is an example of using the manifest.
 
-In this file, I am importing code from another website/build. My application is loading website two's manifest, which is automatically added to `window.entryManifest` under the `manifestName` I set in the webpack plugin. After that, I'm importing a chunk from website-two, in this case - the chunk is code-split. 
+In this file, I am importing code from another website/build. My application is loading website two's manifest, which is automatically added to `window.entryManifest` under the `manifestName` I set in the webpack plugin. After that, I'm importing a chunk from website-two, in this case - the chunk is code-split.
 
 ```js
-    componentDidMount() {
-      corsImport('http://localhost:3002/importManifest.js').then(() => {
-        this.setState({ manifestLoaded: true });
-        importDependenciesOf('http://localhost:3002', 'website-two', 'TitleComponent').then((url) => {
-          this.setState({ titleUrl: url });
-        });
-  
-        import(/* webpackIgnore:true */getChunkPath('http://localhost:3002', 'website-two', 'SomeExternalModule.js')).then(() => {
-          console.log('got module, will render it in 2 seconds');
-          setTimeout(() => {
-            this.setState({ loaded: true });
-          }, 2000);
-        });
-      });
-    }
+componentDidMount() {
+  corsImport('http://localhost:3002/importManifest.js').then(() => {
+      const Title = __webpack_require__
+        .interleaved("website-two/TitleComponent")
+        .then(() => __webpack_require__("TitleComponent"))
+
+        console.log(Title) // => Module {default: ()=>{}, Title: ()=>{}}
+  });
+}
 ```
 
 ## DEMO
+
 How to start using the demo
-In the *root directory*, run the following
-1) run `yarn install`
-2) run `yarn demo` from the root directory
-3) browse to [localhost:3001](http://localhost:3001)  or [localhost:3002](http://localhost:3002) 
+In the _root directory_, run the following
+
+1. run `yarn install`
+2. run `yarn demo` from the root directory
+3. browse to [localhost:3001](http://localhost:3001) and you will see components from two other websites
 
 This command will install, all dependencies, build the source for the plugin, install the demo dependencies, run all builds and start serving
 
 ## Development & Debugging
+
 How to start the demo in debug mode, using node --inspect and connecting to a chrome debugger
 
 > This is mainly for debugging the webpack plugin
- 
+
 In the root directory, run the following
-1) `yarn install`
-2) `yarn demo:debug` from the root directory
-3) browse to [localhost:3001](http://localhost:3001)  or [localhost:3002](http://localhost:3002) 
+
+1. `yarn install`
+2. `yarn demo:debug` from the root directory
+3. browse to [localhost:3001](http://localhost:3001)
 
 **Note:** _[localhost:3001](http://localhost:3001) is the "consumer app, while the other is the provider app". Both apps work independently and you should check both of them out (they are extremely basic)_
 
-
-Open chrome dev tools and you should see the box highlighted below appear, click on it to connect to the webpack debugger 
+Open chrome dev tools and you should see the box highlighted below appear, click on it to connect to the webpack debugger
 ![GitHub Logo](/docs/inspect.png)

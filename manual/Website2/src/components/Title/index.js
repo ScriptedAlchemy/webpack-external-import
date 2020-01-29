@@ -1,14 +1,14 @@
 import React from "react";
 import "react-select";
+import "./style.css";
 
-export const Title = React.forwardRef(({ title }, ref) => {
-  console.log('interleaved ref', ref);
+export const Title = ({ title }) => {
+  window.wasExternalFunctionCalled = true;
+  console.log("TitleComponent interleaving successful");
   return (
-    <h1 ref={ref}>
-        TITLE COMPONENT:
+    <h1 className="inline-css">
+      TITLE COMPONENT:
       {title}
     </h1>
   );
-});
-
-/* externalize:TitleComponent */
+};

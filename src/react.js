@@ -1,79 +1,38 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
-import "./polyfill";
 
-const ExternalComponent = React.forwardRef((props, ref) => {
-  const { src, module, export: exportName, extendClass, cors, ...rest } = props;
-  const [Component, setComponent] = useState({ component: null });
-  const importPromise = useCallback(() => {
-    const isPromise = src instanceof Promise;
-    if (!src) return Promise.reject();
-    if (props.cors) {
-      if (isPromise) {
-        return src.then(src => require("./corsImport").default(src));
-      }
-      return require("./corsImport").default(src);
-    }
-    if (isPromise) {
-      return src.then(
-        src =>
-          new Promise(resolve => {
-            resolve(new Function(`return import("${src}")`)());
-          })
-      );
-    }
-    return new Promise(resolve => {
-      resolve(new Function(`return import("${src}")`)());
+const v2Effect = (props, setComponent) => {
+  const { interleave, export: exportName } = props;
+  interleave
+    .then(module => {
+      const Component = module.default ? module.default : module[exportName];
+      setComponent({ Component });
+    })
+    .catch(e => {
+      throw new Error(`interleaving: ${e}`);
     });
-  }, [src, cors]);
+};
+
+const ExternalComponent = props => {
+  const { interleave, export: exportName, cors, ...rest } = props;
+  const [{ Component }, setComponent] = useState({ Component: null });
 
   useEffect(() => {
-    require("./polyfill");
-    if (!src) {
-      throw new Error(
-        `dynamic-import: no url, props: ${JSON.stringify(props, null, 2)}`
-      );
-    }
-
-    importPromise(src)
-      .then(() => {
-        // patch into loadable
-        if (window.__LOADABLE_LOADED_CHUNKS__) {
-          window.webpackJsonp.forEach(item => {
-            window.__LOADABLE_LOADED_CHUNKS__.push(item);
-          });
-        }
-        const requiredComponent = __webpack_require__(module);
-        const component = requiredComponent.default
-          ? requiredComponent.default
-          : requiredComponent[exportName];
-        setComponent({ component });
-      })
-      .catch(e => {
-        throw new Error(`dynamic-import: ${e.message}`);
-      });
+    v2Effect(props, setComponent);
   }, []);
-
-  if (!Component.component) return null;
-
-  if (extendClass) {
-    const ExtendedComponent = Component.component(extendClass);
-    // eslint-disable-next-line react/jsx-props-no-spreading
-    return <ExtendedComponent ref={ref} {...rest} />;
+  if (!Component) {
+    return null;
   }
   // eslint-disable-next-line react/jsx-props-no-spreading
-  return <Component.component ref={ref} {...rest} />;
-});
+  return <Component {...rest} />;
+};
 
 ExternalComponent.propTypes = {
-  src: PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.string])
-    .isRequired,
-  module: PropTypes.string.isRequired,
+  interleave: PropTypes.func.isRequired,
   cors: PropTypes.bool,
-  export: PropTypes.string,
-  // eslint-disable-next-line
-  extendClass: PropTypes.any
+  export: PropTypes.string
 };
+
 ExternalComponent.defaultProps = {
   cors: false,
   export: null

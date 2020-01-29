@@ -1,0 +1,58 @@
+{
+  "name": "website-three",
+  "version": "0.0.0-development",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/faceyspacey/remixx.git"
+  },
+  "author": "Zack Jackson <zack@ScriptedAlchemy.com> (https://github.com/ScriptedAlchemy)",
+  "scripts": {
+    "manual:prod": "cd ../../ && yarn link && cd manual/Website3 && yarn link webpack-external-import && cross-env NODE_ENV=production node node_modules/webpack-dev-server/bin/webpack-dev-server.js",
+    "manual:dev": "cd ../../ && yarn link && cd manual/Website3 && yarn link webpack-external-import && cross-env NODE_ENV=development node node_modules/webpack-dev-server/bin/webpack-dev-server.js",
+    "manual:debug": "cd ../../ && yarn link && cd manual/Website3 && yarn link webpack-external-import && cross-env NODE_ENV=development node --inspect node_modules/webpack-dev-server/bin/webpack-dev-server.js",
+    "babel": "babel src -d babelOutput"
+  },
+  "interleave": {
+    "src/components/Title/index.js": "TitleComponentWithCSSFile",
+    "src/components/Title/style.css": "TitleComponentWithCSSFileCSS",
+    "src/components/hello-world/index.js": "SomeExternalModule"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.4.3",
+    "@babel/core": "^7.4.3",
+    "@babel/plugin-syntax-dynamic-import": "^7.2.0",
+    "@babel/plugin-transform-runtime": "^7.5.0",
+    "@babel/preset-env": "^7.4.3",
+    "@babel/preset-react": "^7.0.0",
+    "babel-core": "^7.0.0-bridge.0",
+    "babel-loader": "^8.0.5",
+    "eslint-loader": "^2.1.2",
+    "react": "16.8.6",
+    "react-hot-loader": "^4.8.3",
+    "webpack": "^4.29.6",
+    "webpack-cli": "^3.3.0",
+    "webpack-dev-server": "^3.2.1",
+    "webpack-merge": "^4.2.1",
+    "webpack-require-performance-plugin": "^0.2.1",
+    "write-file-webpack-plugin": "^4.5.0",
+    "extract-css-chunks-webpack-plugin": "^4.7.4"
+  },
+  "dependencies": {
+    "@babel/helper-module-imports": "^7.0.0",
+    "@babel/plugin-proposal-class-properties": "^7.4.4",
+    "clean-webpack-plugin": "^3.0.0",
+    "crc-32": "^1.2.0",
+    "cross-env": "^5.2.0",
+    "html-webpack-plugin": "^4.0.0-beta.8",
+    "mini-css-extract-plugin": "^0.6.0",
+    "moment": "^2.24.0",
+    "optimize-css-assets-webpack-plugin": "^5.0.1",
+    "react": "file:../../node_modules/react",
+    "react-dom": "file:../../node_modules/react-dom",
+    "react-select": "3.0.4",
+    "regenerator-runtime": "^0.13.2",
+    "scriptjs": "^2.5.9",
+    "wrapper-webpack-plugin": "^2.1.0",
+    "webpack-external-import": "*"
+  }
+}

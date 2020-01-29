@@ -1,7 +1,7 @@
-const webpack = require('webpack');
-const path = require('path');
+const webpack = require("webpack");
+const path = require("path");
 
-module.exports = (commonPaths) => ({
+module.exports = commonPaths => ({
   module: {
     rules: [
       // {
@@ -15,52 +15,48 @@ module.exports = (commonPaths) => ({
       // },
       {
         test: /\.(js|jsx)$/,
-        loader: 'babel-loader',
+        loader: "babel-loader",
         exclude: /(node_modules)/,
         options: {
-          babelrcRoots: [
-            '.',
-            __dirname,
-          ],
-        },
+          babelrcRoots: [".", __dirname]
+        }
       },
       {
         test: /\.(png|jpg|gif|svg)$/,
         use: [
           {
-            loader: 'file-loader',
+            loader: "file-loader",
             options: {
-              outputPath: commonPaths.imagesFolder,
-            },
-          },
-        ],
+              outputPath: commonPaths.imagesFolder
+            }
+          }
+        ]
       },
       {
         test: /\.(woff2|ttf|woff|eot)$/,
         use: [
           {
-            loader: 'file-loader',
+            loader: "file-loader",
             options: {
-              outputPath: commonPaths.fontsFolder,
-            },
-          },
-        ],
-      },
-    ],
+              outputPath: commonPaths.fontsFolder
+            }
+          }
+        ]
+      }
+    ]
   },
   serve: {
     content: commonPaths.entry,
     dev: {
-      publicPath: commonPaths.outputPath,
-    },
+      publicPath: commonPaths.outputPath
+    }
   },
   resolve: {
-    modules: ['node_modules'],
-    extensions: ['*', '.js', '.jsx', '.css', '.scss'],
+    modules: ["node_modules"],
+    extensions: ["*", ".js", ".jsx", ".css", ".scss"],
     alias: {
-      react: path.resolve('../../node_modules/react'),
-    },
+      react: path.resolve("../../node_modules/react")
+    }
   },
-  plugins: [
-  ],
+  plugins: []
 });

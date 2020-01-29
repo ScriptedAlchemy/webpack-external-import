@@ -1,111 +1,35 @@
 const path = require("path");
 const fse = require("fs-extra");
 const createHash = require("webpack/lib/util/createHash");
+// const FunctionModuleTemplatePlugin = require("webpack/lib/FunctionModuleTemplatePlugin");
 const fs = require("fs");
-
-function mergeDeep(...objects) {
-  const isObject = obj => obj && typeof obj === "object";
-
-  return objects.reduce((prev, obj) => {
-    Object.keys(obj).forEach(key => {
-      const pVal = prev[key];
-      const oVal = obj[key];
-
-      if (Array.isArray(pVal) && Array.isArray(oVal)) {
-        prev[key] = pVal.concat(...oVal);
-      } else if (isObject(pVal) && isObject(oVal)) {
-        prev[key] = mergeDeep(pVal, oVal);
-      } else {
-        prev[key] = oVal;
-      }
-    });
-
-    return prev;
-  }, {});
-}
-
-const removeNull = function() {
-  let nullCount = 0;
-  let { length } = this;
-  for (let i = 0, len = this.length; i < len; i++) {
-    if (!this[i]) {
-      nullCount++;
-    }
-  }
-  // no item is null
-  if (!nullCount) {
-    return this;
-  }
-  // all items are null
-  if (nullCount == length) {
-    this.length = 0;
-    return this;
-  }
-  // mix of null // non-null
-  let idest = 0;
-  let isrc = length - 1;
-  length -= nullCount;
-  while (true) {
-    while (!this[isrc]) {
-      isrc--;
-      nullCount--;
-    } // find a non null (source) slot on the right
-    if (!nullCount) {
-      break;
-    } // break if found all null
-    while (this[idest]) {
-      idest++;
-    } // find one null slot on the left (destination)
-    // perform copy
-    this[idest] = this[isrc];
-    if (!--nullCount) {
-      break;
-    }
-    idest++;
-    isrc--;
-  }
-  this.length = length;
-  return this;
-};
-
-// eslint-disable-next-line no-extend-native
-Object.defineProperty(Array.prototype, "removeNull", {
-  value: removeNull,
-  writable: true,
-  configurable: true
-});
-
-function hasExternalizedModule(module) {
-  const moduleSource = module?.originalSource?.()?.source?.() || "";
-  if (moduleSource?.indexOf("externalize") > -1 || false) {
-    return moduleSource;
-  }
-  return false;
-}
-
-const interleaveConfig = test => ({
-  test(module) {
-    if (module.resource) {
-      return module.resource.includes(test) && !!hasExternalizedModule(module);
-    }
-  },
-  // eslint-disable-next-line no-unused-vars
-  name(module, chunks, cacheGroupKey) {
-    // dont chunk unless we are sure you can
-
-    const moduleSource = hasExternalizedModule(module);
-    if (moduleSource) {
-      return moduleSource.match(/\/\*\s*externalize\s*:\s*(\S+)\s*\*\//)[1];
-    }
-    // returning a chunk name causes problems with mini-css popping chunks off
-    // return 'main';
-  },
-  enforce: true
-  // might need for next.js
-  // reuseExistingChunk: false,
-});
-
+const { mergeDeep } = require("./utils");
+const {
+  addInterleaveExtention,
+  addInterleaveRequire
+} = require("./requireExtentions");
+const { addWebpackRegister } = require("./beforeStartup");
+const {
+  interleaveStyleConfig,
+  interleaveStyleJsConfig,
+  interleaveConfig,
+  hasExternalizedModuleViaJson
+} = require("./chunkSplitting");
+const { addLocalVars } = require("./localVars");
+const { wrapChunks } = require("./optimizeChunk");
+// use this
+// class FunctionModulePlugin {
+//   apply(compiler) {
+//     compiler.hooks.compilation.tap("FunctionModulePlugin", compilation => {
+//       new FunctionModuleTemplatePlugin().apply(
+//         compilation.moduleTemplates.javascript
+//       );
+//     });
+//   }
+// }
+// will likely remove this emit mapping
 const emitCountMap = new Map();
+console.clear();
 
 class URLImportPlugin {
   constructor(opts) {
@@ -160,20 +84,27 @@ class URLImportPlugin {
       console.info("To disable this, set plugin options {debug:false}");
     }
     const options = compiler?.options;
+    // add to the existing webpack config
+    // adding a new splitChunks cache group called interleave
     const chunkSplitting =
       options?.optimization?.splitChunks?.cacheGroups || {};
-    chunkSplitting.interleave = interleaveConfig(this.opts.testPath);
+    chunkSplitting.stylejs = interleaveStyleJsConfig(this.opts);
+    chunkSplitting.style = interleaveStyleConfig(this.opts);
+    // interleaveConfig figures out if a file meets the paramaters for interleaving
+    chunkSplitting.interleave = interleaveConfig(this.opts);
     // dont rename exports when hoisting and tree shaking
     Object.assign(options.optimization, {
       providedExports: false
     });
+    // likely will be refactored or removed, used for entryManifest.js to map chunks (this is V1 where its outside the runtime still)
+    this.moduleHashMap = {};
     if (this.opts.debug) {
       console.groupCollapsed("interleaveConfig");
       console.log(chunkSplitting.interleave);
       console.groupEnd();
       console.groupCollapsed("New webpack optimization config");
     }
-
+    // merge my added splitChunks config into the webpack config object passed in
     mergeDeep(options, {
       optimization: {
         runtimeChunk: "multiple",
@@ -185,7 +116,17 @@ class URLImportPlugin {
       }
     });
 
+    Object.keys(chunkSplitting).forEach(key => {
+      if (key === "interleave") {
+        return;
+      }
+      chunkSplitting[
+        key
+      ].automaticNamePrefix = `${this.opts.manifestName}~${chunkSplitting[key].automaticNamePrefix}`;
+    });
+
     Object.assign(options.optimization, {
+      // node debugger breaks with TerserPlugin
       minimizer: this.opts.debug ? [] : options.optimization.minimizer,
       splitChunks: options.optimization?.splitChunks || {}
     });
@@ -553,9 +494,58 @@ class URLImportPlugin {
       compiler.hooks.webpackURLImportPluginAfterEmit = new SyncWaterfallHook([
         "manifest"
       ]);
+      compiler.hooks.compilation.tap("URLImportPlugin", compilation => {
+        const { mainTemplate } = compilation;
+        // work in progress to add another webpack__require method to the webpack runtime
+        // this new method will allow a interleaved component to be required and automatically download its dependencies
+        // it returns a promise so the actual interleaved module is not executed until any missing dependencies are loaded
+        mainTemplate.hooks.requireExtensions.tap("URLImportPlugin", source => {
+          return [addInterleaveExtention, addInterleaveRequire].reduce(
+            (sourceCode, extension) => {
+              return extension(sourceCode, mainTemplate.requireFn, this.opts);
+            },
+            source
+          );
+        });
+        // TODO add an option for this
+        if (this.afterOptimizations) {
+          // before chunk files are optimized
+          compilation.hooks.beforeOptimizeChunkAssets.tap(
+            "URLImportPlugin",
+            chunks => {
+              // access all chunks webpack created, then add some code to each chunk file, which is run when a chunk is
+              // loaded on a page as <script>
+              wrapChunks(compilation, chunks, this.moduleHashMap);
+            }
+          );
+        } else {
+          // adfter chunk files are optimized
+          compilation.hooks.optimizeChunkAssets.tapAsync(
+            "URLImportPlugin",
+            (chunks, done) => {
+              wrapChunks(compilation, chunks, this.moduleHashMap);
+              done();
+            }
+          );
+        }
+
+        // Expose chunk registration functions and bindings from webpack runtime to the window
+        // webpack does this and its how code splitting works. It exposes window.webpackJsonP
+        // This registration system works just like webpacks, it exposes a function that allows information to be passed
+        // into webpack runtime, because the function is in webpack runtime, i have access to all of webpacks internals
+        mainTemplate.hooks.beforeStartup.tap(
+          "URLImportPlugin",
+          addWebpackRegister
+        );
+
+        // add variables to webpack runtime which are available throughout all functions and closures within the runtime
+        // localVars are like global variables for webpack, anything can access them.
+        mainTemplate.hooks.localVars.tap("URLImportPlugin", addLocalVars);
+      });
 
       compiler.hooks.compilation.tap("URLImportPlugin", compilation => {
         const usedIds = new Set();
+        // creates hashed module IDs based on the contents of the file - works like [contenthash] but for each module
         compilation.hooks.beforeModuleIds.tap("URLImportPlugin", modules => {
           // eslint-disable-next-line no-restricted-syntax
           for (const module of modules) {
@@ -581,26 +571,20 @@ class URLImportPlugin {
               }
               module.id = hashId.substr(0, len);
               usedIds.add(module.id);
+            } else {
+              console.log("Module with no ID", module);
             }
-            const moduleSource = module?.originalSource?.().source?.() || "";
-            if (moduleSource?.indexOf("externalize") > -1 || false) {
-              module.buildMeta = mergeDeep(module.buildMeta, {
-                isExternalized: true
-              });
+            const externalModule = hasExternalizedModuleViaJson(
+              module.resource
+            );
 
+            if (externalModule || false) {
               // add exports back to usedExports, prevents tree shaking on module
               Object.assign(module, {
                 usedExports: module?.buildMeta?.providedExports || true
               });
-
-              try {
-                // look at refactoring this to use buildMeta not mutate id
-                module.id = moduleSource.match(
-                  /\/\*\s*externalize\s*:\s*(\S+)\s*\*\//
-                )[1];
-                externalModules[module.id] = {};
-              } catch (error) {
-                throw new Error("external-import", error.message);
+              if (externalModule) {
+                module.id = externalModule;
               }
             }
           }
@@ -608,9 +592,11 @@ class URLImportPlugin {
       });
 
       compiler.hooks.compilation.tap(pluginOptions, ({ hooks }) => {
+        // TODO: remove in V2
         hooks.moduleAsset.tap(pluginOptions, moduleAsset);
       });
 
+      // writes the importManifest file containing a map of Chunk IDs to the cache busted JS files
       compiler.hooks.emit.tap(pluginOptions, emit);
 
       compiler.hooks.run.tap(pluginOptions, beforeRun);

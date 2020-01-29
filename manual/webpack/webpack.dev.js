@@ -1,56 +1,33 @@
-const webpack = require('webpack');
-const external = require.resolve('../../')
+const webpack = require("webpack");
 
-module.exports = (commonPaths) => ({
-  mode: 'development',
-  devtool: 'inline-source-map',
+const external = require.resolve("../../");
+
+module.exports = commonPaths => ({
+  mode: "development",
+  devtool: "inline-source-map",
   entry: commonPaths.entry,
   output: {
-    filename: '[name].js',
+    filename: "[name].js",
     path: commonPaths.outputPath,
-    chunkFilename: '[name].js',
+    chunkFilename: "[name].[contenthash].js"
   },
   module: {
     rules: [
       {
         test: /\.(css|scss)$/,
-        use: [
-          'style-loader',
-          {
-            loader: 'css-loader',
-            options: {
-              sourceMap: true,
-              modules: true,
-              camelCase: true,
-              localIdentName: '[local]___[hash:base64:5]',
-            },
-          },
-          'sass-loader',
-        ],
-      },
-    ],
+        use: ["style-loader", "css-loader", "sass-loader"]
+      }
+    ]
   },
   optimization: {
     runtimeChunk: {
-      name: "manifest",
+      name: "webpackRuntime"
     },
     splitChunks: {
-      chunks: 'all',
+      chunks: "all",
       maxInitialRequests: Infinity,
-      minSize: 0,
-      // cacheGroups: {
-      //   vendor: {
-      //     test: /[\\/]node_modules[\\/]/,
-      //     name(module) {
-      //       // get the name. E.g. node_modules/packageName/not/this/part.js
-      //       // or node_modules/packageName
-      //       const packageName = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/)[1];
-      //       // npm package names are URL-safe, but some servers don't like @ symbols
-      //       return `npm.${packageName.replace('@', '')}`;
-      //     },
-      //   },
-      // },
-    },
+      minSize: 0
+    }
   },
   devServer: {
     contentBase: commonPaths.outputPath,
@@ -58,11 +35,9 @@ module.exports = (commonPaths) => ({
     hot: true,
     port: `300${commonPaths.siteId}`,
     headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Headers': '*',
-    },
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Headers": "*"
+    }
   },
-  plugins: [
-    new webpack.HotModuleReplacementPlugin()
-  ],
+  plugins: [new webpack.HotModuleReplacementPlugin()]
 });
