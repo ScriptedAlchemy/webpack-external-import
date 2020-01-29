@@ -1,6 +1,5 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
-import "./polyfill";
 
 const v2Effect = (props, setComponent) => {
   const { interleave, export: exportName } = props;
@@ -13,6 +12,7 @@ const v2Effect = (props, setComponent) => {
       throw new Error(`interleaving: ${e}`);
     });
 };
+
 const ExternalComponent = props => {
   const { interleave, export: exportName, cors, ...rest } = props;
   const [{ Component }, setComponent] = useState({ Component: null });
