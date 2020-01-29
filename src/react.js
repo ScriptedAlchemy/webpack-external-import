@@ -28,7 +28,7 @@ const ExternalComponent = props => {
 };
 
 ExternalComponent.propTypes = {
-  interleave: PropTypes.func.isRequired,
+  interleave: PropTypes.object.isRequired,
   cors: PropTypes.bool,
   export: PropTypes.string
 };
