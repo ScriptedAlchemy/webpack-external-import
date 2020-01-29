@@ -53,8 +53,6 @@
     "prepare": "yarn compile && cd manual && yarn",
     "semantic-release": "semantic-release",
     "commit": "npx git-cz",
-    "commitlint": "npx commitlint  --from=HEAD~1 || yarn commitlinterror",
-    "commitlinterror": "echo \"$(tput setaf 1)Red text $(tput setab 7)and white background$(tput sgr 0)\"",
     "encrypt": "node encrypt.js",
     "decrypt": "node decrypt.js"
   },
