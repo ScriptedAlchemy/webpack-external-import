@@ -74,7 +74,7 @@
     "babel-loader": "8.0.6",
     "babel-watch": "7.0.0",
     "commitizen": "4.0.3",
-    "concurrently": "5.0.2",
+    "concurrently": "5.1.0",
     "cross-env": "7.0.0",
     "cz-conventional-changelog": "3.1.0",
     "eslint": "6.8.0",
