@@ -2,9 +2,8 @@
 
 > **import() other chunks and modules from third parties, or other webpack builds themselves! At runtime!**
 
-<p align="center">
- <img src="/docs/webpack-external-import" width="50%" />
-</p>
+[![webpack-external-import](/docs/webpack-external-import.png | width=50%)](https://www.npmjs.com/package/webpack-external-import)
+
 <p align="center">
     
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
