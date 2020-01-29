@@ -28,7 +28,7 @@ class App extends Component {
   renderDynamic = () => {
     const { loaded } = this.state;
     if (!loaded) return null;
-    return __webpack_require__("SomeExternalModule").default();
+    console.log(__webpack_require__("SomeExternalModule"))
   };
 
   render() {

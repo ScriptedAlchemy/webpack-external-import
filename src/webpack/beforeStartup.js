@@ -1,15 +1,15 @@
 const Template = require("webpack/lib/Template");
 
 // eslint-disable-next-line import/prefer-default-export
-export function addWebpackRegister(source) {
+export function addWebpackRegister(source, requireFn) {
   if (source) {
     const splitSource = source.split("jsonpArray.push = webpackJsonpCallback;");
 
     return Template.asString([
       splitSource[0].replace(
-        'var jsonpArray = window["webpackJsonp"] = window["webpackJsonp"] || [];',
+        `var jsonpArray = window["${requireFn}"] = window["${requireFn}"] || [];`,
         Template.asString([
-          'var jsonpArray = window["webpackJsonp"] = window["webpackJsonp"] || [];',
+          `var jsonpArray = window["${requireFn}"] = window["${requireFn}"] || [];`,
           'var webpackRegister = window["webpackRegister"] = window["webpackRegister"] || [];'
         ])
       ),
