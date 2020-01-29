@@ -43,8 +43,7 @@ export function interleaveConfig({ testPath, manifestName }) {
         );
       }
     },
-    // eslint-disable-next-line no-unused-vars
-    name(module, chunks, cacheGroupKey) {
+    name(module) {
       // Check if module is listed in the interleave interface
       const foundValue = hasExternalizedModuleViaJson(
         module.resource,
@@ -62,7 +61,7 @@ export function interleaveConfig({ testPath, manifestName }) {
   };
 }
 
-export function interleaveStyleConfig({ testPath, manifestName }) {
+export function interleaveStyleConfig({ manifestName }) {
   return {
     test(module) {
       // check if module has a resource path (not virtual modules)
