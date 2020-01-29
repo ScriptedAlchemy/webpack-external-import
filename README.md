@@ -2,9 +2,6 @@
 
 > **import() other chunks and modules from third parties, or other webpack builds themselves! At runtime!**
 
-<p align="center">
- <img src="docs/webpack-external-import.png" width="40%" alt="webpack-external-import" />
-</p>
 
 <p align="center">
     
@@ -26,6 +23,9 @@
   </a>
 </p>
 
+<p align="center">
+ <img src="docs/webpack-external-import.png" width="40%" alt="webpack-external-import" />
+</p>
 ```shell
 $ yarn add webpack-external-import
 ```
