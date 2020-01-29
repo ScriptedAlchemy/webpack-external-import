@@ -1,7 +1,7 @@
 {
   "name": "webpack-external-import",
   "description": "dynamic import() external urls!",
-  "version": "0.2.5",
+  "version": "0.0.0-development",
   "repository": {
     "type": "git",
     "url": "https://github.com/ScriptedAlchemy/webpack-external-import.git"
@@ -98,7 +98,7 @@
     "react-dom": "16.8.6",
     "regenerator-runtime": "^0.13.3",
     "schema-utils": "^2.6.1",
-    "semantic-release": "^15.13.24",
+    "semantic-release": "^17.0.1",
     "source-map": "^0.7.3",
     "webpack": "^4.40.2",
     "webpack-cli": "^3.3.9",

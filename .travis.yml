@@ -8,7 +8,12 @@ jobs:
     - stage: Build
       name: Travis Status
       script: npx travis-github-status
-      name: Linting
+    - stage: Linting
+      name: ESlint
       script: npm run lint
-after_success:
-  - npm run semantic-release
+    - stage: Release
+      deploy:
+        provider: script
+        skip_cleanup: true
+        script:
+          - npx semantic-release
