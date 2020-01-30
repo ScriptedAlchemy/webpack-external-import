@@ -1,10 +1,6 @@
 import React, { Component } from "react";
 import {
   ExternalComponent,
-  corsImport,
-  getChunkPath,
-  getChunkDependencies,
-  importDependenciesOf
 } from "webpack-external-import";
 import HelloWorld from "./components/goodbye-world";
 import "react-select";
@@ -24,12 +20,6 @@ class App extends Component {
       .interleaved("website-3/TitleComponentWithCSSFile")
       .then(() => __webpack_require__("TitleComponentWithCSSFile"))
   }
-
-  renderDynamic = () => {
-    const { loaded } = this.state;
-    if (!loaded) return null;
-    return __webpack_require__("SomeExternalModule").default();
-  };
 
   render() {
     return (
@@ -51,7 +41,6 @@ class App extends Component {
           export="Title"
           title="Title Component With CSS File Import"
         />
-        {this.renderDynamic()}
       </div>
     );
   }

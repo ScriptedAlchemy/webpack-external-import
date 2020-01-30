@@ -15,6 +15,10 @@
     "src/components/Title/index.js": "TitleComponent",
     "src/components/hello-world/index.js": "SomeExternalModule"
   },
+  "interleave": {
+    "src/components/Title/index.js": "TitleComponent",
+    "src/components/hello-world/index.js": "SomeExternalModule"
+  },
   "devDependencies": {
     "@babel/cli": "7.7.7",
     "@babel/core": "7.7.7",

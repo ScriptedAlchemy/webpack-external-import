@@ -1,6 +1,6 @@
 *~
 *.swp
-.nodecypherrc
+.nodecipherrc
 node_modules
 .idea
 dist

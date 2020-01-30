@@ -7,10 +7,10 @@ export function addWebpackRegister(source) {
 
     return Template.asString([
       splitSource[0].replace(
-        'var jsonpArray = window["webpackJsonp"] = window["webpackJsonp"] || [];',
+        `var oldJsonpFunction = jsonpArray.push.bind(jsonpArray);`,
         Template.asString([
-          'var jsonpArray = window["webpackJsonp"] = window["webpackJsonp"] || [];',
-          'var webpackRegister = window["webpackRegister"] = window["webpackRegister"] || [];'
+          'var webpackRegister = window["webpackRegister"] = window["webpackRegister"] || [];',
+          `var oldJsonpFunction = jsonpArray.push.bind(jsonpArray);`
         ])
       ),
       "jsonpArray.push = function(data) {",

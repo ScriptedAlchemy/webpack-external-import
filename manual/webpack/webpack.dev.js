@@ -23,6 +23,7 @@ module.exports = commonPaths => ({
     runtimeChunk: {
       name: "webpackRuntime"
     },
+    namedChunks: true,
     splitChunks: {
       chunks: "all",
       maxInitialRequests: Infinity,

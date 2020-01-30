@@ -4,6 +4,7 @@ const createHash = require("webpack/lib/util/createHash");
 // const FunctionModuleTemplatePlugin = require("webpack/lib/FunctionModuleTemplatePlugin");
 const fs = require("fs");
 const { mergeDeep } = require("./utils");
+
 const {
   addInterleaveExtention,
   addInterleaveRequire
@@ -539,10 +540,9 @@ class URLImportPlugin {
         // webpack does this and its how code splitting works. It exposes window.webpackJsonP
         // This registration system works just like webpacks, it exposes a function that allows information to be passed
         // into webpack runtime, because the function is in webpack runtime, i have access to all of webpacks internals
-        mainTemplate.hooks.beforeStartup.tap(
-          "URLImportPlugin",
-          addWebpackRegister
-        );
+        mainTemplate.hooks.beforeStartup.tap("URLImportPlugin", source => {
+          return addWebpackRegister(source, options.output.jsonpFunction);
+        });
 
         // add variables to webpack runtime which are available throughout all functions and closures within the runtime
         // localVars are like global variables for webpack, anything can access them.
