@@ -1,4 +1,4 @@
-export const hasExternalizedModuleViaJson2 = (
+export const hasExternalizedModuleViaJson = (
   moduleResource,
   manifestName,
   interleave
@@ -21,7 +21,7 @@ export function interleaveConfig({ testPath, manifestName, interleave }) {
       if (module.resource) {
         return (
           module.resource.includes(testPath) &&
-          !!hasExternalizedModuleViaJson2(
+          !!hasExternalizedModuleViaJson(
             module.resource,
             manifestName,
             interleave
@@ -31,7 +31,7 @@ export function interleaveConfig({ testPath, manifestName, interleave }) {
     },
     name(module) {
       // Check if module is listed in the interleave interface
-      const foundValue = hasExternalizedModuleViaJson2(
+      const foundValue = hasExternalizedModuleViaJson(
         module.resource,
         manifestName,
         interleave
@@ -54,7 +54,7 @@ export function interleaveStyleConfig({ manifestName, interleave }) {
       // check if module has a resource path (not virtual modules)
       if (module.constructor.name === "CssModule") {
         console.log("HAS MODULE CSS");
-        return !!hasExternalizedModuleViaJson2(
+        return !!hasExternalizedModuleViaJson(
           module.identifier(),
           manifestName,
           interleave
@@ -65,12 +65,12 @@ export function interleaveStyleConfig({ manifestName, interleave }) {
       //     console.log(
       //       "CSS",
       //       module.resource.includes(testPath),
-      //       !!hasExternalizedModuleViaJson2(module.resource, manifestName),
+      //       !!hasExternalizedModuleViaJson(module.resource, manifestName),
       //       module.resource
       //     );
       //     return (
       //       module.resource.includes(testPath) &&
-      //       !!hasExternalizedModuleViaJson2(module.resource, manifestName)
+      //       !!hasExternalizedModuleViaJson(module.resource, manifestName)
       //     );
       //   }
       // }
@@ -79,7 +79,7 @@ export function interleaveStyleConfig({ manifestName, interleave }) {
     name(module, chunks, cacheGroupKey) {
       // Check if module is listed in the interleave interface
       if (!module.resource) {
-        const foundValue = hasExternalizedModuleViaJson2(
+        const foundValue = hasExternalizedModuleViaJson(
           module.resource || module.identifier(),
           manifestName,
           interleave

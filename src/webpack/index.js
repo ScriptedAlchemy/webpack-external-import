@@ -14,7 +14,7 @@ const {
   interleaveStyleConfig,
   interleaveStyleJsConfig,
   interleaveConfig,
-  hasExternalizedModuleViaJson2
+  hasExternalizedModuleViaJson
 } = require("./chunkSplitting");
 const { addLocalVars } = require("./localVars");
 const { wrapChunks } = require("./optimizeChunk");
@@ -598,7 +598,7 @@ class URLImportPlugin {
             } else {
               console.log("Module with no ID", module);
             }
-            const externalModule = hasExternalizedModuleViaJson2(
+            const externalModule = hasExternalizedModuleViaJson(
               module.resource,
               undefined,
               this.opts.interleave
