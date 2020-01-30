@@ -38,7 +38,7 @@ export function interleaveConfig({ testPath, manifestName, interleave }) {
       if (module.resource) {
         return (
           module.resource.includes(testPath) &&
-          !!hasExternalizedModuleViaJson(
+          !!hasExternalizedModuleViaJson2(
             module.resource,
             manifestName,
             interleave
@@ -48,7 +48,7 @@ export function interleaveConfig({ testPath, manifestName, interleave }) {
     },
     name(module) {
       // Check if module is listed in the interleave interface
-      const foundValue = hasExternalizedModuleViaJson(
+      const foundValue = hasExternalizedModuleViaJson2(
         module.resource,
         manifestName,
         interleave
@@ -82,12 +82,12 @@ export function interleaveStyleConfig({ manifestName, interleave }) {
       //     console.log(
       //       "CSS",
       //       module.resource.includes(testPath),
-      //       !!hasExternalizedModuleViaJson(module.resource, manifestName),
+      //       !!hasExternalizedModuleViaJson2(module.resource, manifestName),
       //       module.resource
       //     );
       //     return (
       //       module.resource.includes(testPath) &&
-      //       !!hasExternalizedModuleViaJson(module.resource, manifestName)
+      //       !!hasExternalizedModuleViaJson2(module.resource, manifestName)
       //     );
       //   }
       // }
