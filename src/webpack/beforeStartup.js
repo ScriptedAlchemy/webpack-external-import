@@ -1,7 +1,7 @@
 const Template = require("webpack/lib/Template");
 
 // eslint-disable-next-line import/prefer-default-export
-export function addWebpackRegister(source, requireFn) {
+export function addWebpackRegister(source) {
   if (source) {
     const splitSource = source.split("jsonpArray.push = webpackJsonpCallback;");
 

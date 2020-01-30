@@ -21,11 +21,6 @@ class App extends Component {
       .then(() => __webpack_require__("TitleComponentWithCSSFile"))
   }
 
-  renderDynamic = () => {
-    const { loaded } = this.state;
-    if (!loaded) return null;
-  };
-
   render() {
     return (
       <div>
@@ -46,7 +41,6 @@ class App extends Component {
           export="Title"
           title="Title Component With CSS File Import"
         />
-        {this.renderDynamic()}
       </div>
     );
   }

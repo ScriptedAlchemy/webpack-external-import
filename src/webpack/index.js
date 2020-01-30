@@ -3,7 +3,6 @@ const fse = require("fs-extra");
 const createHash = require("webpack/lib/util/createHash");
 // const FunctionModuleTemplatePlugin = require("webpack/lib/FunctionModuleTemplatePlugin");
 const fs = require("fs");
-const ParserHelpers = require("webpack/lib/ParserHelpers");
 const { mergeDeep } = require("./utils");
 
 const {
