@@ -1,20 +1,3 @@
-export const hasExternalizedModuleViaJson = (
-  moduleResource,
-  manifestName,
-  interleave
-) => {
-  if (!moduleResource || !interleave) return;
-
-  const interleaveKeys = Object.keys(interleave);
-
-  if (interleaveKeys) {
-    const foundMatch = interleaveKeys.find(item =>
-      moduleResource.includes(item)
-    );
-    return interleave[foundMatch] || false;
-  }
-};
-
 export const hasExternalizedModuleViaJson2 = (
   moduleResource,
   manifestName,
