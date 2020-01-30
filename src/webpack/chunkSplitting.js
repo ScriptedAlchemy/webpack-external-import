@@ -1,45 +1,48 @@
-const pkgUp = require("pkg-up").sync();
+export const hasExternalizedModuleViaJson = (
+  moduleResource,
+  manifestName,
+  interleave
+) => {
+  if (!moduleResource || !interleave) return;
 
-let packageJson;
-if (pkgUp) {
-  // eslint-disable-next-line import/no-dynamic-require
-  packageJson = require(pkgUp);
-}
-
-export const hasExternalizedModuleViaJson = moduleResource => {
-  const interleaveMap = packageJson.interleave;
-  if (!moduleResource || !interleaveMap) return;
-  const interleaveKeys = Object.keys(packageJson.interleave || {});
+  const interleaveKeys = Object.keys(interleave);
 
   if (interleaveKeys) {
     const foundMatch = interleaveKeys.find(item =>
       moduleResource.includes(item)
     );
-    return interleaveMap[foundMatch] || false;
+    return interleave[foundMatch] || false;
   }
 };
 
-export const hasExternalizedModuleViaJson2 = moduleResource => {
-  const interleaveMap = packageJson.interleave;
-  if (!moduleResource || !interleaveMap) return;
-  const interleaveKeys = Object.keys(packageJson.interleave || {});
+export const hasExternalizedModuleViaJson2 = (
+  moduleResource,
+  manifestName,
+  interleave
+) => {
+  if (!moduleResource || !interleave) return;
+  const interleaveKeys = Object.keys(interleave);
 
   if (interleaveKeys) {
     const foundMatch = interleaveKeys.find(item => {
       return moduleResource.includes(item);
     });
-    return interleaveMap[foundMatch] || false;
+    return interleave[foundMatch] || false;
   }
 };
 
-export function interleaveConfig({ testPath, manifestName }) {
+export function interleaveConfig({ testPath, manifestName, interleave }) {
   return {
     test(module) {
       // check if module has a resource path (not virtual modules)
       if (module.resource) {
         return (
           module.resource.includes(testPath) &&
-          !!hasExternalizedModuleViaJson(module.resource, manifestName)
+          !!hasExternalizedModuleViaJson(
+            module.resource,
+            manifestName,
+            interleave
+          )
         );
       }
     },
@@ -47,7 +50,8 @@ export function interleaveConfig({ testPath, manifestName }) {
       // Check if module is listed in the interleave interface
       const foundValue = hasExternalizedModuleViaJson(
         module.resource,
-        manifestName
+        manifestName,
+        interleave
       );
 
       if (foundValue) return foundValue;
@@ -61,7 +65,7 @@ export function interleaveConfig({ testPath, manifestName }) {
   };
 }
 
-export function interleaveStyleConfig({ manifestName }) {
+export function interleaveStyleConfig({ manifestName, interleave }) {
   return {
     test(module) {
       // check if module has a resource path (not virtual modules)
@@ -69,7 +73,8 @@ export function interleaveStyleConfig({ manifestName }) {
         console.log("HAS MODULE CSS");
         return !!hasExternalizedModuleViaJson2(
           module.identifier(),
-          manifestName
+          manifestName,
+          interleave
         );
       }
       // if (module.resource) {
@@ -93,7 +98,8 @@ export function interleaveStyleConfig({ manifestName }) {
       if (!module.resource) {
         const foundValue = hasExternalizedModuleViaJson2(
           module.resource || module.identifier(),
-          manifestName
+          manifestName,
+          interleave
         );
 
         if (foundValue) return `${foundValue}-style`;

@@ -599,7 +599,9 @@ class URLImportPlugin {
               console.log("Module with no ID", module);
             }
             const externalModule = hasExternalizedModuleViaJson(
-              module.resource
+              module.resource,
+              undefined,
+              this.opts.interleave
             );
 
             if (externalModule || false) {
