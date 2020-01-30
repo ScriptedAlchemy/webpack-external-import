@@ -1,10 +1,6 @@
 import React, { Component } from "react";
 import {
   ExternalComponent,
-  corsImport,
-  getChunkPath,
-  getChunkDependencies,
-  importDependenciesOf
 } from "webpack-external-import";
 import HelloWorld from "./components/goodbye-world";
 import "react-select";
@@ -28,7 +24,6 @@ class App extends Component {
   renderDynamic = () => {
     const { loaded } = this.state;
     if (!loaded) return null;
-    console.log(__webpack_require__("SomeExternalModule"))
   };
 
   render() {

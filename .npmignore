@@ -3,3 +3,4 @@ test
 .idea
 .travis.yml
 secure-src
+.nodecipherrc
