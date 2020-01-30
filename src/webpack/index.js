@@ -32,6 +32,19 @@ const { wrapChunks } = require("./optimizeChunk");
 const emitCountMap = new Map();
 console.clear();
 
+function loadPackageInterleaveConfig() {
+  // eslint-disable-next-line import/no-dynamic-require
+  const pkgUp = require("pkg-up").sync();
+
+  if (!pkgUp) {
+    return {};
+  }
+
+  // eslint-disable-next-line import/no-dynamic-require
+  const packageJson = require(pkgUp);
+
+  return packageJson.interleave || {};
+}
 class URLImportPlugin {
   constructor(opts) {
     const debug =
@@ -42,6 +55,10 @@ class URLImportPlugin {
         "URLImportPlugin: You MUST specify a manifestName in your options. Something unique. Like {manifestName: my-special-build}"
       );
     }
+
+    const interleave = opts.interleave
+      ? opts.interleave
+      : loadPackageInterleaveConfig();
 
     this.opts = {
       publicPath: null,
@@ -60,6 +77,7 @@ class URLImportPlugin {
       hashDigestLength: 10,
       context: null,
       sort: null,
+      interleave,
       hashFunction: "md4",
       serialize: manifest =>
         `if(!window.entryManifest) {window.entryManifest = {}}; window.entryManifest["${
