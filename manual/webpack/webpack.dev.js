@@ -1,7 +1,5 @@
 const webpack = require("webpack");
 
-const external = require.resolve("../../");
-
 module.exports = commonPaths => ({
   mode: "development",
   devtool: "inline-source-map",
@@ -20,14 +18,15 @@ module.exports = commonPaths => ({
     ]
   },
   optimization: {
+    namedModules: true,
+    namedChunks: true,
     runtimeChunk: {
       name: "webpackRuntime"
     },
-    namedChunks: true,
     splitChunks: {
       chunks: "all",
       maxInitialRequests: Infinity,
-      minSize: 0
+      minSize: 0,
     }
   },
   devServer: {

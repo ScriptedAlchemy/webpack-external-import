@@ -10,6 +10,7 @@ const {
   addInterleaveRequire
 } = require("./requireExtentions");
 const { addWebpackRegister } = require("./beforeStartup");
+const { generateChunkIds } = require("./beforeChunkIds");
 const {
   interleaveStyleConfig,
   interleaveStyleJsConfig,
@@ -107,8 +108,11 @@ class URLImportPlugin {
     // merge my added splitChunks config into the webpack config object passed in
     mergeDeep(options, {
       optimization: {
+        usedExports: true,
+        providedExports: true,
         runtimeChunk: "multiple",
         namedModules: true,
+        namedChunks: true,
         splitChunks: {
           chunks: "all",
           cacheGroups: chunkSplitting
@@ -122,7 +126,7 @@ class URLImportPlugin {
       }
       chunkSplitting[
         key
-      ].automaticNamePrefix = `${this.opts.manifestName}~${chunkSplitting[key].automaticNamePrefix}`;
+      ].automaticNamePrefix = `${this.opts.manifestName}~`;
     });
 
     Object.assign(options.optimization, {
@@ -134,15 +138,12 @@ class URLImportPlugin {
     // forcefully mutate it
     Object.assign(options.optimization.splitChunks, {
       chunks: "all",
-      cacheGroups: chunkSplitting,
-      namedModules: true
+      cacheGroups: chunkSplitting
     });
-
     if (this.opts.debug) {
       console.log(options);
       console.groupEnd();
     }
-
     // eslint-disable-next-line no-unused-vars
     compiler.hooks.thisCompilation.tap("URLImportPlugin", compilation => {
       // TODO: throw warning when changing module ID type
@@ -503,6 +504,15 @@ class URLImportPlugin {
       ]);
       compiler.hooks.compilation.tap("URLImportPlugin", compilation => {
         const { mainTemplate } = compilation;
+        // compilation.hooks.afterOptimizeModules.tap(
+        //   "URLImportPlugin",
+        //   modules => {
+        //     console.log("module optimization", modules);
+        //     modules.map(module => {
+        //       console.log(module.id);
+        //     });
+        //   }
+        // );
         // work in progress to add another webpack__require method to the webpack runtime
         // this new method will allow a interleaved component to be required and automatically download its dependencies
         // it returns a promise so the actual interleaved module is not executed until any missing dependencies are loaded
@@ -564,7 +574,11 @@ class URLImportPlugin {
               }
 
               try {
-                hash.update(fs.readFileSync(resourcePath));
+                let exports = "";
+                if (Array.isArray(module.usedExports)) {
+                  exports = module.usedExports.join(".");
+                }
+                hash.update(fs.readFileSync(resourcePath) + exports);
               } catch (ex) {
                 console.error("failed on", module.context, module.resource);
                 throw ex;
@@ -577,7 +591,7 @@ class URLImportPlugin {
               }
               module.id = hashId.substr(0, len);
               usedIds.add(module.id);
-            } else {
+            } else if (this.opts.debug) {
               console.log("Module with no ID", module);
             }
             const externalModule = hasExternalizedModuleViaJson(
@@ -595,6 +609,9 @@ class URLImportPlugin {
             }
           }
         });
+        compilation.hooks.beforeChunkIds.tap("URLImportPlugin", chunks =>
+          generateChunkIds(chunks, this.opts.manifestName, )
+        );
       });
 
       compiler.hooks.compilation.tap(pluginOptions, ({ hooks }) => {

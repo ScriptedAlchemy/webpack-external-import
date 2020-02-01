@@ -242,6 +242,8 @@ export const addInterleaveExtention = (source, { debug }) => {
               : "",
             // as soon as a missing module is found, get the chunk that contains it from the origin build
             Template.indent("return chunkPromise(chunkName)"),
+            "} else {",
+            Template.indent(["console.log(installedModules);"]),
             "}"
           ]),
           "});",
@@ -332,7 +334,7 @@ export const addInterleaveRequire = (source, requireFn, { debug }) => {
         Template.indent("allPromises.push(interleaveDeferred[key].promise);"),
         "}",
         "",
-        "Promise.all(allPromises).then(finalResolve[0]);"
+        "Promise.all(allPromises).then(finalResolve[0]).then(function(){console.log(installedModules)});"
       ]),
       "})",
       "return finalPromise;"

@@ -1,9 +1,8 @@
 import React, { Component } from "react";
-import {
-  ExternalComponent,
-} from "webpack-external-import";
+import { ExternalComponent } from "webpack-external-import";
 import HelloWorld from "./components/goodbye-world";
 import "react-select";
+import { Form } from "tiny-mobx-form";
 
 class App extends Component {
   constructor(props) {
@@ -13,12 +12,17 @@ class App extends Component {
       manifestLoaded: false,
       loaded: false
     };
+
+    console.log("Tree Shake Form", Form);
   }
 
   componentDidMount() {
+    setTimeout(() => {
+      console.log("Tree Shake Form", Form);
+    }, 3000);
     __webpack_require__
       .interleaved("website-3/TitleComponentWithCSSFile")
-      .then(() => __webpack_require__("TitleComponentWithCSSFile"))
+      .then(() => __webpack_require__("TitleComponentWithCSSFile"));
   }
 
   render() {

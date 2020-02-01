@@ -5,6 +5,7 @@ const ExtractCssChunks = require("extract-css-chunks-webpack-plugin");
 const siteId = 3;
 
 module.exports = configFactory(siteId, {
+  mode: "production",
   module: {
     rules: [
       {
@@ -13,12 +14,8 @@ module.exports = configFactory(siteId, {
       }
     ]
   },
-  plugins: [
-    new ExtractCssChunks(),
-    new webpack.LoaderOptionsPlugin({
-      debug: false
-    })
-  ]
+  plugins: [new ExtractCssChunks({
+    filename: '[name].css',
+    chunkFilename: '[name].css',
+  })]
 });
-
-console.log(module.exports);
