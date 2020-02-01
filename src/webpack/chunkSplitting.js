@@ -1,15 +1,8 @@
-const pkgUp = require("pkg-up").sync();
-
-let packageJson;
-if (pkgUp) {
-  // eslint-disable-next-line import/no-dynamic-require
-  packageJson = require(pkgUp);
-}
-
+import { getInterleaveConfig } from "./utils";
+const interleaveMap = getInterleaveConfig();
 export const hasExternalizedModuleViaJson = moduleResource => {
-  const interleaveMap = packageJson.interleave;
   if (!moduleResource || !interleaveMap) return;
-  const interleaveKeys = Object.keys(packageJson.interleave || {});
+  const interleaveKeys = Object.keys(interleaveMap || {});
 
   if (interleaveKeys) {
     const foundMatch = interleaveKeys.find(item =>
@@ -20,9 +13,8 @@ export const hasExternalizedModuleViaJson = moduleResource => {
 };
 
 export const hasExternalizedModuleViaJson2 = moduleResource => {
-  const interleaveMap = packageJson.interleave;
   if (!moduleResource || !interleaveMap) return;
-  const interleaveKeys = Object.keys(packageJson.interleave || {});
+  const interleaveKeys = Object.keys(interleaveMap || {});
 
   if (interleaveKeys) {
     const foundMatch = interleaveKeys.find(item => {

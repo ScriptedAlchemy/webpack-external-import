@@ -1,3 +1,14 @@
+export const getInterleaveConfig = () => {
+  const pkgUp = require("pkg-up").sync();
+
+  let packageJson;
+  if (pkgUp) {
+    // eslint-disable-next-line import/no-dynamic-require
+    packageJson = require(pkgUp);
+  }
+
+  return packageJson.interleave || null;
+};
 /* eslint-disable no-param-reassign */
 export function mergeDeep(...objects) {
   const isObject = obj => obj && typeof obj === "object";
