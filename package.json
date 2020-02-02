@@ -46,8 +46,8 @@
     "demo:three:debug": "cd manual/Website3; yarn && yarn link \"webpack-external-import\" && yarn manual:debug",
     "demo:three:prod": "cd manual/Website3; yarn && yarn link \"webpack-external-import\" && yarn manual:prod",
     "demo": "yarn && yarn link webpack-external-import && concurrently \"yarn compile\" \"yarn link\" \"yarn demo:one\"  \"yarn demo:two\"  \"yarn demo:three\"",
-    "demo:prod": "yarn && yarn link webpack-external-import && concurrently \"yarn compile\" \"yarn link\" \"yarn demo:one:prod\"  \"yarn demo:two:prod\"  \"yarn demo:three:prod\"",
-    "demo:debug": "yarn && yarn link webpack-external-import && concurrently \"yarn kill-ports\" \"yarn compile\" \"yarn link\" \"yarn demo:one\" \"yarn demo:two\" \"yarn demo:three:debug\"",
+    "demo:prod": "yarn && yarn link webpack-external-import && concurrently \"yarn kill-ports\" \"yarn compile\" \"yarn link\" \"yarn demo:one:prod\"  \"yarn demo:two:prod\" \"yarn demo:three:prod \"",
+    "demo:debug": "yarn && yarn link webpack-external-import && concurrently \"yarn kill-ports\" \"yarn compile\" \"yarn link\" \"yarn demo:one\" \"yarn demo:two:debug\" \"yarn demo:three\"",
     "demo:fast": "yarn compile && yarn link && yarn demo:one:fast | yarn demo:two:fast",
     "babel": "yarn compile && cd manual && yarn babel",
     "prepare": "yarn compile && cd manual && yarn",
@@ -93,6 +93,7 @@
     "jest-resolve": "25.1.0",
     "marked": "0.8.0",
     "node-cipher": "6.3.3",
+    "paralleljs": "^0.2.1",
     "prettier": "1.19.1",
     "prop-types": "15.7.2",
     "puppeteer": "1.20.0",
@@ -127,6 +128,7 @@
     "dimport": "^1.0.0",
     "fs-extra": "^8.1.0",
     "loadjs": "^4.2.0",
+    "mem": "^6.0.1",
     "pkg-up": "^3.1.0"
   },
   "config": {

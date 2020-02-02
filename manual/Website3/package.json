@@ -9,8 +9,7 @@
   "scripts": {
     "manual:prod": "cd ../../ && yarn link && cd manual/Website3 && yarn link webpack-external-import && cross-env NODE_ENV=production node node_modules/webpack-dev-server/bin/webpack-dev-server.js",
     "manual:dev": "cd ../../ && yarn link && cd manual/Website3 && yarn link webpack-external-import && cross-env NODE_ENV=development node node_modules/webpack-dev-server/bin/webpack-dev-server.js",
-    "manual:debug": "cd ../../ && yarn link && cd manual/Website3 && yarn link webpack-external-import && cross-env NODE_ENV=development node --inspect node_modules/webpack-dev-server/bin/webpack-dev-server.js",
-    "babel": "babel src -d babelOutput"
+    "manual:debug": "cd ../../ && yarn link && cd manual/Website3 && yarn link webpack-external-import && cross-env NODE_ENV=development node node_modules/webpack-dev-server/bin/webpack-dev-server.js"
   },
   "interleave": {
     "src/components/Title/index.js": "TitleComponentWithCSSFile",
@@ -27,6 +26,7 @@
     "babel-core": "7.0.0-bridge.0",
     "babel-loader": "8.0.6",
     "eslint-loader": "3.0.3",
+    "extract-css-chunks-webpack-plugin": "4.7.4",
     "react": "16.8.6",
     "react-hot-loader": "4.12.18",
     "webpack": "4.41.5",
@@ -34,8 +34,7 @@
     "webpack-dev-server": "3.10.1",
     "webpack-merge": "4.2.2",
     "webpack-require-performance-plugin": "0.2.1",
-    "write-file-webpack-plugin": "4.5.1",
-    "extract-css-chunks-webpack-plugin": "4.7.4"
+    "write-file-webpack-plugin": "4.5.1"
   },
   "dependencies": {
     "@babel/helper-module-imports": "^7.0.0",
@@ -52,7 +51,7 @@
     "react-select": "3.0.4",
     "regenerator-runtime": "^0.13.2",
     "scriptjs": "^2.5.9",
-    "wrapper-webpack-plugin": "^2.1.0",
-    "webpack-external-import": "*"
+    "webpack-external-import": "*",
+    "wrapper-webpack-plugin": "^2.1.0"
   }
 }

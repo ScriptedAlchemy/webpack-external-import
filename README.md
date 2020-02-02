@@ -319,7 +319,6 @@ module.exports = {
       publicPath: `//localhost:3002/`,
       transformExtensions: /^(gz|map)$/i,
       writeToFileEmit: false,
-      seed: null,
       filter: null,
       debug: true,
       map: null,
@@ -347,7 +346,6 @@ module.exports = {
       debug: true,
       map: null,
       generate: null,
-      sort: null
     })
   ]
 };
@@ -397,18 +395,6 @@ Type: `Function(Object, FileDescriptor): Object`<br>
 Default: `src`
 
 Test resource path to see if plugin should apply transformations
-
-### `options.map`
-
-Type: `Function(FileDescriptor): FileDescriptor`
-
-Modify files details before the manifest is created. [FileDescriptor typings](#filedescriptor)
-
-### `options.sort`
-
-Type: `Function(FileDescriptor): number`
-
-Sort files before they are passed to `generate`. [FileDescriptor typings](#filedescriptor)
 
 ### `options.generate`
 

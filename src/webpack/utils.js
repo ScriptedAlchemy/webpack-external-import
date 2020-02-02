@@ -1,4 +1,6 @@
-export const getInterleaveConfig = () => {
+const mem = require("mem");
+
+export const getInterleaveConfig = mem(() => {
   const pkgUp = require("pkg-up").sync();
 
   let packageJson;
@@ -8,7 +10,8 @@ export const getInterleaveConfig = () => {
   }
 
   return packageJson.interleave || null;
-};
+});
+
 /* eslint-disable no-param-reassign */
 export function mergeDeep(...objects) {
   const isObject = obj => obj && typeof obj === "object";
