@@ -485,3 +485,7 @@ In the root directory, run the following
 
 Open chrome dev tools and you should see the box highlighted below appear, click on it to connect to the webpack debugger
 ![GitHub Logo](/docs/inspect.png)
+
+### Logging
+
+The default compilation removes console log statements via `babel-plugin-transform-remove-console`, which is run when `BABEL_ENV=production` (default). To compile a version with logging enabled, run `yarn compile` directly.
