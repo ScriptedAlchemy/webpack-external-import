@@ -14,8 +14,10 @@ module.exports = configFactory(siteId, {
       }
     ]
   },
-  plugins: [new ExtractCssChunks({
-    filename: '[name].css',
-    chunkFilename: '[name].css',
-  })]
+  plugins: [
+    new ExtractCssChunks({
+      filename: "[name].css",
+      chunkFilename: "[name].css"
+    })
+  ]
 });
