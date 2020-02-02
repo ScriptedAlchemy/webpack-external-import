@@ -9,9 +9,7 @@ const {
   addInterleaveExtention,
   addInterleaveRequire
 } = require("./requireExtentions");
-const { checkChunkDup } = require("./mergeDubplicate");
 const { addWebpackRegister } = require("./beforeStartup");
-const { generateChunkIds } = require("./beforeChunkIds");
 const {
   interleaveStyleConfig,
   interleaveStyleJsConfig,
@@ -493,10 +491,6 @@ class URLImportPlugin {
             }
           }
         });
-        // compilation.hooks.optimizeChunksBasic.tap("URLImportPlugin", checkChunkDup);
-        // compilation.hooks.optimizeChunkIds.tap("URLImportPlugin", chunks =>
-        //   generateChunkIds(chunks, this.opts.manifestName)
-        // );
       });
 
       compiler.hooks.compilation.tap(pluginOptions, ({ hooks }) => {
