@@ -7,7 +7,8 @@
   },
   "author": "Zack Jackson <zack@ScriptedAlchemy.com> (https://github.com/ScriptedAlchemy)",
   "scripts": {
-    "manual:prod": "cross-env NODE_ENV=production node node_modules/webpack-dev-server/bin/webpack-dev-server.js",
+    "serve": "serve --help",
+    "manual:prod": "cross-env NODE_ENV=production webpack && cp serve.json  dist/serve.json && serve dist -l 3001",
     "manual:dev": "cross-env NODE_ENV=development node node_modules/webpack-dev-server/bin/webpack-dev-server.js"
   },
   "devDependencies": {
@@ -44,6 +45,7 @@
     "react-select": "3.0.4",
     "regenerator-runtime": "^0.13.2",
     "scriptjs": "^2.5.9",
+    "serve": "^11.3.0",
     "tiny-mobx-form": "^0.8.3",
     "webpack-external-import": "*",
     "webpack-merge": "^4.2.1"

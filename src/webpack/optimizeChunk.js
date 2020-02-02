@@ -1,5 +1,6 @@
 const ModuleFilenameHelpers = require("webpack/lib/ModuleFilenameHelpers");
 const { ConcatSource } = require("webpack-sources");
+const mem = require("mem");
 
 function wrapFile(compilation, fileName, allModulesNeeded, chunkKeys) {
   // create a stringified array
@@ -22,12 +23,19 @@ function wrapFile(compilation, fileName, allModulesNeeded, chunkKeys) {
   );
 }
 
+const loopFiles = mem(files => {
+  return files.filter(file => {
+    return file.includes(".css");
+  });
+});
+
 // eslint-disable-next-line import/prefer-default-export
 export function wrapChunks(compilation, chunks) {
   // create a maps
   const map = { ignoredChunk: new Set() };
   const orgs = {};
   // loop over each chunk
+  console.time("loop");
   chunks.forEach(chunk => {
     console.log("chunk", chunk);
     // map weak maps and weak sets for better organization & perf
@@ -61,13 +69,7 @@ export function wrapChunks(compilation, chunks) {
       }
       // push each module in a chunk into its array within the map
       if (module.id) map[chunk.id].js.push(`${module.id}`);
-      chunk.files.forEach(file => {
-        if (file.includes(".css")) {
-          // convert these to sets
-          map[chunk.id].css.push(file);
-        }
-      });
-
+      map[chunk.id].css = [...map[chunk.id].css, ...loopFiles(chunk.files)];
       // check the reason a chunk exists, this is an array which returns any and all modules that depend on the current module
       module.reasons.forEach(reason => {
         if (reason.module) {
@@ -76,12 +78,12 @@ export function wrapChunks(compilation, chunks) {
             // add the chunkID of where this module exists
             if (!orgs[reasonChunk.id])
               orgs[reasonChunk.id] = { js: new Set(), css: new Set() };
-            reasonChunk.files.forEach(file => {
-              if (file.includes(".css")) {
-                // convert these to sets
-                orgs[reasonChunk.id].css.add(file);
-              }
-            });
+
+            orgs[reasonChunk.id].css = new Set([
+              ...orgs[reasonChunk.id].css,
+              ...loopFiles(reasonChunk.files)
+            ]);
+
             // console.log("reasonChunk", reasonChunk);
             // orgs[chunk.id].add(`${module.id}-${module.rawRequest}`);
             // add the chunkID that depends on this module
@@ -108,6 +110,7 @@ export function wrapChunks(compilation, chunks) {
       });
     });
   });
+  console.timeEnd("loop");
   console.log("internal map", map);
   console.log("internal org", orgs);
   // to ensure the chunk maps are complete, i run another loop over the chunks - the previous loop creates a complete map
@@ -146,5 +149,4 @@ export function wrapChunks(compilation, chunks) {
       }
     }
   });
-  // console.log(this.moduleHashMap);
 }

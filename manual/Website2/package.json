@@ -7,7 +7,7 @@
   },
   "author": "Zack Jackson <zack@ScriptedAlchemy.com> (https://github.com/ScriptedAlchemy)",
   "scripts": {
-    "manual:prod": "cd ../../ && yarn link  && cd manual/Website2 && yarn link  webpack-external-import && cross-env NODE_ENV=production node --inspect node_modules/webpack-dev-server/bin/webpack-dev-server.js",
+    "manual:prod": "cd ../../ && yarn link  && cd manual/Website2 && yarn link  webpack-external-import && cross-env NODE_ENV=production webpack && cp serve.json dist/serve.json && serve dist -l 3002",
     "manual:dev": "cd ../../ && yarn link  && cd manual/Website2 && yarn link  webpack-external-import && cross-env NODE_ENV=development node  node_modules/webpack-dev-server/bin/webpack-dev-server.js",
     "manual:debug": "cd ../../ && yarn link  && cd manual/Website2 && yarn link  webpack-external-import && cross-env NODE_ENV=development node --inspect node_modules/webpack-dev-server/bin/webpack-dev-server.js"
   },
@@ -27,6 +27,7 @@
     "eslint-loader": "3.0.3",
     "react": "16.8.6",
     "react-hot-loader": "4.12.18",
+    "serve": "^11.3.0",
     "webpack": "4.41.5",
     "webpack-cli": "3.3.10",
     "webpack-dev-server": "3.10.1",
