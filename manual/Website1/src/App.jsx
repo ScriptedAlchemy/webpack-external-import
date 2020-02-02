@@ -38,13 +38,13 @@ class App extends Component {
           title="Some Heading"
         />
 
-        {/*<ExternalComponent*/}
-        {/*  interleave={__webpack_require__*/}
-        {/*    .interleaved("website-3/TitleComponentWithCSSFile")*/}
-        {/*    .then(() => __webpack_require__("TitleComponentWithCSSFile"))}*/}
-        {/*  export="Title"*/}
-        {/*  title="Title Component With CSS File Import"*/}
-        {/*/>*/}
+        <ExternalComponent
+          interleave={__webpack_require__
+            .interleaved("website-3/TitleComponentWithCSSFile")
+            .then(() => __webpack_require__("TitleComponentWithCSSFile"))}
+          export="Title"
+          title="Title Component With CSS File Import"
+        />
       </div>
     );
   }
