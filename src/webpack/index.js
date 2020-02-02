@@ -7,7 +7,8 @@ const { mergeDeep } = require("./utils");
 
 const {
   addInterleaveExtention,
-  addInterleaveRequire
+  addInterleaveRequire,
+  addInterleaveNested
 } = require("./requireExtentions");
 const { addWebpackRegister } = require("./beforeStartup");
 const {
@@ -94,7 +95,7 @@ class URLImportPlugin {
       name: `${this.opts.manifestName}-vendors`,
       test: /[\\\/]node_modules[\\\/]/,
       priority: -10,
-      enforce: true,
+      enforce: true
     };
     Object.assign(options.optimization || {}, {
       mergeDuplicateChunks: true,
@@ -390,17 +391,24 @@ class URLImportPlugin {
       ]);
       compiler.hooks.compilation.tap("URLImportPlugin", compilation => {
         const { mainTemplate } = compilation;
-
+        console.log(__dirname);
+        const contents = fs.readFileSync(
+          path.join(__dirname, "whole.js"),
+          "utf8"
+        );
         // Add another webpack__require method to the webpack runtime
         // this new method will allow a interleaved component to be required and automatically download its dependencies
         // it returns a promise so the actual interleaved module is not executed until any missing dependencies are loaded
         mainTemplate.hooks.requireExtensions.tap("URLImportPlugin", source => {
-          return [addInterleaveExtention, addInterleaveRequire].reduce(
-            (sourceCode, extension) => {
-              return extension(sourceCode, mainTemplate.requireFn, this.opts);
-            },
-            source
-          );
+          // const string = [
+          //   addInterleaveExtention,
+          //   addInterleaveNested,
+          //   addInterleaveRequire
+          // ].reduce((sourceCode, extension) => {
+          //   return extension(sourceCode, mainTemplate.requireFn, this.opts);
+          // }, "");
+          // console.log(string);
+          return [source, contents].join("\n");
         });
         // TODO add an option for this
         if (this.afterOptimizations) {
