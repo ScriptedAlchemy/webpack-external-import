@@ -9,7 +9,7 @@ const {
   addInterleaveExtention,
   addInterleaveRequire
 } = require("./requireExtentions");
-const {checkChunkDup} = require('./mergeDubplicate')
+const { checkChunkDup } = require("./mergeDubplicate");
 const { addWebpackRegister } = require("./beforeStartup");
 const { generateChunkIds } = require("./beforeChunkIds");
 const {
@@ -92,6 +92,12 @@ class URLImportPlugin {
     chunkSplitting.style = interleaveStyleConfig(this.opts);
     // interleaveConfig figures out if a file meets the paramaters for interleaving
     chunkSplitting.interleave = interleaveConfig(this.opts);
+    chunkSplitting.vendors = {
+      name: `${this.opts.manifestName}-vendors`,
+      test: /[\\\/]node_modules[\\\/]/,
+      priority: -10,
+      enforce: true
+    };
     // dont rename exports when hoisting and tree shaking
     Object.assign(options.optimization, {
       providedExports: false
@@ -107,12 +113,23 @@ class URLImportPlugin {
     // merge my added splitChunks config into the webpack config object passed in
     mergeDeep(options, {
       optimization: {
-        mergeDuplicateChunks: false,
-        usedExports: true,
-        providedExports: true,
-        runtimeChunk: "multiple",
-        namedModules: true,
-        namedChunks: true,
+        // runtimeChunk: "multiple",
+        // namedModules: true,
+        // namedChunks: true,
+        // removeEmptyChunks: false,
+        // mergeDuplicateChunks: false,
+        // usedExports: true,
+        // providedExports: true,
+        // removeAvailableModules: false,
+        // flagIncludedChunks: false,
+        // occurrenceOrder: false,
+        // sideEffects: false,
+        // concatenateModules: false,
+        // noEmitOnErrors: false,
+        // checkWasmTypes: false,
+        // mangleWasmImports: false,
+        // hashedModuleIds: false,
+        // portableRecords: false,
         splitChunks: {
           chunks: "all",
           cacheGroups: chunkSplitting
@@ -412,6 +429,13 @@ class URLImportPlugin {
         // into webpack runtime, because the function is in webpack runtime, i have access to all of webpacks internals
         mainTemplate.hooks.beforeStartup.tap("URLImportPlugin", source => {
           return addWebpackRegister(source, options.output.jsonpFunction);
+        });
+
+        mainTemplate.hooks.require.tap("URLImportPlugin", source => {
+          return source.replace(
+            "// Execute the module function",
+            'console.log("attempting to load module:", moduleId);'
+          );
         });
 
         // add variables to webpack runtime which are available throughout all functions and closures within the runtime

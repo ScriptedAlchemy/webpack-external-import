@@ -243,7 +243,7 @@ export const addInterleaveExtention = (source, { debug }) => {
             // as soon as a missing module is found, get the chunk that contains it from the origin build
             Template.indent("return chunkPromise(chunkName)"),
             "} else {",
-            Template.indent(["console.log(installedModules);"]),
+            // Template.indent(["console.log(installedModules);"]),
             "}"
           ]),
           "});",

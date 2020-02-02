@@ -33,7 +33,6 @@ export function interleaveConfig({ testPath, manifestName }) {
       );
 
       if (foundValue) return foundValue;
-      return false;
     },
     // force module into a chunk regardless of how its used
     enforce: true
@@ -71,7 +70,6 @@ export function interleaveStyleConfig({ manifestName }) {
     // force module into a chunk regardless of how its used
     chunks: "all",
     enforce: true,
-    minChunks: 1,
     reuseExistingChunk: false
   };
 }
@@ -80,7 +78,7 @@ export function interleaveStyleJsConfig({ manifestName }) {
     test(module) {
       if (
         module.request &&
-        module.request.match(/\.(style-loader|css-loader|sass-loader)$/)
+        module.request.match(/\\(style-loader|css-loader|sass-loader)$/)
       ) {
         return true;
       }

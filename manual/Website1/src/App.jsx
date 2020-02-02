@@ -16,14 +16,14 @@ class App extends Component {
     console.log("Tree Shake Form", Form);
   }
 
-  // componentDidMount() {
-  //   setTimeout(() => {
-  //     console.log("Tree Shake Form", Form);
-  //   }, 3000);
-  //   __webpack_require__
-  //     .interleaved("website-3/TitleComponentWithCSSFile")
-  //     .then(() => __webpack_require__("TitleComponentWithCSSFile"));
-  // }
+  componentDidMount() {
+    setTimeout(() => {
+      console.log("Tree Shake Form", Form);
+    }, 3000);
+    __webpack_require__
+      .interleaved("website-3/TitleComponentWithCSSFile")
+      .then(() => __webpack_require__("TitleComponentWithCSSFile"));
+  }
 
   render() {
     return (
