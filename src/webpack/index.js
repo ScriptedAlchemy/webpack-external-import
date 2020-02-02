@@ -56,7 +56,7 @@ class URLImportPlugin {
       filter: null,
       generate: null,
       hashDigest: "base64",
-      hashDigestLength: 10,
+      hashDigestLength: 5,
       context: null,
       hashFunction: "md4",
       serialize: manifest =>
@@ -94,12 +94,16 @@ class URLImportPlugin {
       name: `${this.opts.manifestName}-vendors`,
       test: /[\\\/]node_modules[\\\/]/,
       priority: -10,
-      enforce: true
+      enforce: true,
     };
-    // dont rename exports when hoisting and tree shaking
-    Object.assign(options.optimization, {
+    Object.assign(options.optimization || {}, {
+      mergeDuplicateChunks: true,
+      namedChunks: true,
+
+      // dont rename exports when hoisting and tree shaking
       providedExports: false
     });
+
     // likely will be refactored or removed, used for entryManifest.js to map chunks (this is V1 where its outside the runtime still)
     this.moduleHashMap = {};
     if (this.opts.debug) {
@@ -177,7 +181,6 @@ class URLImportPlugin {
     });
 
     const moduleAssets = {};
-    const externalModules = {};
     const outputFolder = compiler.options.output.path;
     const outputFile = path.resolve(outputFolder, this.opts.fileName);
     const outputName = path.relative(outputFolder, outputFile);
@@ -427,13 +430,6 @@ class URLImportPlugin {
         // into webpack runtime, because the function is in webpack runtime, i have access to all of webpacks internals
         mainTemplate.hooks.beforeStartup.tap("URLImportPlugin", source => {
           return addWebpackRegister(source, options.output.jsonpFunction);
-        });
-
-        mainTemplate.hooks.require.tap("URLImportPlugin", source => {
-          return source.replace(
-            "// Execute the module function",
-            'console.log("attempting to load module:", moduleId);'
-          );
         });
 
         // add variables to webpack runtime which are available throughout all functions and closures within the runtime
