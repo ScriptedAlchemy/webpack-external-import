@@ -1,3 +1,4 @@
+// leaving here for now
 export const checkChunkDup = chunks => {
   // remember already tested chunks for performance
   const notDuplicates = new Set();
@@ -40,10 +41,7 @@ export const checkChunkDup = chunks => {
     }
 
     // when we found duplicates
-    if (
-      possibleDuplicates !== undefined &&
-      possibleDuplicates.size > 0
-    ) {
+    if (possibleDuplicates !== undefined && possibleDuplicates.size > 0) {
       for (const otherChunk of possibleDuplicates) {
         if (otherChunk.hasRuntime() !== chunk.hasRuntime()) continue;
         // merge them
@@ -56,4 +54,4 @@ export const checkChunkDup = chunks => {
     // don't check already processed chunks twice
     notDuplicates.add(chunk);
   }
-}
+};
