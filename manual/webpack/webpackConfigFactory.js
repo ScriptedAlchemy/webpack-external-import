@@ -40,7 +40,7 @@ module.exports = (siteId, options) => {
           writeToFileEmit: false,
           seed: null,
           filter: null,
-          debug: true,
+          debug: false,
           map: null,
           generate: null,
           sort: null
