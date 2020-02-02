@@ -9,7 +9,7 @@ const {
   addInterleaveExtention,
   addInterleaveRequire
 } = require("./requireExtentions");
-const { checkChunkDup } = require("./mergeDubplicate");
+const {checkChunkDup} = require('./mergeDubplicate')
 const { addWebpackRegister } = require("./beforeStartup");
 const { generateChunkIds } = require("./beforeChunkIds");
 const {
@@ -107,7 +107,6 @@ class URLImportPlugin {
     // merge my added splitChunks config into the webpack config object passed in
     mergeDeep(options, {
       optimization: {
-        removeEmptyChunks: false,
         mergeDuplicateChunks: false,
         usedExports: true,
         providedExports: true,
@@ -119,6 +118,13 @@ class URLImportPlugin {
           cacheGroups: chunkSplitting
         }
       }
+    });
+
+    Object.keys(chunkSplitting).forEach(key => {
+      if (key === "interleave") {
+        return;
+      }
+      chunkSplitting[key].automaticNamePrefix = `${this.opts.manifestName}~`;
     });
 
     Object.assign(options.optimization, {
@@ -464,9 +470,9 @@ class URLImportPlugin {
           }
         });
         // compilation.hooks.optimizeChunksBasic.tap("URLImportPlugin", checkChunkDup);
-          compilation.hooks.optimizeChunkIds.tap("URLImportPlugin", chunks =>
-            generateChunkIds(chunks, this.opts.manifestName)
-          );
+        // compilation.hooks.optimizeChunkIds.tap("URLImportPlugin", chunks =>
+        //   generateChunkIds(chunks, this.opts.manifestName)
+        // );
       });
 
       compiler.hooks.compilation.tap(pluginOptions, ({ hooks }) => {
