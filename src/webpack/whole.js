@@ -130,7 +130,9 @@ function nestedInterleave(nestedModules) {
 
             installedChunks[chunkId] = undefined;
           }
-
+          interleaveDeferred[chunkId].resolver[0](
+            interleaveDeferred
+          );
           nestedChunkPromiseResolve[0]();
         };
 
@@ -324,6 +326,9 @@ __webpack_require__.interleaved = function(moduleIdWithNamespace, isNested) {
         []);
         console.log("nestedInterleave(additionalChunksPromise))",nestedInterleave(additionalChunksPromise));
         nestedResolve[0](nestedInterleave(additionalChunksPromise));
+        interleaveDeferred[chunkId].resolver[0](
+          interleaveDeferred
+        );
       };
 
       var timeout = setTimeout(function() {
