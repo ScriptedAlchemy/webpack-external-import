@@ -63,10 +63,10 @@ export const scriptLoaderTemplate = debug =>
             "chunk[1](error);"
           ]),
           "}",
-          "installedChunks[chunkId] = undefined;",
-          "nestedChunkPromiseResolve[0]();"
+          "installedChunks[chunkId] = undefined;"
         ]),
-        "}"
+        "}",
+        "nestedChunkPromiseResolve[0]();"
 
         // "additionalChunksPromise = additionalChunksRequired.reduce(function(additionalPromises, extraChunk) {",
         // Template.indent([
