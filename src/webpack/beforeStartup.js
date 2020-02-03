@@ -14,18 +14,18 @@ export function addWebpackRegister(source) {
         ])
       ),
       "jsonpArray.push = function(data) {",
+      Template.indent("webpackJsonpCallback(data);"),
       Template.indent([
         "data[0].forEach(function(chunkId) {",
         Template.indent([
           "if (interleaveDeferred[chunkId]) {",
           Template.indent(
-            "interleaveDeferred[chunkId].resolver[0](interleaveDeferred);"
+            "interleaveDeferred[chunkId].resolver[0]();"
           ),
           "}"
         ]),
         "});"
       ]),
-      Template.indent("webpackJsonpCallback(data);"),
       "};",
       "webpackRegister.push = registerLocals;",
       splitSource[1]

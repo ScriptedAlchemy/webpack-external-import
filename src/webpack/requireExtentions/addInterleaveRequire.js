@@ -69,7 +69,8 @@ export const addInterleaveRequire = (source, requireFn, { debug }) => {
         // Template.indent("allPromises.push(interleaveDeferred[key].promise);"),
         // "}",
         "",
-        "Promise.all(allPromises).then(nestedPromise).then(finalResolve[0]).then(function(){",
+        "Promise.all(nestedPromise).then(allPromises).then(finalResolve[0]).then(function(){",
+        "console.log('about to resolve);",
         "});"
       ]),
       "})",
