@@ -400,15 +400,15 @@ class URLImportPlugin {
         // this new method will allow a interleaved component to be required and automatically download its dependencies
         // it returns a promise so the actual interleaved module is not executed until any missing dependencies are loaded
         mainTemplate.hooks.requireExtensions.tap("URLImportPlugin", source => {
-          // const string = [
-          //   addInterleaveExtention,
-          //   addInterleaveNested,
-          //   addInterleaveRequire
-          // ].reduce((sourceCode, extension) => {
-          //   return extension(sourceCode, mainTemplate.requireFn, this.opts);
-          // }, "");
+          return [
+            addInterleaveExtention,
+            addInterleaveNested,
+            addInterleaveRequire
+          ].reduce((sourceCode, extension) => {
+            return extension(sourceCode, mainTemplate.requireFn, this.opts);
+          }, source);
           // console.log(string);
-          return [source, contents].join("\n");
+          // return [source, contents].join("\n");
         });
         // TODO add an option for this
         if (this.afterOptimizations) {

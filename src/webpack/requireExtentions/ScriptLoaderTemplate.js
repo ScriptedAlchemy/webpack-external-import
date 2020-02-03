@@ -1,5 +1,6 @@
 const Template = require("webpack/lib/Template");
 const { detachedPromise, chunkPromise } = require("./utils");
+
 export const scriptLoaderTemplate = debug =>
   Template.asString([
     '// a Promise means "currently loading".',
@@ -79,9 +80,8 @@ export const scriptLoaderTemplate = debug =>
           "return additionalPromises"
         ]),
         "}, [])",
-        'console.log("nestedResolver",nestedResolver)',
-        "nestedInterleave(additionalChunksPromise)",
-        "console.log('nestedPromise',nestedPromise)"
+        "console.log('nestedResolve[0](nestedInterleave(additionalChunksPromise)', nestedResolve[0](nestedInterleave(additionalChunksPromise)))",
+        "nestedResolve[0](nestedInterleave(additionalChunksPromise));"
       ]),
       "};",
       "",
