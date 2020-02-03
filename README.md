@@ -47,7 +47,14 @@ npm install webpack-external-import --save
 ```sh
 yarn add webpack-external-import
 ```
+### Version 2.0!
+Major rewrite which has taken the original concept and built it directly into webpack runtime. 
+If you want to read me about what this tool does. 
 
+
+Read the following:
+- https://link.medium.com/L5zHiwylI3
+- working on more use cases and writing about V2
 ## Getting Started
 
 1.  Add `webpack-external-import/webpack` to your webpack plugins:
