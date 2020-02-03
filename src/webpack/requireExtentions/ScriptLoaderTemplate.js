@@ -69,7 +69,7 @@ export const scriptLoaderTemplate = debug =>
         "additionalChunksPromise = additionalChunksRequired.reduce(function(additionalPromises, extraChunk) {",
         Template.indent([
           Template.indent(
-            "additionalChunksRequired = additionalChunksRequired.filter(function(i){return i !== extraChunk});"
+            // "additionalChunksRequired = additionalChunksRequired.filter(function(i){return i !== extraChunk});"
           ),
           "if(extraChunk instanceof Promise) return additionalPromises;",
           // "nestedInterleave(namespace + '/' + extraChunk);",
@@ -80,8 +80,7 @@ export const scriptLoaderTemplate = debug =>
           "return additionalPromises"
         ]),
         "}, [])",
-        "console.log('nestedResolve[0](nestedInterleave(additionalChunksPromise)', nestedResolve[0](nestedInterleave(additionalChunksPromise)))",
-        "nestedResolve[0](nestedInterleave(additionalChunksPromise));"
+        "nestedInterleave(additionalChunksPromise).then(setTimeout(()=>{nestedResolve[0]()},1000))",
       ]),
       "};",
       "",
