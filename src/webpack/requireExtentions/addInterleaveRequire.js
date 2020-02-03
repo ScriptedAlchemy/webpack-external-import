@@ -22,6 +22,8 @@ export const addInterleaveRequire = (source, requireFn, { debug }) => {
       : "",
     Template.indent([
       "",
+      "let nestedResolve;",
+      detachedPromise("nestedPromise", "nestedResolve"),
       'var chunkId = moduleIdWithNamespace.substring(moduleIdWithNamespace.indexOf("/") + 1)',
       'var namespace = moduleIdWithNamespace.split("/")[0]',
       "var namespaceObj = window.entryManifest[namespace]",
@@ -56,6 +58,7 @@ export const addInterleaveRequire = (source, requireFn, { debug }) => {
       "if(interleavedCssChunks[chunkId] !== 0 && isCSS) { // 0 means 'already installed'",
       Template.indent(CssRequireTemplate),
       "}",
+      "console.log('ALL TESTED RESOLVED')",
       "allChunksRegistered.then(function () {",
       Template.indent([
         // "var allPromises = [];",
@@ -66,7 +69,7 @@ export const addInterleaveRequire = (source, requireFn, { debug }) => {
         // Template.indent("allPromises.push(interleaveDeferred[key].promise);"),
         // "}",
         "",
-        "Promise.all(allPromises).then(finalResolve[0]).then(function(){",
+        "Promise.all(allPromises).then(nestedPromise).then(finalResolve[0]).then(function(){",
         "});"
       ]),
       "})",

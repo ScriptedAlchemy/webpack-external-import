@@ -63,9 +63,10 @@ export const scriptLoaderTemplate = debug =>
             "chunk[1](error);"
           ]),
           "}",
-          "installedChunks[chunkId] = undefined;"
+          "installedChunks[chunkId] = undefined;",
+          "nestedChunkPromiseResolve[0]();"
         ]),
-        "}",
+        "}"
 
         // "additionalChunksPromise = additionalChunksRequired.reduce(function(additionalPromises, extraChunk) {",
         // Template.indent([
@@ -116,8 +117,10 @@ export const addInterleaveNested = (source, requireFn, { debug }) => {
 
     debug ? `console.group("Nested Modules Needed:",  nestedModules );` : "",
     Template.indent([
-      "nestedModules.map(function(moduleIdWithNamespace){",
+      "const allNested = nestedModules.map(function(moduleIdWithNamespace){",
       Template.indent([
+        "var nestedChunkPromiseResolve;",
+        detachedPromise("nestedChunkPromise", "nestedChunkPromiseResolve"),
         'var chunkId = moduleIdWithNamespace.substring(moduleIdWithNamespace.indexOf("/") + 1)',
         'var namespace = moduleIdWithNamespace.split("/")[0]',
         "var namespaceObj = window.entryManifest[namespace]",
@@ -155,22 +158,22 @@ export const addInterleaveNested = (source, requireFn, { debug }) => {
       "}",
       // end of loop
       "});",
-
-      "allChunksRegistered.then(function () {",
-      Template.indent([
-        // "var allPromises = [];",
-        "var allPromises = Object.keys(interleaveDeferred).map(function(key) {",
-        "return interleaveDeferred[key].promise",
-        "})",
-        // "for (var key of Object.keys(interleaveDeferred)) {",
-        // Template.indent("allPromises.push(interleaveDeferred[key].promise);"),
-        // "}",
-        "",
-        "Promise.all(allPromises).then(finalResolve[0]).then(function(){",
-        "});"
-      ]),
-      "})",
-      "return finalPromise;"
+      "return Promise.all(allNested);"
+      // "allChunksRegistered.then(function () {",
+      // Template.indent([
+      //   // "var allPromises = [];",
+      //   "var allPromises = Object.keys(interleaveDeferred).map(function(key) {",
+      //   "return interleaveDeferred[key].promise",
+      //   "})",
+      //   // "for (var key of Object.keys(interleaveDeferred)) {",
+      //   // Template.indent("allPromises.push(interleaveDeferred[key].promise);"),
+      //   // "}",
+      //   "",
+      //   "Promise.all(allPromises).then(finalResolve[0]).then(function(){",
+      //   "});"
+      // ]),
+      // "})",
+      // "return finalPromise;"
     ]),
     debug ? "console.endGroup();" : "",
     "}"

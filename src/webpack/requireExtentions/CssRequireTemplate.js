@@ -30,7 +30,13 @@ export const CssRequireTemplate = Template.asString([
       'var linkTag = document.createElement("link");',
       'linkTag.rel = "stylesheet";',
       'linkTag.type = "text/css";',
-      "linkTag.onload = function(){interleaveDeferred[chunkId].resolver[0](interleaveDeferred)}",
+      "linkTag.onload = function(){",
+      Template.indent([
+        "interleaveDeferred[chunkId].resolver[0](interleaveDeferred);",
+        // for resolving nexsted deps
+        "nestedChunkPromiseResolve && nestedChunkPromiseResolve[0]();"
+      ]),
+      "}",
       "linkTag.onerror = function(event) {",
       Template.indent([
         "var request = event && event.target && event.target.src || fullhref;",
