@@ -274,7 +274,7 @@ export const addInterleaveRequire = (source, requireFn, { debug }) => {
   return Template.asString([
     source,
     "",
-    Template.getFunctionContent(require("./interleaveFn"))
+    Template.getFunctionContent(require("./interleaveFn").requireInterleaveExtension)
   ]);
   const webpackInterleaved = Template.asString([
     // source,
