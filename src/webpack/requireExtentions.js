@@ -12,7 +12,6 @@ const chunkPromise = Template.asString([
   Template.indent([
     "var resolver;",
     detachedPromise("promise", "resolver"),
-    "additionalChunksRequired.push(chunkName);",
     // never overwrite existing promises
     "if(!interleaveDeferred[chunkName])interleaveDeferred[chunkName] = {promise:promise, resolver:resolver};",
     "return true"
@@ -145,24 +144,18 @@ const scriptLoaderTemplate = debug =>
         ]),
         "}",
 
-        "console.log('additionalChunksRequired',additionalChunksRequired
-
-        "additionalChunksPromise = additionalChunksRequired.reduce(function(additionalPromises, extraChunk) {",
+        "var additionalChunksPromise = additionalChunksRequired.reduce(function(additionalPromises, extraChunk) {",
         Template.indent([
           Template.indent(
             "additionalChunksRequired = additionalChunksRequired.filter(function(i){return i !== extraChunk});"
           ),
           "if(extraChunk instanceof Promise) return additionalPromises;",
-          // "nestedInterleave(namespace + '/' + extraChunk);",
           Template.indent(
-            "additionalChunksRequired.push(__webpack_require__['interleaved'](namespace + '/' + extraChunk, true));"
+            "additionalPromises.push(__webpack_require__['interleaved'](namespace + '/' + extraChunk, true));"
           ),
-          "additionalPromises.push(namespace + '/' + extraChunk)",
           "return additionalPromises"
         ]),
-        "}, [])",
-        "console.log('additionalChunksPromise',additionalChunksPromise);",
-        "nestedInterleave(additionalChunksPromise)"
+        "}, [])"
       ]),
       "};",
       "",
@@ -193,9 +186,9 @@ export const addInterleaveExtention = (source, { debug }) => {
     // has access to any and all functions and variables within the webpack bootstrap
     "// webpack chunk self registration",
     // TODO: use the interleave map added via localVars already within the runtime
-    "var additionalChunksRequired = [];",
-    "var additionalChunksPromise;",
+
     "var interleaveDeferred = {};",
+    "var interleaveDeferredCopy = {};",
     "var registeredResolver;",
     detachedPromise("allChunksRegistered", "registeredResolver"),
     // this is called whenever registerLocals window.webpackRegister.push is executed
@@ -249,8 +242,6 @@ export const addInterleaveExtention = (source, { debug }) => {
               : "",
             // as soon as a missing module is found, get the chunk that contains it from the origin build
             Template.indent("return chunkPromise(chunkName)"),
-            "} else {",
-            // Template.indent(["console.log(installedModules);"]),
             "}"
           ]),
           "});",
@@ -279,21 +270,29 @@ export const addInterleaveExtention = (source, { debug }) => {
 };
 
 // setting up async require capabilities
-export const addInterleaveNested = (source, requireFn, { debug }) => {
-  const webpackInterleaved = Template.asString([
+export const addInterleaveRequire = (source, requireFn, { debug }) => {
+  return Template.asString([
     source,
     "",
-    // "var interleavePromises = [];",
-    // "var finalResolve;",
-    // "var finalPromise;",
-    // detachedPromise("finalPromise", "finalResolve"),
-    //
-    // "var initialRequestMap = {}",
-    // "// registerLocals chunk loading for javascript",
+    Template.getFunctionContent(require("./interleaveFn"))
+  ]);
+  const webpackInterleaved = Template.asString([
+    // source,
+    "",
+    "var interleavePromises = [];",
+    "var finalResolve;",
+    "var finalPromise;",
+    detachedPromise("finalPromise", "finalResolve"),
 
-    `function nestedInterleave(moduleIdWithNamespace) {`,
+    "var initialRequestMap = {}",
+    "// registerLocals chunk loading for javascript",
+
+    `${requireFn}.interleaved = function(moduleIdWithNamespace, isNested) {`,
     debug
-      ? `console.group("Nested:", "addInterleaveNested(" + moduleIdWithNamespace + ")");`
+      ? `if(!isNested) console.group("Main:", "${requireFn}.interleaved(moduleIdWithNamespace)");`
+      : "",
+    debug
+      ? `if(isNested) console.group("Nested:", "${requireFn}.interleaved(" + moduleIdWithNamespace + ")");`
       : "",
     Template.indent([
       'var chunkId = moduleIdWithNamespace.substring(moduleIdWithNamespace.indexOf("/") + 1)',
@@ -333,16 +332,12 @@ export const addInterleaveNested = (source, requireFn, { debug }) => {
       "}",
       "allChunksRegistered.then(function () {",
       Template.indent([
-        // "var allPromises = [];",
-        "var allPromises = Object.keys(interleaveDeferred).map(function(key) {",
-        "return interleaveDeferred[key].promise",
-        "})",
-        // "for (var key of Object.keys(interleaveDeferred)) {",
-        // Template.indent("allPromises.push(interleaveDeferred[key].promise);"),
-        // "}",
+        "var allPromises = [];",
+        "for (var key of Object.keys(interleaveDeferred)) {",
+        Template.indent("allPromises.push(interleaveDeferred[key].promise);"),
+        "}",
         "",
-        "Promise.all(allPromises).then(finalResolve[0]).then(function(){",
-        "});"
+        "Promise.all(allPromises).then(finalResolve[0]);"
       ]),
       "})",
       "return finalPromise;"
@@ -351,76 +346,6 @@ export const addInterleaveNested = (source, requireFn, { debug }) => {
     debug ? "if(!isNested) console.endGroup();" : "",
     "}"
   ]);
-  return webpackInterleaved;
-};
-export const addInterleaveRequire = (source, requireFn, { debug }) => {
-  const webpackInterleaved = Template.asString([
-    source,
-    "",
-    "var interleavePromises = [];",
-    "var finalResolve;",
-    "var finalPromise;",
-    detachedPromise("finalPromise", "finalResolve"),
-
-    "var initialRequestMap = {}",
-    "// registerLocals chunk loading for javascript",
-
-    `${requireFn}.interleaved = function(moduleIdWithNamespace, isNested) {`,
-    debug
-      ? `console.group("Main:", "${requireFn}.interleaved(moduleIdWithNamespace)");`
-      : "",
-    Template.indent([
-      'var chunkId = moduleIdWithNamespace.substring(moduleIdWithNamespace.indexOf("/") + 1)',
-      'var namespace = moduleIdWithNamespace.split("/")[0]',
-      "var namespaceObj = window.entryManifest[namespace]",
-      "var foundChunk = namespaceObj[chunkId] || namespaceObj[chunkId + '.js'];",
-      debug
-        ? Template.asString([
-            "console.log({",
-            Template.indent([
-              "chunkId:chunkId,",
-              "namespace:namespace,",
-              "namespaceObj:namespaceObj,",
-              "foundChunk:foundChunk,"
-            ]),
-            "});"
-          ])
-        : "",
-      "if (!foundChunk) {",
-      Template.indent([
-        'finalResolve[1]("webpack-external-import: unable to find " + chunkId);',
-        "return finalPromise"
-      ]),
-      "}",
-      // TODO: improve how css files are determined
-      "var isCSS = chunkId.indexOf('.css') !== -1;",
-      Template.indent("initialRequestMap[moduleIdWithNamespace] = chunkId;"),
-
-      "var installedChunkData = installedChunks[chunkId];",
-      "if (installedChunkData !== 0 && !isCSS) { // 0 means 'already installed'.",
-      Template.indent(scriptLoaderTemplate(debug)),
-      "}",
-      "if(interleavedCssChunks[chunkId] !== 0 && isCSS) { // 0 means 'already installed'",
-      Template.indent(CssRequireTemplate),
-      "}",
-      "allChunksRegistered.then(function () {",
-      Template.indent([
-        // "var allPromises = [];",
-        "var allPromises = Object.keys(interleaveDeferred).map(function(key) {",
-        "return interleaveDeferred[key].promise",
-        "})",
-        // "for (var key of Object.keys(interleaveDeferred)) {",
-        // Template.indent("allPromises.push(interleaveDeferred[key].promise);"),
-        // "}",
-        "",
-        "Promise.all(allPromises).then(finalResolve[0]).then(function(){",
-        "});"
-      ]),
-      "})",
-      "return finalPromise;"
-    ]),
-    debug ? "console.endGroup();" : "",
-    "}"
-  ]);
+  console.log(webpackInterleaved);
   return webpackInterleaved;
 };
