@@ -188,15 +188,7 @@ module.exports = function() {
         });
       }
     }
-    allChunksRegistered.then(function() {
-      const allPromises = [];
-      for (const key of Object.keys(interleaveDeferred)) {
-        allPromises.push(interleaveDeferred[key].promise);
-      }
-      console.log(interleaveDeferredCopy);
-      // finalResolve[0]
-      Promise.all(allPromises);
-    });
+
     return finalPromise;
     if (isNested) console.endGroup();
     if (!isNested) console.endGroup();
