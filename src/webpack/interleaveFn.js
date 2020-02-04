@@ -105,7 +105,7 @@ module.exports = function() {
 
           const interleaveDeferredKeys = Object.keys(interleaveDeferred);
           console.log("interleaveDeferredKeys", interleaveDeferredKeys);
-          interleaveDeferredCopy[chunkId] =  interleaveDeferred[chunkId]
+          interleaveDeferredCopy[chunkId] = interleaveDeferred[chunkId];
           delete interleaveDeferred[chunkId];
           const chunksToInstall = interleaveDeferredKeys.filter(function(item) {
             return installedChunks[item] === undefined;
@@ -136,58 +136,56 @@ module.exports = function() {
 
       // Interleaved CSS loading
       if (installedChunks[chunkId] !== 0) {
+        installedChunks[chunkId] = new Promise(function(resolve, reject) {
+          const fullhref = foundChunk.path;
+          const existingLinkTags = document.getElementsByTagName("link");
+          for (var i = 0; i < existingLinkTags.length; i++) {
+            var tag = existingLinkTags[i];
+            var dataHref =
+              tag.getAttribute("data-href") || tag.getAttribute("href");
+            if (tag.rel === "stylesheet" && dataHref === fullhref)
+              return resolve();
+          }
+          const existingStyleTags = document.getElementsByTagName("style");
+          for (var i = 0; i < existingStyleTags.length; i++) {
+            var tag = existingStyleTags[i];
+            var dataHref = tag.getAttribute("data-href");
+            if (dataHref === fullhref)
+              interleaveDeferred[chunkId].resolver[0]();
+            interleaveDeferredCopy[chunkId] = interleaveDeferred[chunkId];
+            delete interleaveDeferred[chunkId];
+            finalResolve[0]();
+            return;
+          }
+          const linkTag = document.createElement("link");
+          linkTag.rel = "stylesheet";
+          linkTag.type = "text/css";
+          linkTag.onload = function() {
+            interleaveDeferred[chunkId].resolver[0](interleaveDeferred);
+            delete interleaveDeferred[chunkId];
 
-        installedChunks[chunkId] = new Promise(function(
-            resolve,
-            reject
-          ) {
-            const fullhref = foundChunk.path;
-            const existingLinkTags = document.getElementsByTagName("link");
-            for (var i = 0; i < existingLinkTags.length; i++) {
-              var tag = existingLinkTags[i];
-              var dataHref =
-                tag.getAttribute("data-href") || tag.getAttribute("href");
-              if (tag.rel === "stylesheet" && dataHref === fullhref)
-                return resolve();
-            }
-            const existingStyleTags = document.getElementsByTagName("style");
-            for (var i = 0; i < existingStyleTags.length; i++) {
-              var tag = existingStyleTags[i];
-              var dataHref = tag.getAttribute("data-href");
-              if (dataHref === fullhref)
-                interleaveDeferred[chunkId].resolver[0]();
-              interleaveDeferredCopy[chunkId] = interleaveDeferred[chunkId]
-              delete interleaveDeferred[chunkId]
-              return
-            }
-            const linkTag = document.createElement("link");
-            linkTag.rel = "stylesheet";
-            linkTag.type = "text/css";
-            linkTag.onload = function() {
-              interleaveDeferred[chunkId].resolver[0](interleaveDeferred);
-              delete interleaveDeferred[chunkId]
-            };
-            linkTag.onerror = function(event) {
-              const request =
-                (event && event.target && event.target.src) || fullhref;
-              const err = new Error(
-                `Loading CSS chunk ${chunkId} failed.\n(${request})`
-              );
-              err.code = "CSS_CHUNK_LOAD_FAILED";
-              err.request = request;
-              linkTag.parentNode.removeChild(linkTag);
-              reject(err);
-            };
-            linkTag.href = fullhref;
-            if (linkTag.href.indexOf(`${window.location.origin}/`) !== 0) {
-              linkTag.crossOrigin = true;
-            }
-            const target = document.querySelector("body");
-            target.insertBefore(linkTag, target.firstChild);
-          }).then(function() {
-            installedChunks[chunkId] = 0;
-          })
-
+            finalResolve[0]();
+          };
+          linkTag.onerror = function(event) {
+            const request =
+              (event && event.target && event.target.src) || fullhref;
+            const err = new Error(
+              `Loading CSS chunk ${chunkId} failed.\n(${request})`
+            );
+            err.code = "CSS_CHUNK_LOAD_FAILED";
+            err.request = request;
+            linkTag.parentNode.removeChild(linkTag);
+            reject(err);
+          };
+          linkTag.href = fullhref;
+          if (linkTag.href.indexOf(`${window.location.origin}/`) !== 0) {
+            linkTag.crossOrigin = true;
+          }
+          const target = document.querySelector("body");
+          target.insertBefore(linkTag, target.firstChild);
+        }).then(function() {
+          installedChunks[chunkId] = 0;
+        });
       }
     }
     allChunksRegistered.then(function() {
