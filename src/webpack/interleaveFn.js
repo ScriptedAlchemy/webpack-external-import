@@ -1,11 +1,10 @@
 let installedChunks;
 let interleaveDeferred;
-let chunksAlreadyMarked;
+let interleaveDeferredCopy;
 module.exports = function() {
   // registerLocals chunk loading for javascript
   __webpack_require__.interleaved = function(moduleIdWithNamespace, isNested) {
     const initialRequestMap = {};
-    const additionalChunksRequired = [];
     const interleavePromises = [];
     let finalResolve;
 
@@ -16,7 +15,7 @@ module.exports = function() {
     if (!isNested)
       console.group(
         "Main:",
-        "__webpack_require__.interleaved(moduleIdWithNamespace)"
+        `__webpack_require__.interleaved(${moduleIdWithNamespace})`
       );
     if (isNested)
       console.group(
@@ -116,7 +115,10 @@ module.exports = function() {
           }
           Promise.all(
             chunksToInstall.map(function(chunk) {
-              return __webpack_require__.interleaved(`${namespace}/${chunk}`);
+              return __webpack_require__.interleaved(
+                `${namespace}/${chunk}`,
+                true
+              );
             })
           ).then(finalResolve[0]);
         };
@@ -188,9 +190,7 @@ module.exports = function() {
         });
       }
     }
-
+    if (console.endGroup) console.endGroup();
     return finalPromise;
-    if (isNested) console.endGroup();
-    if (!isNested) console.endGroup();
   };
 };
