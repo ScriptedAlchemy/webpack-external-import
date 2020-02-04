@@ -118,7 +118,7 @@ module.exports = function() {
             chunksToInstall.map(function(chunk) {
               return __webpack_require__.interleaved(`${namespace}/${chunk}`);
             })
-          ).then(finalResolve[]);
+          ).then(finalResolve[0]);
         };
 
         var timeout = setTimeout(function() {
@@ -156,7 +156,8 @@ module.exports = function() {
               var dataHref = tag.getAttribute("data-href");
               if (dataHref === fullhref)
                 interleaveDeferred[chunkId].resolver[0]();
-             delete interleaveDeferred[chunkId]
+              interleaveDeferredCopy[chunkId] = interleaveDeferred[chunkId]
+              delete interleaveDeferred[chunkId]
               return
             }
             const linkTag = document.createElement("link");
@@ -194,6 +195,7 @@ module.exports = function() {
       for (const key of Object.keys(interleaveDeferred)) {
         allPromises.push(interleaveDeferred[key].promise);
       }
+      console.log(interleaveDeferredCopy);
       // finalResolve[0]
       Promise.all(allPromises);
     });
