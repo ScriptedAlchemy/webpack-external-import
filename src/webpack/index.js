@@ -107,7 +107,6 @@ class URLImportPlugin {
     });
 
     // likely will be refactored or removed, used for entryManifest.js to map chunks (this is V1 where its outside the runtime still)
-    this.moduleHashMap = {};
     if (this.opts.debug) {
       console.groupCollapsed("interleaveConfig");
       console.log(chunkSplitting.interleave);
@@ -131,7 +130,9 @@ class URLImportPlugin {
       if (key === "interleave") {
         return;
       }
-      chunkSplitting[key].automaticNamePrefix = `${this.opts.manifestName}~`;
+      chunkSplitting[key].automaticNamePrefix = `${
+        this.opts.manifestName
+      }~${chunkSplitting?.[key]?.automaticNamePrefix || ""}`;
     });
 
     Object.assign(options.optimization, {
@@ -398,7 +399,7 @@ class URLImportPlugin {
             chunks => {
               // access all chunks webpack created, then add some code to each chunk file, which is run when a chunk is
               // loaded on a page as <script>
-              wrapChunks(compilation, chunks, this.moduleHashMap);
+              wrapChunks(compilation, chunks);
             }
           );
         } else {
@@ -406,7 +407,7 @@ class URLImportPlugin {
           compilation.hooks.optimizeChunkAssets.tapAsync(
             "URLImportPlugin",
             (chunks, done) => {
-              wrapChunks(compilation, chunks, this.moduleHashMap);
+              wrapChunks(compilation, chunks);
               done();
             }
           );
@@ -478,7 +479,7 @@ class URLImportPlugin {
       });
 
       compiler.hooks.compilation.tap(pluginOptions, ({ hooks }) => {
-        // TODO: remove in V2
+        // TODO: remove in ^2.2
         hooks.moduleAsset.tap(pluginOptions, moduleAsset);
       });
 
