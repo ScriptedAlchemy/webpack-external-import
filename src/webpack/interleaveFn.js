@@ -4,13 +4,11 @@ module.exports.requireInterleaveExtension = function() {
   // interleaveDeferredCopy, interleaveDeferred, installedChunks are globals inside the webpack runtime scope
 
   function interleaveCss(args) {
-    const { installedChunks } = args;
-    const { chunkId } = args;
-    const { foundChunk } = args;
-    const { finalResolve } = args;
-    // 0 means 'already installed'
-
     // Interleaved CSS loading
+
+    const { installedChunks, chunkId, foundChunk, finalResolve } = args;
+
+    // 0 means 'already installed'
     if (installedChunks[chunkId] !== 0) {
       installedChunks[chunkId] = new Promise(function(resolve, reject) {
         const fullhref = foundChunk.path;
@@ -19,8 +17,9 @@ module.exports.requireInterleaveExtension = function() {
           const tag = existingLinkTags[i];
           const linkDataHref =
             tag.getAttribute("data-href") || tag.getAttribute("href");
-          if (tag.rel === "stylesheet" && linkDataHref === fullhref)
-            return resolve();
+          if (tag.rel === "stylesheet" && linkDataHref === fullhref) resolve();
+
+          return finalResolve[0]();
         }
         const existingStyleTags = document.getElementsByTagName("style");
         for (let i = 0; i < existingStyleTags.length; i++) {
@@ -55,7 +54,7 @@ module.exports.requireInterleaveExtension = function() {
           err.request = request;
           linkTag.parentNode.removeChild(linkTag);
           reject(err);
-          interleaveDeferred[chunkId].resolver[1]();
+          interleaveDeferred[chunkId].resolver[1](err);
           delete interleaveDeferred[chunkId];
           finalResolve[1](err);
         };
@@ -143,8 +142,9 @@ module.exports.requireInterleaveExtension = function() {
         if (__webpack_require__.nc) {
           script.setAttribute("nonce", __webpack_require__.nc);
         }
-        isNested && console.log("foundChunk", foundChunk);
+
         script.src = foundChunk.path;
+
         // create error before stack unwound to get useful stacktrace later
         const error = new Error();
         onScriptComplete = function(event) {
@@ -165,6 +165,8 @@ module.exports.requireInterleaveExtension = function() {
               error.type = errorType;
               error.request = realSrc;
               chunk[1](error);
+              delete interleaveDeferred[chunkId];
+              finalResolve[1](error);
             }
             installedChunks[chunkId] = undefined;
           }
@@ -204,7 +206,12 @@ module.exports.requireInterleaveExtension = function() {
       }
     }
     if (installedChunks[chunkId] !== 0 && isCSS) {
-      interleaveCss({ installedChunks, chunkId, foundChunk, finalResolve });
+      interleaveCss({
+        installedChunks,
+        chunkId,
+        foundChunk,
+        finalResolve
+      });
     }
     if (console.endGroup) console.endGroup();
     return finalPromise;

@@ -14,7 +14,7 @@ export function addWebpackRegister(source) {
         ])
       ),
       "jsonpArray.push = function(data) {",
-      Template.indent("console.log('callback',webpackJsonpCallback(data))"),
+      Template.indent("webpackJsonpCallback(data)"),
       Template.indent([
         "data[0].forEach(function(chunkId) {",
         Template.indent([
