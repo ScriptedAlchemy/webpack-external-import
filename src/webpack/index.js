@@ -7,7 +7,7 @@ const { mergeDeep } = require("./utils");
 
 const {
   addInterleaveExtention,
-  addInterleaveRequire,
+  addInterleaveRequire
 } = require("./requireExtentions");
 const { addWebpackRegister } = require("./beforeStartup");
 const {
@@ -94,8 +94,10 @@ class URLImportPlugin {
       name: `${this.opts.manifestName}-vendors`,
       test: /[\\\/]node_modules[\\\/]/,
       priority: -10,
-      enforce: true
+      enforce: true,
+      maxSize: 50000
     };
+    Object.assign(chunkSplitting.default, { maxSize: 50000 });
     Object.assign(options.optimization || {}, {
       mergeDuplicateChunks: true,
       namedChunks: true,
@@ -113,25 +115,11 @@ class URLImportPlugin {
       console.groupCollapsed("New webpack optimization config");
     }
     // merge my added splitChunks config into the webpack config object passed in
+    Object.assign(options.optimization.splitChunks, {
+      chunks: "all"
+    });
     mergeDeep(options, {
       optimization: {
-        // runtimeChunk: "multiple",
-        // namedModules: true,
-        // namedChunks: true,
-        // removeEmptyChunks: false,
-        // mergeDuplicateChunks: false,
-        // usedExports: true,
-        // providedExports: true,
-        // removeAvailableModules: false,
-        // flagIncludedChunks: false,
-        // occurrenceOrder: false,
-        // sideEffects: false,
-        // concatenateModules: false,
-        // noEmitOnErrors: false,
-        // checkWasmTypes: false,
-        // mangleWasmImports: false,
-        // hashedModuleIds: false,
-        // portableRecords: false,
         splitChunks: {
           chunks: "all",
           cacheGroups: chunkSplitting
@@ -395,12 +383,12 @@ class URLImportPlugin {
         // this new method will allow a interleaved component to be required and automatically download its dependencies
         // it returns a promise so the actual interleaved module is not executed until any missing dependencies are loaded
         mainTemplate.hooks.requireExtensions.tap("URLImportPlugin", source => {
-          return [
-            addInterleaveExtention,
-            addInterleaveRequire
-          ].reduce((sourceCode, extension) => {
-            return extension(sourceCode, mainTemplate.requireFn, this.opts);
-          }, source);
+          return [addInterleaveExtention, addInterleaveRequire].reduce(
+            (sourceCode, extension) => {
+              return extension(sourceCode, mainTemplate.requireFn, this.opts);
+            },
+            source
+          );
         });
         // TODO add an option for this
         if (this.afterOptimizations) {
