@@ -178,6 +178,8 @@ module.exports.requireInterleaveExtension = function() {
           if (!chunksToInstall.length) {
             finalResolve[0]();
           }
+          // recursively find more chunks to install and push them into the interleave function
+          // once all nested calls are done, resolve the current functions promise
           Promise.all(
             chunksToInstall.map(function(chunk) {
               return __webpack_require__.interleaved(
