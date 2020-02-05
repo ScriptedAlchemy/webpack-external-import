@@ -119,7 +119,7 @@ module.exports.requireInterleaveExtension = function() {
         if (!interleaveDeferred[chunkId]) {
           // current main chunk
           let resolver;
-          var promise = new Promise(function(resolve, reject) {
+          const promise = new Promise(function(resolve, reject) {
             resolver = [resolve, reject];
           });
           interleaveDeferred[chunkId] = {
@@ -128,7 +128,7 @@ module.exports.requireInterleaveExtension = function() {
           };
         }
         // setup Promise in chunk cache
-        var promise = new Promise(function(resolve, reject) {
+        const promise = new Promise(function(resolve, reject) {
           installedChunkData = installedChunks[chunkId] = [resolve, reject];
         });
         interleavePromises.push((installedChunkData[2] = promise));
