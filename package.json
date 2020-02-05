@@ -95,7 +95,6 @@
     "marked": "0.8.0",
     "node-cipher": "6.3.3",
     "paralleljs": "^0.2.1",
-    "performance-now": "^2.1.0",
     "prettier": "1.19.1",
     "prop-types": "15.7.2",
     "puppeteer": "1.20.0",
