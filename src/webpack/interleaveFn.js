@@ -55,6 +55,9 @@ module.exports.requireInterleaveExtension = function() {
           err.request = request;
           linkTag.parentNode.removeChild(linkTag);
           reject(err);
+          interleaveDeferred[chunkId].resolver[1]();
+          delete interleaveDeferred[chunkId];
+          finalResolve[1](err);
         };
         linkTag.href = fullhref;
         if (linkTag.href.indexOf(`${window.location.origin}/`) !== 0) {
