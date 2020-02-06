@@ -5,10 +5,7 @@ const createHash = require("webpack/lib/util/createHash");
 const fs = require("fs");
 const { mergeDeep } = require("./utils");
 
-const {
-  addInterleaveExtention,
-  addInterleaveRequire
-} = require("./requireExtentions");
+const addInterleaveRequire = require("./requireExtentions");
 const { addWebpackRegister } = require("./beforeStartup");
 const {
   interleaveStyleConfig,
@@ -94,7 +91,7 @@ class URLImportPlugin {
     if (options.mode === "production") {
       chunkSplitting.vendors = {
         name: `${this.opts.manifestName}-vendors`,
-        test: /[\\\/]node_modules[\\\/]/,
+        test: /node_modules/,
         priority: -10,
         enforce: true,
         maxSize: 50000
@@ -386,11 +383,10 @@ class URLImportPlugin {
         // this new method will allow a interleaved component to be required and automatically download its dependencies
         // it returns a promise so the actual interleaved module is not executed until any missing dependencies are loaded
         mainTemplate.hooks.requireExtensions.tap("URLImportPlugin", source => {
-          return [addInterleaveExtention, addInterleaveRequire].reduce(
-            (sourceCode, extension) => {
-              return extension(sourceCode, mainTemplate.requireFn, this.opts);
-            },
-            source
+          return addInterleaveRequire(
+            source,
+            mainTemplate.requireFn,
+            this.opts
           );
         });
         // TODO add an option for this

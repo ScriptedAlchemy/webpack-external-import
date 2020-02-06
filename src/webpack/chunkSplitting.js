@@ -93,7 +93,7 @@ export function interleaveStyleJsConfig({ manifestName }) {
 
       return false;
     },
-    name(module, chunks, cacheGroupKey) {
+    name(module, chunks) {
       console.log("interleaveStyleJsConfig", chunks);
       return `${manifestName}-stylejs`;
     },
