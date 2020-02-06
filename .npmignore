@@ -6,3 +6,7 @@ secure-src
 .nodecipherrc
 .gitignore
 .travis.yml
+yarn.lock
+renovate.json
+src
+test

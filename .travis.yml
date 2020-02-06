@@ -1,6 +1,7 @@
 language: node_js
 node_js:
   - 10
+before_install: rm -rf manual
 install: yarn --ignore-engines # ignore engines to test node 6, otherwise it fails on engine check
 cache: yarn
 jobs:
