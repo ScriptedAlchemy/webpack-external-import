@@ -1,10 +1,10 @@
 import React from "react";
 import "react-select";
 import "./style.css";
+import { Field } from "tiny-mobx-form";
 
 export const Title = ({ title }) => {
-  window.wasExternalFunctionCalled = true;
-  console.log("TitleComponent interleaving successful");
+  console.log("tree-shake: IValidator", Field);
   return (
     <h1 className="inline-css">
       TITLE COMPONENT:

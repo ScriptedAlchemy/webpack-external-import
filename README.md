@@ -47,14 +47,19 @@ npm install webpack-external-import --save
 ```sh
 yarn add webpack-external-import
 ```
+
 ### Version 2.0!
-Major rewrite which has taken the original concept and built it directly into webpack runtime. 
+
+Major rewrite which has taken the original concept and built it directly into webpack runtime.
+A big achievement in this release is **tree-shaking support**
+
 If you want to read me about what this tool does. 
 
-
 Read the following:
+
 - https://link.medium.com/L5zHiwylI3
 - working on more use cases and writing about V2
+
 ## Getting Started
 
 1.  Add `webpack-external-import/webpack` to your webpack plugins:
@@ -131,11 +136,12 @@ Below is an example of interleaving a module from `website-2`
 ```js
 // import a chunk from another website build with webpack-external-import
 
-__webpack_require__.interleaved("website-2/ValidationRules").then(() => {
-  const validationRules = __webpack_require__("ValidationRules");
-  // proceed to use as a you would with a normal require statement
-  validationRules.validateObject(someObject);
-});
+__webpack_require__
+  .interleaved("website-2/ValidationRules")
+  .then(validationRules => {
+    // proceed to use as a you would with a normal require statement
+    validationRules.validateObject(someObject);
+  });
 ```
 
 ### With JSX
@@ -149,9 +155,9 @@ class SomeComponent extends Component {
     return (
       <div>
         <ExternalComponent
-          interleave={__webpack_require__
-            .interleaved("website-2/TitleComponent")
-            .then(() => __webpack_require__("TitleComponent"))}
+          interleave={__webpack_require__.interleaved(
+            "website-2/TitleComponent"
+          )}
           export="Title"
           title="Some Heading"
         />
@@ -215,7 +221,7 @@ For example:
 // website-one App.js
 __webpack_require__
   .interleaved("website-3/TitleComponentWithCSSFile")
-  .then(() => __webpack_require__("TitleComponentWithCSSFile"));
+  .then(TitleComponentWithCSSFile => <TitleComponentWithCSSFile />);
 ```
 
 This ensures a easy way for other consumers, teams, engineers to look up what another project or team is willing
@@ -245,7 +251,9 @@ class App extends Component {
   componentDidMount() {
     __webpack_require__
       .interleaved("website-3/TitleComponentWithCSSFile")
-      .then(() => __webpack_require__("TitleComponentWithCSSFile"));
+      .then(TitleComponentWithCSSFile =>
+        console.log(TitleComponentWithCSSFile)
+      );
   }
 
   renderDynamic = () => {
@@ -260,18 +268,18 @@ class App extends Component {
         <HelloWorld />
 
         <ExternalComponent
-          interleave={__webpack_require__
-            .interleaved("website-2/TitleComponent")
-            .then(() => __webpack_require__("TitleComponent"))}
+          interleave={__webpack_require__.interleaved(
+            "website-2/TitleComponent"
+          )}
           export="Title"
           module="TitleComponent"
           title="Some Heading"
         />
 
         <ExternalComponent
-          interleave={__webpack_require__
-            .interleaved("website-3/TitleComponentWithCSSFile")
-            .then(() => __webpack_require__("TitleComponentWithCSSFile"))}
+          interleave={__webpack_require__.interleaved(
+            "website-3/TitleComponentWithCSSFile"
+          )}
           export="Title"
           title="Title Component With CSS File Import"
         />
@@ -326,7 +334,6 @@ module.exports = {
       publicPath: `//localhost:3002/`,
       transformExtensions: /^(gz|map)$/i,
       writeToFileEmit: false,
-      seed: null,
       filter: null,
       debug: true,
       map: null,
@@ -353,8 +360,7 @@ module.exports = {
       filter: null,
       debug: true,
       map: null,
-      generate: null,
-      sort: null
+      generate: null
     })
   ]
 };
@@ -405,18 +411,6 @@ Default: `src`
 
 Test resource path to see if plugin should apply transformations
 
-### `options.map`
-
-Type: `Function(FileDescriptor): FileDescriptor`
-
-Modify files details before the manifest is created. [FileDescriptor typings](#filedescriptor)
-
-### `options.sort`
-
-Type: `Function(FileDescriptor): number`
-
-Sort files before they are passed to `generate`. [FileDescriptor typings](#filedescriptor)
-
 ### `options.generate`
 
 Type: `Function(Object, FileDescriptor): Object`<br>
@@ -458,9 +452,8 @@ componentDidMount() {
   corsImport('http://localhost:3002/importManifest.js').then(() => {
       const Title = __webpack_require__
         .interleaved("website-two/TitleComponent")
-        .then(() => __webpack_require__("TitleComponent"))
 
-        console.log(Title) // => Module {default: ()=>{}, Title: ()=>{}}
+        Title.then(console.log) // => Module {default: ()=>{}, Title: ()=>{}}
   });
 }
 ```

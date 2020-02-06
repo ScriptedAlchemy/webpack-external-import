@@ -14,11 +14,9 @@ module.exports = configFactory(siteId, {
     ]
   },
   plugins: [
-    new ExtractCssChunks(),
-    new webpack.LoaderOptionsPlugin({
-      debug: false
+    new ExtractCssChunks({
+      filename: "[name].css",
+      chunkFilename: "[name].css"
     })
   ]
 });
-
-console.log(module.exports);

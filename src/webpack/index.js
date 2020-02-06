@@ -5,10 +5,7 @@ const createHash = require("webpack/lib/util/createHash");
 const fs = require("fs");
 const { mergeDeep } = require("./utils");
 
-const {
-  addInterleaveExtention,
-  addInterleaveRequire
-} = require("./requireExtentions");
+const addInterleaveRequire = require("./requireExtentions");
 const { addWebpackRegister } = require("./beforeStartup");
 const {
   interleaveStyleConfig,
@@ -54,17 +51,15 @@ class URLImportPlugin {
       writeToFileEmit: false,
       seed: null,
       filter: null,
-      map: null,
       generate: null,
       hashDigest: "base64",
-      hashDigestLength: 10,
+      hashDigestLength: 5,
       context: null,
-      sort: null,
       hashFunction: "md4",
       serialize: manifest =>
         `if(!window.entryManifest) {window.entryManifest = {}}; window.entryManifest["${
           opts.manifestName
-        }"] = ${JSON.stringify(manifest, null, 2)}`,
+        }"] = ${JSON.stringify(manifest)}`,
       ...(opts || {})
     };
   }
@@ -92,12 +87,25 @@ class URLImportPlugin {
     chunkSplitting.style = interleaveStyleConfig(this.opts);
     // interleaveConfig figures out if a file meets the paramaters for interleaving
     chunkSplitting.interleave = interleaveConfig(this.opts);
-    // dont rename exports when hoisting and tree shaking
-    Object.assign(options.optimization, {
+
+    if (options.mode === "production") {
+      chunkSplitting.vendors = {
+        name: `${this.opts.manifestName}-vendors`,
+        test: /node_modules/,
+        priority: -10,
+        enforce: true,
+        maxSize: 50000
+      };
+      Object.assign(chunkSplitting.default, { maxSize: 50000 });
+    }
+
+    Object.assign(options.optimization || {}, {
+      namedChunks: true,
+      // dont rename exports when hoisting and tree shaking
       providedExports: false
     });
+
     // likely will be refactored or removed, used for entryManifest.js to map chunks (this is V1 where its outside the runtime still)
-    this.moduleHashMap = {};
     if (this.opts.debug) {
       console.groupCollapsed("interleaveConfig");
       console.log(chunkSplitting.interleave);
@@ -105,10 +113,11 @@ class URLImportPlugin {
       console.groupCollapsed("New webpack optimization config");
     }
     // merge my added splitChunks config into the webpack config object passed in
+    Object.assign(options.optimization.splitChunks, {
+      chunks: "all"
+    });
     mergeDeep(options, {
       optimization: {
-        runtimeChunk: "multiple",
-        namedModules: true,
         splitChunks: {
           chunks: "all",
           cacheGroups: chunkSplitting
@@ -120,9 +129,9 @@ class URLImportPlugin {
       if (key === "interleave") {
         return;
       }
-      chunkSplitting[
-        key
-      ].automaticNamePrefix = `${this.opts.manifestName}~${chunkSplitting[key].automaticNamePrefix}`;
+      chunkSplitting[key].automaticNamePrefix = `${
+        this.opts.manifestName
+      }~${chunkSplitting?.[key]?.automaticNamePrefix || ""}`;
     });
 
     Object.assign(options.optimization, {
@@ -134,15 +143,12 @@ class URLImportPlugin {
     // forcefully mutate it
     Object.assign(options.optimization.splitChunks, {
       chunks: "all",
-      cacheGroups: chunkSplitting,
-      namedModules: true
+      cacheGroups: chunkSplitting
     });
-
     if (this.opts.debug) {
       console.log(options);
       console.groupEnd();
     }
-
     // eslint-disable-next-line no-unused-vars
     compiler.hooks.thisCompilation.tap("URLImportPlugin", compilation => {
       // TODO: throw warning when changing module ID type
@@ -163,7 +169,6 @@ class URLImportPlugin {
     });
 
     const moduleAssets = {};
-    const externalModules = {};
     const outputFolder = compiler.options.output.path;
     const outputFile = path.resolve(outputFolder, this.opts.fileName);
     const outputName = path.relative(outputFolder, outputFile);
@@ -199,8 +204,7 @@ class URLImportPlugin {
       let files = compilation.chunks.reduce(
         (f, chunk) =>
           chunk.files.reduce((fx, filePath) => {
-            let name = chunk.name ? chunk.name : null;
-            const dependencyChains = {};
+            let name = chunk.id ? chunk.id : null;
             if (name) {
               name = `${name}.${this.getFileType(filePath)}`;
             } else {
@@ -208,122 +212,10 @@ class URLImportPlugin {
               name = filePath;
             }
 
-            if (externalModules[chunk.id] || externalModules[chunk.name]) {
-              if (this.opts.debug) {
-                console.groupCollapsed(chunk.id, chunk.name);
-              }
-              // TODO: swap forEachModle out with const of
-              // for(const module of chunk.modulesIterable){
-              chunk.forEachModule(module => {
-                if (module.dependencies) {
-                  if (this.opts.debug) {
-                    console.log(module);
-                    console.group("Dependencies");
-                  }
-                  module.dependencies.forEach(dependency => {
-                    if (
-                      this.opts.debug &&
-                      (dependency.request || dependency.userRequest)
-                    ) {
-                      console.groupCollapsed(
-                        "Dependency",
-                        dependency.userRequest,
-                        `(${dependency.request})`
-                      );
-                      console.log(dependency);
-                    }
-                    const dependencyModuleSet = dependency.getReference?.()
-                      ?.module;
-                    if (!dependencyModuleSet) return null;
-
-                    if (this.opts.debug) {
-                      console.groupCollapsed("Dependency Reference");
-                      console.log(dependencyModuleSet);
-                      console.groupEnd();
-                    }
-
-                    if (!dependencyChains[chunk.id]) {
-                      Object.assign(dependencyChains, { [chunk.id]: [] });
-                    }
-                    const dependencyChainMap = (dependencyChains[chunk.id][
-                      dependency.sourceOrder
-                    ] = {});
-
-                    Object.assign(dependencyChainMap, {
-                      order: dependency.sourceOrder,
-                      name: dependencyModuleSet.rawRequest,
-                      id: dependencyModuleSet.id,
-                      sourceFiles: []
-                    });
-
-                    // eslint-disable-next-line no-restricted-syntax
-                    for (const dependencyModule of dependencyModuleSet.chunksIterable) {
-                      if (this.opts.debug) {
-                        console.groupCollapsed(
-                          "Dependency Reference Iterable",
-                          dependency.request
-                        );
-                        console.groupEnd();
-                      }
-
-                      if (dependencyModule && dependencyModule.files) {
-                        if (dependencyChains[chunk.id]) {
-                          dependencyChainMap.sourceFiles =
-                            dependencyChainMap?.sourceFiles?.concat?.(
-                              dependencyModule.files
-                            ) || null;
-                        } else {
-                          // Object.assign(dependencyChains, { [chunk.id]: dependencyModule.files });
-                        }
-                      }
-                    }
-                    if (this.opts.debug) {
-                      console.groupEnd();
-                    }
-                  });
-                  if (this.opts.debug) {
-                    console.groupEnd();
-                  }
-                }
-              });
-              if (this.opts.debug && !dependencyChains[chunk.id]) {
-                console.groupEnd();
-              }
-            }
-            let currentDependencyChain = [];
-            if (dependencyChains[chunk.id]) {
-              if (this.opts.debug) {
-                console.group("Computed Dependency Chain For:", chunk.id);
-                currentDependencyChain =
-                  dependencyChains?.[chunk.id]?.removeNull?.().reverse?.() ||
-                  [];
-                console.log(currentDependencyChain);
-                console.groupEnd();
-                console.groupEnd();
-              }
-            }
-
-            // Webpack 4: .isOnlyInitial()
-            // Webpack 3: .isInitial()
-            // Webpack 1/2: .initial
-            // const modules = chunk.modulesIterable;
-            // let i = 0;
-            // while (i < modules.length) {
-            //   getMeta(modules[i]);
-            //   i++;
-            // }
             return fx.concat({
               path: filePath,
               chunk,
               name,
-              dependencies: dependencyChains?.[chunk.id]
-                ?.removeNull?.()
-                .reverse?.(),
-              isInitial: chunk.isOnlyInitial
-                ? chunk.isOnlyInitial()
-                : chunk.isInitial
-                ? chunk.isInitial()
-                : chunk.initial,
               isChunk: true,
               isAsset: false,
               isModuleAsset: false
@@ -339,11 +231,7 @@ class URLImportPlugin {
         if (name) {
           return fx.concat({
             path: asset.name,
-            name,
-            isInitial: false,
-            isChunk: false,
-            isAsset: true,
-            isModuleAsset: true
+            name
           });
         }
 
@@ -354,11 +242,7 @@ class URLImportPlugin {
 
         return fx.concat({
           path: asset.name,
-          name: asset.name,
-          isInitial: false,
-          isChunk: false,
-          isAsset: true,
-          isModuleAsset: false
+          name: asset.name
         });
       }, files);
 
@@ -405,13 +289,6 @@ class URLImportPlugin {
         files = files.filter(this.opts.filter);
       }
 
-      if (this.opts.map) {
-        files = files.map(this.opts.map);
-      }
-
-      if (this.opts.sort) {
-        files = files.sort(this.opts.sort);
-      }
       if (this.opts.debug) {
         console.log("Processed Files:", files);
         console.groupEnd();
@@ -426,9 +303,7 @@ class URLImportPlugin {
           (m, file) => ({
             ...m,
             [file.name]: {
-              path: file.path,
-              dependencies: file?.dependencies || null,
-              isInitial: file?.isInitial || null
+              path: file.path
             }
           }),
           seed
@@ -503,15 +378,15 @@ class URLImportPlugin {
       ]);
       compiler.hooks.compilation.tap("URLImportPlugin", compilation => {
         const { mainTemplate } = compilation;
-        // work in progress to add another webpack__require method to the webpack runtime
+
+        // Add another webpack__require method to the webpack runtime
         // this new method will allow a interleaved component to be required and automatically download its dependencies
         // it returns a promise so the actual interleaved module is not executed until any missing dependencies are loaded
         mainTemplate.hooks.requireExtensions.tap("URLImportPlugin", source => {
-          return [addInterleaveExtention, addInterleaveRequire].reduce(
-            (sourceCode, extension) => {
-              return extension(sourceCode, mainTemplate.requireFn, this.opts);
-            },
-            source
+          return addInterleaveRequire(
+            source,
+            mainTemplate.requireFn,
+            this.opts
           );
         });
         // TODO add an option for this
@@ -522,7 +397,7 @@ class URLImportPlugin {
             chunks => {
               // access all chunks webpack created, then add some code to each chunk file, which is run when a chunk is
               // loaded on a page as <script>
-              wrapChunks(compilation, chunks, this.moduleHashMap);
+              wrapChunks(compilation, chunks);
             }
           );
         } else {
@@ -530,7 +405,7 @@ class URLImportPlugin {
           compilation.hooks.optimizeChunkAssets.tapAsync(
             "URLImportPlugin",
             (chunks, done) => {
-              wrapChunks(compilation, chunks, this.moduleHashMap);
+              wrapChunks(compilation, chunks);
               done();
             }
           );
@@ -564,7 +439,11 @@ class URLImportPlugin {
               }
 
               try {
-                hash.update(fs.readFileSync(resourcePath));
+                let exports = "";
+                if (Array.isArray(module.usedExports)) {
+                  exports = module.usedExports.join(".");
+                }
+                hash.update(fs.readFileSync(resourcePath) + exports);
               } catch (ex) {
                 console.error("failed on", module.context, module.resource);
                 throw ex;
@@ -577,7 +456,7 @@ class URLImportPlugin {
               }
               module.id = hashId.substr(0, len);
               usedIds.add(module.id);
-            } else {
+            } else if (this.opts.debug) {
               console.log("Module with no ID", module);
             }
             const externalModule = hasExternalizedModuleViaJson(
@@ -598,7 +477,7 @@ class URLImportPlugin {
       });
 
       compiler.hooks.compilation.tap(pluginOptions, ({ hooks }) => {
-        // TODO: remove in V2
+        // TODO: remove in ^2.2
         hooks.moduleAsset.tap(pluginOptions, moduleAsset);
       });
 

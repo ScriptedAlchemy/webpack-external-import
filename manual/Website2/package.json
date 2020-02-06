@@ -7,13 +7,9 @@
   },
   "author": "Zack Jackson <zack@ScriptedAlchemy.com> (https://github.com/ScriptedAlchemy)",
   "scripts": {
-    "manual:prod": "cd ../../ && yarn link  && cd manual/Website2 && yarn link  webpack-external-import && cross-env NODE_ENV=production node  node_modules/webpack-dev-server/bin/webpack-dev-server.js",
+    "manual:prod": "cd ../../ && yarn link  && cd manual/Website2 && yarn link  webpack-external-import && cross-env NODE_ENV=production webpack && cp serve.json dist/serve.json && serve dist -l 3002",
     "manual:dev": "cd ../../ && yarn link  && cd manual/Website2 && yarn link  webpack-external-import && cross-env NODE_ENV=development node  node_modules/webpack-dev-server/bin/webpack-dev-server.js",
     "manual:debug": "cd ../../ && yarn link  && cd manual/Website2 && yarn link  webpack-external-import && cross-env NODE_ENV=development node --inspect node_modules/webpack-dev-server/bin/webpack-dev-server.js"
-  },
-  "interleave": {
-    "src/components/Title/index.js": "TitleComponent",
-    "src/components/hello-world/index.js": "SomeExternalModule"
   },
   "interleave": {
     "src/components/Title/index.js": "TitleComponent",
@@ -31,6 +27,7 @@
     "eslint-loader": "3.0.3",
     "react": "16.8.6",
     "react-hot-loader": "4.12.18",
+    "serve": "^11.3.0",
     "webpack": "4.41.5",
     "webpack-cli": "3.3.10",
     "webpack-dev-server": "3.10.1",
@@ -45,7 +42,10 @@
     "crc-32": "^1.2.0",
     "cross-env": "^7.0.0",
     "html-webpack-plugin": "^4.0.0-beta.8",
+    "lodash": "^4.17.15",
+    "lodash-es": "^4.17.15",
     "mini-css-extract-plugin": "^0.6.0",
+    "mobx": "^5.15.4",
     "moment": "^2.24.0",
     "optimize-css-assets-webpack-plugin": "^5.0.1",
     "react": "file:../../node_modules/react",
@@ -53,7 +53,8 @@
     "react-select": "3.0.4",
     "regenerator-runtime": "^0.13.2",
     "scriptjs": "^2.5.9",
-    "wrapper-webpack-plugin": "^2.1.0",
-    "webpack-external-import": "*"
+    "tiny-mobx-form": "^0.8.3",
+    "webpack-external-import": "file:../../",
+    "wrapper-webpack-plugin": "^2.1.0"
   }
 }

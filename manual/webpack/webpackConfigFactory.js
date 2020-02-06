@@ -15,6 +15,7 @@ const envs = {
 /* eslint-disable global-require,import/no-dynamic-require */
 const env = envs[process.env.NODE_ENV || "development"];
 const envConfig = require(`./webpack.${env}.js`);
+const SpeedMeasurePlugin = require("speed-measure-webpack-plugin");
 
 module.exports = (siteId, options) => {
   const commonPaths = paths(siteId);
