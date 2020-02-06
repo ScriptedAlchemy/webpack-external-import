@@ -53,7 +53,7 @@
     "semantic-release": "semantic-release",
     "commit": "npx git-cz"
   },
-  "license": "GPL-3.0-only",
+  "license": "BSD-3-Clause",
   "devDependencies": {
     "@babel/cli": "7.7.7",
     "@babel/core": "7.7.7",

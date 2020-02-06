@@ -4,3 +4,5 @@ test
 .travis.yml
 secure-src
 .nodecipherrc
+.gitignore
+.travis.yml
