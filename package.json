@@ -49,7 +49,6 @@
     "demo:prod": "yarn && yarn link webpack-external-import && concurrently \"yarn kill-ports\" \"yarn compile\" \"yarn link\" \"yarn demo:one:prod\"  \"yarn demo:two:prod\" \"yarn demo:three:prod \"",
     "demo:debug": "yarn && yarn link webpack-external-import && concurrently \"yarn kill-ports\" \"yarn compile\" \"yarn link\" \"yarn demo:one\" \"yarn demo:two:debug\" \"yarn demo:three\"",
     "demo:fast": "yarn compile && yarn link && yarn demo:one:fast | yarn demo:two:fast",
-    "babel": "yarn compile && cd manual && yarn babel",
     "prepare": "BABEL_ENV=production yarn compile && cd manual && yarn",
     "semantic-release": "semantic-release",
     "commit": "npx git-cz",

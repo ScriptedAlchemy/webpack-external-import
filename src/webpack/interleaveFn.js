@@ -136,7 +136,6 @@ module.exports.requireInterleaveExtension = function() {
         console.log("interleaveDeferred:", interleaveDeferred);
         // start chunk loading
         const script = document.createElement("script");
-        let onScriptComplete;
         script.charset = "utf-8";
         script.timeout = 120;
         if (__webpack_require__.nc) {
@@ -147,10 +146,11 @@ module.exports.requireInterleaveExtension = function() {
 
         // create error before stack unwound to get useful stacktrace later
         const error = new Error();
-        onScriptComplete = function(event) {
+        const onScriptComplete = function(event) {
           // avoid mem leaks in IE.
 
           script.onerror = script.onload = null;
+          // eslint-disable-next-line no-use-before-define
           clearTimeout(timeout);
           const chunk = installedChunks[chunkId];
           console.log("onScriptComplete:installedChunks", installedChunks);
@@ -214,6 +214,8 @@ module.exports.requireInterleaveExtension = function() {
       });
     }
     if (console.endGroup) console.endGroup();
-    return finalPromise;
+    return finalPromise.then(function() {
+      if (!isNested) return __webpack_require__(chunkId);
+    });
   };
 };
