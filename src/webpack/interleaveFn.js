@@ -195,7 +195,7 @@ module.exports.requireInterleaveExtension = function() {
           ).then(finalResolve[0]);
         };
 
-        var timeout = setTimeout(function() {
+        let timeout = setTimeout(function() {
           onScriptComplete({
             type: "timeout",
             target: script
