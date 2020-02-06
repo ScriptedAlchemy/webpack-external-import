@@ -35,17 +35,17 @@ class App extends Component {
         <HelloWorld />
 
         <ExternalComponent
-          interleave={__webpack_require__
-            .interleaved("website-2/TitleComponent")
-            .then(() => __webpack_require__("TitleComponent"))}
+          interleave={__webpack_require__.interleaved(
+            "website-2/TitleComponent"
+          )}
           export="Title"
           title="Some Heading"
         />
 
         <ExternalComponent
-          interleave={__webpack_require__
-            .interleaved("website-3/TitleComponentWithCSSFile")
-            .then(() => __webpack_require__("TitleComponentWithCSSFile"))}
+          interleave={__webpack_require__.interleaved(
+            "website-3/TitleComponentWithCSSFile"
+          )}
           export="Title"
           title="Title Component With CSS File Import"
         />

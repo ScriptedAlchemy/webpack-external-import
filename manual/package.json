@@ -1,8 +1,9 @@
 {
   "private": true,
   "workspaces": [
-    "website-one",
-    "website-two"
+    "Website1",
+    "Website2",
+    "Website3"
   ],
   "name": "external-import-demo",
   "version": "0.0.0-development",
@@ -11,10 +12,6 @@
     "url": "https://github.com/faceyspacey/remixx.git"
   },
   "author": "Zack Jackson <zack@ScriptedAlchemy.com> (https://github.com/ScriptedAlchemy)",
-  "scripts": {
-    "manual:prod": "cross-env NODE_ENV=production webpack-dev-server",
-    "manual:dev": "cross-env NODE_ENV=development webpack-dev-server"
-  },
   "devDependencies": {
     "@babel/cli": "7.8.3",
     "@babel/core": "7.8.3",
