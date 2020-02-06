@@ -51,7 +51,9 @@ yarn add webpack-external-import
 ### Version 2.0!
 
 Major rewrite which has taken the original concept and built it directly into webpack runtime.
-If you want to read me about what this tool does.
+A big achievement in this release is **tree-shaking support**
+
+If you want to read me about what this tool does. 
 
 Read the following:
 

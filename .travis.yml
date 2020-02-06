@@ -7,11 +7,9 @@ cache: yarn
 jobs:
   include:
     - stage: Verify
-      name: Travis Status
-      script: yarn travis-github-status
-    - # stage name not required, will continue to use `Build`
-      name: ESlint
-      script: npm run lint
+      script:
+        - yarn travis-github-status
+        - yarn lint
     - stage: Release
       if: branch = master
       deploy:
