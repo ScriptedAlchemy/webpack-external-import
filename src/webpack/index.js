@@ -5,7 +5,10 @@ const createHash = require("webpack/lib/util/createHash");
 const fs = require("fs");
 const { mergeDeep } = require("./utils");
 
-const addInterleaveRequire = require("./requireExtentions");
+const {
+  addInterleaveExtension,
+  addInterleaveRequire
+} = require("./requireExtentions");
 const { addWebpackRegister } = require("./beforeStartup");
 const {
   interleaveStyleConfig,
@@ -383,10 +386,11 @@ class URLImportPlugin {
         // this new method will allow a interleaved component to be required and automatically download its dependencies
         // it returns a promise so the actual interleaved module is not executed until any missing dependencies are loaded
         mainTemplate.hooks.requireExtensions.tap("URLImportPlugin", source => {
-          return addInterleaveRequire(
-            source,
-            mainTemplate.requireFn,
-            this.opts
+          return [addInterleaveExtension, addInterleaveRequire].reduce(
+            (sourceCode, extension) => {
+              return extension(sourceCode, mainTemplate.requireFn, this.opts);
+            },
+            source
           );
         });
         // TODO add an option for this
