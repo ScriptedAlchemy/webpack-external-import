@@ -2,7 +2,7 @@ const Template = require("webpack/lib/Template");
 
 // setting up async require capabilities
 // eslint-disable-next-line no-unused-vars
-export default (source, requireFn) => {
+module.exports = (source, requireFn) => {
   const template = Template.asString([
     source,
     "",
