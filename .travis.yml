@@ -5,13 +5,14 @@ install: yarn --ignore-engines # ignore engines to test node 6, otherwise it fai
 cache: yarn
 jobs:
   include:
-    - stage: Build
+    - stage: Verify
       name: Travis Status
       script: yarn travis-github-status
-    - stage: Linting
+    - # stage name not required, will continue to use `Build`
       name: ESlint
       script: npm run lint
     - stage: Release
+      if: branch = master
       deploy:
         provider: script
         skip_cleanup: true
