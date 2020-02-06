@@ -90,18 +90,20 @@ class URLImportPlugin {
     chunkSplitting.style = interleaveStyleConfig(this.opts);
     // interleaveConfig figures out if a file meets the paramaters for interleaving
     chunkSplitting.interleave = interleaveConfig(this.opts);
-    chunkSplitting.vendors = {
-      name: `${this.opts.manifestName}-vendors`,
-      test: /[\\\/]node_modules[\\\/]/,
-      priority: -10,
-      enforce: true,
-      maxSize: 50000
-    };
-    Object.assign(chunkSplitting.default, { maxSize: 50000 });
-    Object.assign(options.optimization || {}, {
-      mergeDuplicateChunks: true,
-      namedChunks: true,
 
+    if (options.mode === "production") {
+      chunkSplitting.vendors = {
+        name: `${this.opts.manifestName}-vendors`,
+        test: /[\\\/]node_modules[\\\/]/,
+        priority: -10,
+        enforce: true,
+        maxSize: 50000
+      };
+      Object.assign(chunkSplitting.default, { maxSize: 50000 });
+    }
+
+    Object.assign(options.optimization || {}, {
+      namedChunks: true,
       // dont rename exports when hoisting and tree shaking
       providedExports: false
     });

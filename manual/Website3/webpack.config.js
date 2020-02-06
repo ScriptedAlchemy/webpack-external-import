@@ -5,7 +5,6 @@ const ExtractCssChunks = require("extract-css-chunks-webpack-plugin");
 const siteId = 3;
 
 module.exports = configFactory(siteId, {
-  mode: "production",
   module: {
     rules: [
       {

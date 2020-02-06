@@ -12,8 +12,7 @@ module.exports = commonPaths => ({
     chunkFilename: `${commonPaths.jsFolder}/[name].[chunkhash].js`
   },
   optimization: {
-    // mergeDuplicateChunks: false,
-    // namedChunks: true,
+    mergeDuplicateChunks: true,
     minimizer: [
       new TerserPlugin({
         // Use multi-process parallel running to improve the build speed
