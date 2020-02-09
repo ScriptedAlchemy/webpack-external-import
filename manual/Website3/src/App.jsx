@@ -19,7 +19,7 @@ class App extends Component {
   render() {
     if (!this.state.component) return null;
     const { component: HelloWorld } = this.state;
-    return <Title title="Hello, from Website3" />;
+    return <Title title="Hello, from website3" />;
   }
 }
 
