@@ -322,7 +322,7 @@ package.json
 ## API:
 
 ```js
-// Website Two -  webpack.config.js
+// website Two -  webpack.config.js
 
 module.exports = {
   output: {
@@ -345,7 +345,7 @@ module.exports = {
   ]
 };
 
-// Website One webpack.config.js
+// website One webpack.config.js
 module.exports = {
   output: {
     publicPath

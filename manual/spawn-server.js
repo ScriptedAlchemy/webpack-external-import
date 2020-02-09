@@ -4,8 +4,8 @@ const { spawn } = require("child_process");
 const binPath = path.resolve(__dirname, "./node_modules/.bin");
 const crossEnvPath = path.resolve(binPath, "cross-env");
 const webpackDevServerPath = path.resolve(binPath, "webpack-dev-server");
-const path1 = path.resolve(__dirname, "./Website1/webpack.config.js");
-const path2 = path.resolve(__dirname, "./Website2/webpack.config.js");
+const path1 = path.resolve(__dirname, "./website1/webpack.config.js");
+const path2 = path.resolve(__dirname, "./website2/webpack.config.js");
 
 let mfe1;
 let mfe2;

@@ -22,7 +22,7 @@ module.exports = (siteId, options) => {
   const manifestName = `website-${siteId}`;
   const templatePath = path.resolve(
     __dirname,
-    `../Website${siteId}/template.html`
+    `../website${siteId}/template.html`
   );
 
   return webpackMerge(
