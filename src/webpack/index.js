@@ -33,6 +33,11 @@ const { wrapChunks } = require("./optimizeChunk");
 const emitCountMap = new Map();
 console.clear();
 
+function getFileType(str) {
+  const split = str.replace(/\?.*/, "").split(".");
+  return split.pop();
+}
+
 class URLImportPlugin {
   constructor(opts) {
     const debug =
@@ -50,30 +55,15 @@ class URLImportPlugin {
       basePath: "",
       manifestName: "unknown-project",
       fileName: "importManifest.js",
-      transformExtensions: /^(gz|map)$/i,
       writeToFileEmit: false,
       seed: null,
       filter: null,
-      generate: null,
       hashDigest: "base64",
       hashDigestLength: 5,
       context: null,
       hashFunction: "md4",
-      serialize: manifest =>
-        `if(!window.entryManifest) {window.entryManifest = {}}; window.entryManifest["${
-          opts.manifestName
-        }"] = ${JSON.stringify(manifest)}`,
       ...(opts || {})
     };
-  }
-
-  getFileType(str) {
-    const split = str.replace(/\?.*/, "").split(".");
-    let ext = split.pop();
-    if (this.opts.transformExtensions.test(ext)) {
-      ext = `${split.pop()}.${ext}`;
-    }
-    return ext;
   }
 
   apply(compiler) {
@@ -215,7 +205,7 @@ class URLImportPlugin {
           chunk.files.reduce((fx, filePath) => {
             let name = chunk.id ? chunk.id : null;
             if (name) {
-              name = `${name}.${this.getFileType(filePath)}`;
+              name = `${name}.${getFileType(filePath)}`;
             } else {
               // For nameless chunks, just map the files directly.
               name = filePath;
@@ -304,20 +294,15 @@ class URLImportPlugin {
 
         console.groupEnd();
       }
-      let manifest;
-      if (this.opts.generate) {
-        manifest = this.opts.generate(seed, files);
-      } else {
-        manifest = files.reduce(
-          (m, file) => ({
-            ...m,
-            [file.name]: {
-              path: file.path
-            }
-          }),
-          seed
-        );
-      }
+      const manifest = files.reduce(
+        (m, file) => ({
+          ...m,
+          [file.name]: {
+            path: file.path
+          }
+        }),
+        seed
+      );
       if (this.opts.debug) {
         console.log("Manifest:", manifest);
       }
@@ -333,8 +318,12 @@ class URLImportPlugin {
           },
           {}
         );
+        const serialize = manifest =>
+          `if(!window.entryManifest) {window.entryManifest = {}}; window.entryManifest["${
+            this.opts.manifestName
+          }"] = ${JSON.stringify(manifest)}`;
 
-        const output = this.opts.serialize(cleanedManifest);
+        const output = serialize(cleanedManifest);
         if (this.opts.debug) {
           console.log("Output:", output);
         }
