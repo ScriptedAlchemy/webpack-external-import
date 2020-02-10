@@ -428,8 +428,12 @@ class URLImportPlugin {
         // creates hashed module IDs based on the contents of the file - works like [contenthash] but for each module
         compilation.hooks.beforeModuleIds.tap("URLImportPlugin", modules => {
           // eslint-disable-next-line no-restricted-syntax
+          const provideExternals = Object.keys(
+            this.opts?.provideExternals || {}
+          );
+
           for (const module of modules) {
-            if (this.opts?.provideExternals?.includes(module.rawRequest)) {
+            if (provideExternals.includes(module.rawRequest)) {
               module.id = module.rawRequest;
             }
             if (module.id === null && module.resource) {
