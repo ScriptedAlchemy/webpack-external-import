@@ -1,8 +1,9 @@
 const path = require("path");
 const fse = require("fs-extra");
 const createHash = require("webpack/lib/util/createHash");
-// const FunctionModuleTemplatePlugin = require("webpack/lib/FunctionModuleTemplatePlugin");
 const fs = require("fs");
+const ExternalModuleFactoryPlugin = require("./ExternalModuleFactory");
+// const FunctionModuleTemplatePlugin = require("webpack/lib/FunctionModuleTemplatePlugin");
 const { mergeDeep } = require("./utils");
 
 const {
@@ -42,7 +43,6 @@ class URLImportPlugin {
         "URLImportPlugin: You MUST specify a manifestName in your options. Something unique. Like {manifestName: my-special-build}"
       );
     }
-
     this.opts = {
       publicPath: null,
       debug: debug || false,
@@ -81,7 +81,13 @@ class URLImportPlugin {
       console.group("Webpack Plugin Debugging: webpack-external-import");
       console.info("To disable this, set plugin options {debug:false}");
     }
+
     const options = compiler?.options;
+    if (options.externals) {
+      throw new Error(
+        "URLImportPlugin: Externals must be applied via the plugin, not via webpack config object. Please see useExternals on the plugin documentation"
+      );
+    }
     // add to the existing webpack config
     // adding a new splitChunks cache group called interleave
     const chunkSplitting =
@@ -379,6 +385,16 @@ class URLImportPlugin {
       compiler.hooks.webpackURLImportPluginAfterEmit = new SyncWaterfallHook([
         "manifest"
       ]);
+
+      compiler.hooks.compile.tap(
+        "ExternalsPlugin",
+        ({ normalModuleFactory }) => {
+          new ExternalModuleFactoryPlugin(
+            options.output.libraryTarget,
+            this.opts.useExternals
+          ).apply(normalModuleFactory);
+        }
+      );
       compiler.hooks.compilation.tap("URLImportPlugin", compilation => {
         const { mainTemplate } = compilation;
 
@@ -434,6 +450,9 @@ class URLImportPlugin {
         compilation.hooks.beforeModuleIds.tap("URLImportPlugin", modules => {
           // eslint-disable-next-line no-restricted-syntax
           for (const module of modules) {
+            if (this.opts?.provideExternals?.includes(module.rawRequest)) {
+              module.id = module.rawRequest;
+            }
             if (module.id === null && module.resource) {
               const hash = createHash(this.opts.hashFunction);
 
@@ -461,7 +480,7 @@ class URLImportPlugin {
               module.id = hashId.substr(0, len);
               usedIds.add(module.id);
             } else if (this.opts.debug) {
-              console.log("Module with no ID", module);
+              // console.log("Module with no ID", module);
             }
             const externalModule = hasExternalizedModuleViaJson(
               module.resource
