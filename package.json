@@ -31,7 +31,7 @@
     "runtime"
   ],
   "scripts": {
-    "compile": "babel src -d .",
+    "compile": "rm -rf webpack index.js corsImport.js react.js polyfill.js; babel src -d .",
     "test": "yarn  lint",
     "lint": "eslint --ext .js,.ts,.tsx src --fix",
     "jest": "NODE_ENV=test jest",
