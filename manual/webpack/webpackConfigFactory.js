@@ -36,14 +36,9 @@ module.exports = (siteId, options) => {
           fileName: "importManifest.js",
           basePath: ``,
           publicPath: `//localhost:300${siteId}/`,
-          transformExtensions: /^(gz|map)$/i,
           writeToFileEmit: false,
-          seed: null,
           filter: null,
           debug: true,
-          map: null,
-          generate: null,
-          sort: null
         }),
         new HtmlWebpackPlugin({
           template: templatePath,

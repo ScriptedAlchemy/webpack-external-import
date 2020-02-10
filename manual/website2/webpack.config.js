@@ -10,7 +10,6 @@ module.exports = configFactory(siteId, {
       fileName: "importManifest.js",
       basePath: ``,
       publicPath: `//localhost:3002/`,
-      transformExtensions: /^(gz|map)$/i,
       useExternals: {
         react: "React"
       }
