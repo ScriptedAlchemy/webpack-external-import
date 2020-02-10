@@ -12,12 +12,12 @@
     "manual:dev": "cross-env NODE_ENV=development node ../node_modules/webpack-dev-server/bin/webpack-dev-server.js"
   },
   "devDependencies": {
-    "@babel/cli": "7.7.7",
-    "@babel/core": "7.7.7",
-    "@babel/plugin-syntax-dynamic-import": "7.7.4",
-    "@babel/plugin-transform-runtime": "7.7.6",
-    "@babel/preset-env": "7.7.7",
-    "@babel/preset-react": "7.7.4",
+    "@babel/cli": "7.8.4",
+    "@babel/core": "7.8.4",
+    "@babel/plugin-syntax-dynamic-import": "7.8.3",
+    "@babel/plugin-transform-runtime": "7.8.3",
+    "@babel/preset-env": "7.8.4",
+    "@babel/preset-react": "7.8.3",
     "@types/react": "16.9.19",
     "babel-core": "7.0.0-bridge.0",
     "babel-loader": "8.0.6",
