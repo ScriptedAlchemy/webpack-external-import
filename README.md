@@ -334,12 +334,10 @@ module.exports = {
       fileName: "importManifest.js",
       basePath: ``,
       publicPath: `//localhost:3002/`,
-      transformExtensions: /^(gz|map)$/i,
       writeToFileEmit: false,
       filter: null,
       debug: true,
       map: null,
-      generate: null,
       sort: null
     })
   ]
@@ -356,13 +354,11 @@ module.exports = {
       fileName: "importManifest.js",
       basePath: ``,
       publicPath: `//localhost:3001/`,
-      transformExtensions: /^(gz|map)$/i,
       writeToFileEmit: false,
       seed: null,
       filter: null,
       debug: true,
       map: null,
-      generate: null
     })
   ]
 };
@@ -412,20 +408,6 @@ Type: `Function(Object, FileDescriptor): Object`<br>
 Default: `src`
 
 Test resource path to see if plugin should apply transformations
-
-### `options.generate`
-
-Type: `Function(Object, FileDescriptor): Object`<br>
-Default: `(seed, files) => files.reduce((manifest, {name, path}) => ({...manifest, [name]: path}), seed)`
-
-Create the manifest. It can return anything as long as it's serializable by `JSON.stringify`. [FileDescriptor typings](#filedescriptor)
-
-### `options.serialize`
-
-Type: `Function(Object): string`<br>
-Default: `(manifest) => JSON.stringify(manifest, null, 2)`
-
-Output manifest file in a different format then json (i.e., yaml).
 
 ### **ExternalComponent**
 
