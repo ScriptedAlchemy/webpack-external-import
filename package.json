@@ -32,11 +32,9 @@
   ],
   "scripts": {
     "compile": "babel src -d .",
-    "test": "yarn  lint",
+    "test": "yarn lint",
     "lint": "eslint --ext .js,.ts,.tsx src --fix",
-    "jest": "NODE_ENV=test jest",
     "kill-ports": "lsof -ti:3001 | xargs kill -9; lsof -ti:3002 | xargs kill -9; lsof -ti:3003 | xargs kill -9",
-    "jest:ci": "cross-env NODE_ENV=development jest",
     "demo:one": "cd manual/Website1; yarn manual:dev",
     "demo:one:prod": "cd manual/Website1; yarn && yarn manual:prod",
     "demo:two": "cd manual/Website2; yarn manual:dev",
@@ -82,14 +80,14 @@
     "eslint-plugin-jsx-a11y": "6.2.3",
     "eslint-plugin-prettier": "3.1.2",
     "eslint-plugin-react": "7.17.0",
-    "eslint-plugin-react-hooks": "^2.3.0",
+    "eslint-plugin-react-hooks": "1.7.0",
     "flow-bin": "0.117.0",
     "html-webpack-plugin": "3.2.0",
     "jest": "25.1.0",
     "jest-haste-map": "25.1.0",
     "jest-puppeteer": "4.4.0",
     "jest-resolve": "25.1.0",
-    "marked": "0.8.0",
+    "marked": "0.7.0",
     "node-cipher": "6.3.3",
     "paralleljs": "^0.2.1",
     "prettier": "1.19.1",
@@ -124,9 +122,6 @@
         ]
       }
     }
-  },
-  "jest": {
-    "preset": "jest-puppeteer"
   },
   "dependencies": {
     "assert": "^2.0.0",

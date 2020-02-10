@@ -1,8 +1,9 @@
+/* eslint-disable import/no-unresolved */
+
 const webpackMerge = require("webpack-merge");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const path = require("path");
 const WriteFilePlugin = require("write-file-webpack-plugin");
-const webpack = require("webpack");
 const common = require("./webpack.common");
 const paths = require("./paths");
 const URLImportPlugin = require("../../webpack");
