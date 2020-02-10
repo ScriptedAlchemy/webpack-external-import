@@ -1,6 +1,6 @@
 const webpack = require("webpack");
-const configFactory = require("../webpack/webpackConfigFactory");
 const ExtractCssChunks = require("extract-css-chunks-webpack-plugin");
+const configFactory = require("../webpack/webpackConfigFactory");
 
 const siteId = 3;
 

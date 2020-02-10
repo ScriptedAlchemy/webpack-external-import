@@ -9,7 +9,6 @@
   "license": "GPL-3.0-only",
   "scripts": {
     "manual:prod": "cd ../../ && cd manual/website2 && cross-env NODE_ENV=production webpack && cp serve.json dist/serve.json && serve dist -l 3002",
-    "manual:prod:debug": "cross-env NODE_ENV=production node --inspect ../node_modules/webpack/bin/webpack.js && cp serve.json dist/serve.json && serve dist -l 3002",
     "manual:dev": "cd ../../ && cd manual/website2 && cross-env NODE_ENV=development node  node_modules/webpack-dev-server/bin/webpack-dev-server.js",
     "manual:debug": "cd ../../ && cd manual/website2 && cross-env NODE_ENV=production node --inspect node_modules/webpack-dev-server/bin/webpack-dev-server.js"
   },
