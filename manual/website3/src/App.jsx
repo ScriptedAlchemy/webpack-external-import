@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { hot } from "react-hot-loader";
-import Title from "./components/Title";
-
+import { Title } from "./components/Title";
+import "./other.css";
 class App extends Component {
   constructor(props) {
     super(props);
@@ -19,7 +19,7 @@ class App extends Component {
   render() {
     if (!this.state.component) return null;
     const { component: HelloWorld } = this.state;
-    return <HelloWorld title="Hello, from Website2" />;
+    return <Title title="Hello, from website3" />;
   }
 }
 

@@ -1,5 +1,5 @@
 {
-  "name": "website-three",
+  "name": "website-two",
   "version": "0.0.0-development",
   "repository": {
     "type": "git",
@@ -8,13 +8,12 @@
   "author": "Zack Jackson <zack@ScriptedAlchemy.com> (https://github.com/ScriptedAlchemy)",
   "license": "GPL-3.0-only",
   "scripts": {
-    "manual:prod": "cd ../../ && yarn link  && cd manual/Website3 && yarn link  webpack-external-import && cross-env NODE_ENV=production webpack && cp serve.json dist/serve.json && serve dist -l 3003",
-    "manual:dev": "cd ../../ && yarn link && cd manual/Website3 && yarn link webpack-external-import && cross-env NODE_ENV=development node ../node_modules/webpack-dev-server/bin/webpack-dev-server.js",
-    "manual:debug": "cd ../../ && yarn link && cd manual/Website3 && yarn link webpack-external-import && cross-env NODE_ENV=development node ../node_modules/webpack-dev-server/bin/webpack-dev-server.js"
+    "manual:prod": "cd ../../ && yarn link  && cd manual/website2 && yarn link  webpack-external-import && cross-env NODE_ENV=production webpack && cp serve.json dist/serve.json && serve dist -l 3002",
+    "manual:dev": "cd ../../ && yarn link  && cd manual/website2 && yarn link  webpack-external-import && cross-env NODE_ENV=development node  ../node_modules/webpack-dev-server/bin/webpack-dev-server.js",
+    "manual:debug": "cd ../../ && yarn link  && cd manual/website2 && yarn link  webpack-external-import && cross-env NODE_ENV=development node --inspect ../node_modules/webpack-dev-server/bin/webpack-dev-server.js"
   },
   "interleave": {
-    "src/components/Title/index.js": "TitleComponentWithCSSFile",
-    "src/components/Title/style.css": "TitleComponentWithCSSFileCSS",
+    "src/components/Title/index.js": "TitleComponent",
     "src/components/hello-world/index.js": "SomeExternalModule"
   },
   "devDependencies": {
@@ -28,12 +27,11 @@
     "babel-core": "7.0.0-bridge.0",
     "babel-loader": "8.0.6",
     "css-loader": "3.4.2",
-    "extract-css-chunks-webpack-plugin": "4.7.4",
     "node-sass": "4.13.1",
     "react-hot-loader": "4.12.18",
+    "serve": "^11.3.0",
     "sass-loader": "8.0.2",
     "style-loader": "1.1.3",
-    "serve": "^11.3.0",
     "webpack": "4.41.5",
     "webpack-cli": "3.3.10",
     "webpack-dev-server": "3.10.1",
@@ -48,7 +46,9 @@
     "crc-32": "^1.2.0",
     "cross-env": "^7.0.0",
     "html-webpack-plugin": "^4.0.0-beta.8",
-    "mini-css-extract-plugin": "^0.6.0",
+    "lodash": "^4.17.15",
+    "lodash-es": "^4.17.15",
+    "mobx": "^5.15.4",
     "moment": "^2.24.0",
     "optimize-css-assets-webpack-plugin": "^5.0.1",
     "react": "file:../../node_modules/react",
@@ -56,6 +56,7 @@
     "react-select": "3.0.4",
     "regenerator-runtime": "^0.13.2",
     "scriptjs": "^2.5.9",
+    "tiny-mobx-form": "^0.8.3",
     "webpack-external-import": "file:../../",
     "wrapper-webpack-plugin": "^2.1.0"
   }
