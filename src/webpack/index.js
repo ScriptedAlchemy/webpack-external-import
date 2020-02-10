@@ -19,17 +19,7 @@ const {
 } = require("./chunkSplitting");
 const { addLocalVars } = require("./localVars");
 const { wrapChunks } = require("./optimizeChunk");
-// use this
-// class FunctionModulePlugin {
-//   apply(compiler) {
-//     compiler.hooks.compilation.tap("FunctionModulePlugin", compilation => {
-//       new FunctionModuleTemplatePlugin().apply(
-//         compilation.moduleTemplates.javascript
-//       );
-//     });
-//   }
-// }
-// will likely remove this emit mapping
+
 const emitCountMap = new Map();
 console.clear();
 
