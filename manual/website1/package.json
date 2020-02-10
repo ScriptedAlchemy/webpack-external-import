@@ -6,10 +6,10 @@
     "url": "https://github.com/faceyspacey/remixx.git"
   },
   "author": "Zack Jackson <zack@ScriptedAlchemy.com> (https://github.com/ScriptedAlchemy)",
+  "license": "GPL-3.0-only",
   "scripts": {
-    "manual:prod": "cross-env NODE_ENV=production webpack && cp serve.json dist/serve.json && serve dist -l 3001",
-    "manual:dev": "cross-env NODE_ENV=development node node_modules/webpack-dev-server/bin/webpack-dev-server.js",
-    "manual:debug": "cd ../../ && cd manual/website1 && cross-env NODE_ENV=production node --inspect node_modules/webpack-dev-server/bin/webpack-dev-server.js"
+    "manual:prod": "cross-env NODE_ENV=production webpack && cp serve.json  dist/serve.json && serve dist -l 3001",
+    "manual:dev": "cross-env NODE_ENV=development node ../node_modules/webpack-dev-server/bin/webpack-dev-server.js"
   },
   "devDependencies": {
     "@babel/cli": "7.7.7",
@@ -18,9 +18,9 @@
     "@babel/plugin-transform-runtime": "7.7.6",
     "@babel/preset-env": "7.7.7",
     "@babel/preset-react": "7.7.4",
+    "@types/react": "16.9.19",
     "babel-core": "7.0.0-bridge.0",
     "babel-loader": "8.0.6",
-    "eslint-loader": "3.0.3",
     "react-hot-loader": "4.12.18",
     "webpack": "4.41.5",
     "webpack-cli": "3.3.10",
