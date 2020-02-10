@@ -92,7 +92,7 @@
     "paralleljs": "^0.2.1",
     "prettier": "1.19.1",
     "prop-types": "15.7.2",
-    "puppeteer": "1.20.0",
+    "puppeteer": "2.1.1",
     "react": "16.8.6",
     "react-dom": "16.8.6",
     "regenerator-runtime": "0.13.3",
