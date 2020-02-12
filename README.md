@@ -26,7 +26,7 @@
  <img src="docs/webpack-external-import.png" width="40%" alt="webpack-external-import" />
 </p>
 
-> This project has been proposed for implementation into the Webpack core (with some rewrites and refactors). Track the progress and share the issue for wider exposure if you are interested in seeing this become part of Webpack. I believe a system like this would offer great benefits for the JavaSciprt community. Fingers crossed!  https://github.com/webpack/webpack/issues/10352
+> This project has been proposed for implementation into the Webpack core (with some rewrites and refactors). Track the progress and share the issue for wider exposure if you are interested in seeing this become part of Webpack. I believe a system like this would offer great benefits for the JavaSciprt community. Fingers crossed! https://github.com/webpack/webpack/issues/10352
 
 ```shell
 $ yarn add webpack-external-import
@@ -55,7 +55,7 @@ yarn add webpack-external-import
 Major rewrite which has taken the original concept and built it directly into webpack runtime.
 A big achievement in this release is **tree-shaking support**
 
-If you want to read me about what this tool does. 
+If you want to read me about what this tool does.
 
 Read the following:
 
@@ -203,8 +203,8 @@ const URLImportPlugin = require("webpack-external-import/webpack");
 
 Pretend we have two separate apps that each have their _independent_ build. We want to share a module from one of our apps with the other.
 
-To do this, you must add an `externalize` object to `package.json`.
-The `externalize` object tells the plugin to make the module accessible through a predictable name.
+To do this, you must add an `interleave` object to `package.json`.
+The `interleave` object tells the plugin to make the module accessible through a predictable name.
 
 For example:
 
@@ -229,12 +229,43 @@ __webpack_require__
 This ensures a easy way for other consumers, teams, engineers to look up what another project or team is willing
 to allow for interleaving
 
-## Full Example
+## Working with Webpack Externals
 
-WEBSITE-ONE
-app.js
+Its important to follow the instructions below if you are planning to use Webpack externals.
+This plugin must be installed on all builds - it is intended that the build creating providing external is built by this plugin.
+Externals work best in scenarios where the "host" app should supplying dependencies to an interleaved one.
+
+**Providing Externals**
+To support webpack externals, you will need to use `provideExternals` to specify externals
+
+**Note:** you must use `provideExternals` **instead** of the webpack `externals` option.
 
 ```js
+new URLImportPlugin({
+  provideExternals: {
+    react: "React"
+  }
+});
+```
+
+**Consuming Externals**
+To consume externals, you will need to use `useExternals` to inform webpack that the interleaved app should use the module specified by `provideExternals`
+
+```js
+new URLImportPlugin({
+  useExternals: {
+    react: "React"
+  }
+});
+```
+
+## Full Example
+
+**WEBSITE-ONE**
+
+```js
+// app.js
+
 import React, { Component } from "react";
 import { ExternalComponent } from "webpack-external-import";
 import HelloWorld from "./components/goodbye-world";
@@ -299,17 +330,14 @@ Promise.all([
 });
 ```
 
-WEBSITE-TWO:
-package.json
+**WEBSITE-TWO**
 
 ```json
+// package.json
+
 {
   "name": "website-two",
   "version": "0.0.0-development",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/faceyspacey/remixx.git"
-  },
   "author": "Zack Jackson <zack@ScriptedAlchemy.com> (https://github.com/ScriptedAlchemy)",
   "interleave": {
     "src/components/Title/index.js": "TitleComponentWithCSSFile",
@@ -322,47 +350,19 @@ package.json
 ## API:
 
 ```js
-// Website Two -  webpack.config.js
-
 module.exports = {
-  output: {
-    publicPath
-  },
-  plugins: [
-    new URLImportPlugin({
-      manifestName: "website-two",
-      fileName: "importManifest.js",
-      basePath: ``,
-      publicPath: `//localhost:3002/`,
-      transformExtensions: /^(gz|map)$/i,
-      writeToFileEmit: false,
-      filter: null,
-      debug: true,
-      map: null,
-      generate: null,
-      sort: null
-    })
-  ]
-};
-
-// Website One webpack.config.js
-module.exports = {
-  output: {
-    publicPath
-  },
   plugins: [
     new URLImportPlugin({
       manifestName: "website-one",
       fileName: "importManifest.js",
       basePath: ``,
       publicPath: `//localhost:3001/`,
-      transformExtensions: /^(gz|map)$/i,
       writeToFileEmit: false,
       seed: null,
       filter: null,
       debug: true,
-      map: null,
-      generate: null
+      useExternals: {},
+      provideExternals: {}
     })
   ]
 };
@@ -413,19 +413,20 @@ Default: `src`
 
 Test resource path to see if plugin should apply transformations
 
-### `options.generate`
+### `options.useExternals`
 
-Type: `Function(Object, FileDescriptor): Object`<br>
-Default: `(seed, files) => files.reduce((manifest, {name, path}) => ({...manifest, [name]: path}), seed)`
+Type: `Object`<br>
+Default: `{}`
 
-Create the manifest. It can return anything as long as it's serializable by `JSON.stringify`. [FileDescriptor typings](#filedescriptor)
+Informs the webpack treat the following dependencies as externals.
+Works the same way externals does.
 
-### `options.serialize`
+### `options.provideExternals`
 
-Type: `Function(Object): string`<br>
-Default: `(manifest) => JSON.stringify(manifest, null, 2)`
+Type: `Object`<br>
+Default: `{}`
 
-Output manifest file in a different format then json (i.e., yaml).
+Informs webpack to provide the dependencies listed in the object to other apps using `useExternals`
 
 ### **ExternalComponent**
 

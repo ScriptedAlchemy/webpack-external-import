@@ -3,7 +3,8 @@
   "workspaces": [
     "website1",
     "website2",
-    "website3"
+    "website3",
+    "website4"
   ],
   "name": "external-import-demo",
   "version": "0.0.0-development",

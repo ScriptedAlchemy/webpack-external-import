@@ -31,12 +31,13 @@
     "runtime"
   ],
   "scripts": {
-    "compile": "babel src -d .",
+    "compile": "rm -rf webpack index.js corsImport.js react.js polyfill.js; babel src -d .",
     "test": "yarn lint",
     "lint": "eslint --ext .js,.ts,.tsx src --fix",
     "kill-ports": "lsof -ti:3001 | xargs kill -9; lsof -ti:3002 | xargs kill -9; lsof -ti:3003 | xargs kill -9",
     "demo:one": "cd manual/website1; yarn manual:dev",
     "demo:one:prod": "cd manual/website1; yarn && yarn manual:prod",
+    "demo:one:debug": "cd manual/website1; yarn && yarn manual:debug",
     "demo:two": "cd manual/website2; yarn manual:dev",
     "demo:two:prod": "cd manual/website2; yarn && yarn manual:prod",
     "demo:two:debug": "cd manual/website2; yarn && yarn manual:debug",
@@ -46,7 +47,7 @@
     "demo": "cd manual; yarn && cd ../; concurrently \"yarn compile\"  \"yarn demo:one\"  \"yarn demo:two\"  \"yarn demo:three\"",
     "demo:prod": "cd manual; yarn && cd ../; concurrently \"yarn kill-ports\" \"yarn compile\" \"yarn demo:one:prod\" \"yarn demo:two:prod\" \"yarn demo:three:prod \"",
     "demo:debug": "cd manual; yarn && cd ../; concurrently \"yarn kill-ports\" \"yarn compile\" \"yarn demo:one\" \"yarn demo:two:debug\" \"yarn demo:three\"",
-    "demo:fast": "yarn compile && yarn link && yarn demo:one:fast | yarn demo:two:fast",
+    "demo:fast": "yarn compile && yarn demo:one:fast | yarn demo:two:fast",
     "prepare": "BABEL_ENV=production yarn compile",
     "semantic-release": "semantic-release",
     "commit": "npx git-cz"

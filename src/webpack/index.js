@@ -1,8 +1,9 @@
 const path = require("path");
 const fse = require("fs-extra");
 const createHash = require("webpack/lib/util/createHash");
-// const FunctionModuleTemplatePlugin = require("webpack/lib/FunctionModuleTemplatePlugin");
 const fs = require("fs");
+const ExternalModuleFactoryPlugin = require("./ExternalModuleFactory");
+// const FunctionModuleTemplatePlugin = require("webpack/lib/FunctionModuleTemplatePlugin");
 const { mergeDeep } = require("./utils");
 
 const {
@@ -18,19 +19,14 @@ const {
 } = require("./chunkSplitting");
 const { addLocalVars } = require("./localVars");
 const { wrapChunks } = require("./optimizeChunk");
-// use this
-// class FunctionModulePlugin {
-//   apply(compiler) {
-//     compiler.hooks.compilation.tap("FunctionModulePlugin", compilation => {
-//       new FunctionModuleTemplatePlugin().apply(
-//         compilation.moduleTemplates.javascript
-//       );
-//     });
-//   }
-// }
-// will likely remove this emit mapping
+
 const emitCountMap = new Map();
 console.clear();
+
+function getFileType(str) {
+  const split = str.replace(/\?.*/, "").split(".");
+  return split.pop();
+}
 
 class URLImportPlugin {
   constructor(opts) {
@@ -42,7 +38,6 @@ class URLImportPlugin {
         "URLImportPlugin: You MUST specify a manifestName in your options. Something unique. Like {manifestName: my-special-build}"
       );
     }
-
     this.opts = {
       publicPath: null,
       debug: debug || false,
@@ -50,30 +45,15 @@ class URLImportPlugin {
       basePath: "",
       manifestName: "unknown-project",
       fileName: "importManifest.js",
-      transformExtensions: /^(gz|map)$/i,
       writeToFileEmit: false,
       seed: null,
       filter: null,
-      generate: null,
       hashDigest: "base64",
       hashDigestLength: 5,
       context: null,
       hashFunction: "md4",
-      serialize: manifest =>
-        `if(!window.entryManifest) {window.entryManifest = {}}; window.entryManifest["${
-          opts.manifestName
-        }"] = ${JSON.stringify(manifest)}`,
       ...(opts || {})
     };
-  }
-
-  getFileType(str) {
-    const split = str.replace(/\?.*/, "").split(".");
-    let ext = split.pop();
-    if (this.opts.transformExtensions.test(ext)) {
-      ext = `${split.pop()}.${ext}`;
-    }
-    return ext;
   }
 
   apply(compiler) {
@@ -81,7 +61,13 @@ class URLImportPlugin {
       console.group("Webpack Plugin Debugging: webpack-external-import");
       console.info("To disable this, set plugin options {debug:false}");
     }
+
     const options = compiler?.options;
+    if (options.externals) {
+      throw new Error(
+        "URLImportPlugin: Externals must be applied via the plugin, not via webpack config object. Please see useExternals on the plugin documentation"
+      );
+    }
     // add to the existing webpack config
     // adding a new splitChunks cache group called interleave
     const chunkSplitting =
@@ -209,7 +195,7 @@ class URLImportPlugin {
           chunk.files.reduce((fx, filePath) => {
             let name = chunk.id ? chunk.id : null;
             if (name) {
-              name = `${name}.${this.getFileType(filePath)}`;
+              name = `${name}.${getFileType(filePath)}`;
             } else {
               // For nameless chunks, just map the files directly.
               name = filePath;
@@ -298,20 +284,15 @@ class URLImportPlugin {
 
         console.groupEnd();
       }
-      let manifest;
-      if (this.opts.generate) {
-        manifest = this.opts.generate(seed, files);
-      } else {
-        manifest = files.reduce(
-          (m, file) => ({
-            ...m,
-            [file.name]: {
-              path: file.path
-            }
-          }),
-          seed
-        );
-      }
+      const manifest = files.reduce(
+        (m, file) => ({
+          ...m,
+          [file.name]: {
+            path: file.path
+          }
+        }),
+        seed
+      );
       if (this.opts.debug) {
         console.log("Manifest:", manifest);
       }
@@ -327,8 +308,12 @@ class URLImportPlugin {
           },
           {}
         );
+        const serialize = manifest =>
+          `if(!window.entryManifest) {window.entryManifest = {}}; window.entryManifest["${
+            this.opts.manifestName
+          }"] = ${JSON.stringify(manifest)}`;
 
-        const output = this.opts.serialize(cleanedManifest);
+        const output = serialize(cleanedManifest);
         if (this.opts.debug) {
           console.log("Output:", output);
         }
@@ -379,6 +364,16 @@ class URLImportPlugin {
       compiler.hooks.webpackURLImportPluginAfterEmit = new SyncWaterfallHook([
         "manifest"
       ]);
+
+      compiler.hooks.compile.tap(
+        "ExternalsPlugin",
+        ({ normalModuleFactory }) => {
+          new ExternalModuleFactoryPlugin(
+            options.output.libraryTarget,
+            this.opts.useExternals
+          ).apply(normalModuleFactory);
+        }
+      );
       compiler.hooks.compilation.tap("URLImportPlugin", compilation => {
         const { mainTemplate } = compilation;
 
@@ -432,8 +427,15 @@ class URLImportPlugin {
         const usedIds = new Set();
         // creates hashed module IDs based on the contents of the file - works like [contenthash] but for each module
         compilation.hooks.beforeModuleIds.tap("URLImportPlugin", modules => {
+          const provideExternals = Object.keys(
+            this.opts?.provideExternals || {}
+          );
+
           // eslint-disable-next-line no-restricted-syntax
           for (const module of modules) {
+            if (provideExternals.includes(module.rawRequest)) {
+              module.id = module.rawRequest;
+            }
             if (module.id === null && module.resource) {
               const hash = createHash(this.opts.hashFunction);
 
@@ -461,7 +463,7 @@ class URLImportPlugin {
               module.id = hashId.substr(0, len);
               usedIds.add(module.id);
             } else if (this.opts.debug) {
-              console.log("Module with no ID", module);
+              // console.log("Module with no ID", module);
             }
             const externalModule = hasExternalizedModuleViaJson(
               module.resource

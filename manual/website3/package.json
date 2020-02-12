@@ -8,9 +8,9 @@
   "author": "Zack Jackson <zack@ScriptedAlchemy.com> (https://github.com/ScriptedAlchemy)",
   "license": "GPL-3.0-only",
   "scripts": {
-    "manual:prod": "cd ../../ && yarn link  && cd manual/website3 && yarn link  webpack-external-import && cross-env NODE_ENV=production webpack && cp serve.json dist/serve.json && serve dist -l 3003",
-    "manual:dev": "cd ../../ && yarn link && cd manual/website3 && yarn link webpack-external-import && cross-env NODE_ENV=development node ../node_modules/webpack-dev-server/bin/webpack-dev-server.js",
-    "manual:debug": "cd ../../ && yarn link && cd manual/website3 && yarn link webpack-external-import && cross-env NODE_ENV=development node ../node_modules/webpack-dev-server/bin/webpack-dev-server.js"
+    "manual:prod": "cd ../../ && cd manual/website3 && cross-env NODE_ENV=production webpack && cp serve.json dist/serve.json && serve dist -l 3003",
+    "manual:dev": "cd ../../ && cd manual/website3 && cross-env NODE_ENV=development node node_modules/webpack-dev-server/bin/webpack-dev-server.js",
+    "manual:debug": "cd ../../ && cd manual/website3 && cross-env NODE_ENV=development node node_modules/webpack-dev-server/bin/webpack-dev-server.js"
   },
   "interleave": {
     "src/components/Title/index.js": "TitleComponentWithCSSFile",
