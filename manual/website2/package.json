@@ -58,6 +58,7 @@
     "scriptjs": "^2.5.9",
     "tiny-mobx-form": "^0.8.3",
     "webpack-external-import": "file:../../",
-    "wrapper-webpack-plugin": "^2.1.0"
+    "wrapper-webpack-plugin": "^2.1.0",
+    "webpack-virtual-modules": "^0.2.1"
   }
 }

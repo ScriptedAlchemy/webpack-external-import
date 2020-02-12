@@ -6,7 +6,7 @@ const path = require("path");
 const WriteFilePlugin = require("write-file-webpack-plugin");
 const common = require("./webpack.common");
 const paths = require("./paths");
-const URLImportPlugin = require("../../webpack");
+const {ContainerPlugin} = require("../../");
 
 const envs = {
   development: "dev",
@@ -32,7 +32,7 @@ module.exports = (siteId, options) => {
     {
       plugins: [
         new WriteFilePlugin(),
-        new URLImportPlugin({
+        new ContainerPlugin({
           manifestName,
           fileName: "importManifest.js",
           basePath: ``,
