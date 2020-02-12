@@ -232,9 +232,6 @@ export default class ContainerPlugin {
           return new RemoteModule();
         }
       );
-
-      // const dep = SingleEntryPlugin.createDependency('src/federatedEntry.js', 'federated');
-      // compilation.addEntry('src', SpecialEntryDependency, 'federated', console.log);
     });
   }
 }
