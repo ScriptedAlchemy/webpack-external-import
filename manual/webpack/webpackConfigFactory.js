@@ -41,10 +41,10 @@ module.exports = (siteId, options) => {
           filter: null,
           debug: true,
         }),
-        new HtmlWebpackPlugin({
-          template: templatePath,
-          inject: true
-        })
+        // new HtmlWebpackPlugin({
+        //   template: templatePath,
+        //   inject: true
+        // })
       ]
     },
     options
