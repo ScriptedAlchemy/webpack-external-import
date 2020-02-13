@@ -1,7 +1,7 @@
 const Dependency = require("webpack/lib/Dependency");
 const Module = require("webpack/lib/Module");
 const { RawSource, ConcatSource } = require("webpack-sources");
-
+const path = require("path");
 const PLUGIN_NAME = "ContainerPlugin";
 
 class ContainerExposedDependency extends Dependency {
@@ -104,7 +104,7 @@ class ContainerPlugin {
         containerEntryModuleFactory
       );
       compilation.addEntry(
-        compilation.options.context ?? "./src/", // TODO: Figure out what the fallback is. Maybe webpack can give us a hint here
+        compilation.context ?? "/src/", // TODO: Figure out what the fallback is. Maybe webpack can give us a hint here
         new ContainerEntryDependency(this.options.expose),
         this.options.name,
         error => {
