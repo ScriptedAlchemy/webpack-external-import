@@ -16,10 +16,11 @@ class ContainerEntryDependency extends Dependency {
   /**
    * @param {string} request request path which needs resolving
    */
-  constructor(request) {
+  constructor(request, expose) {
     super();
     this.request = request;
     this.userRequest = request;
+    this.expose = expose;
   }
 
   getResourceIdentifier() {
@@ -30,7 +31,6 @@ class ContainerEntryDependency extends Dependency {
 class ContainerEntryModule extends Module {
   constructor(dependencies, expose) {
     super("container entry");
-    this.expose = expose;
   }
 
   identifier() {
@@ -48,7 +48,7 @@ class ContainerEntryModule extends Module {
       builtTime: Date.now()
     };
 
-    Object.entries(this.expose).forEach((name, request) => {
+    Object.entries(this.expose).forEach(([name, request]) => {
       this.addDependency(new ContainerExposedDependency(name, request));
     });
 
@@ -60,7 +60,7 @@ class ContainerEntryModule extends Module {
   }
 
   codeGeneration() {
-    console.log(this)
+    console.log(this);
     return {
       sources: new Map([
         "javascript",
@@ -76,12 +76,8 @@ class ContainerEntryModule extends Module {
 }
 
 class ContainerEntryModuleFactory {
-  constructor(expose) {
-    this.expose = expose;
-  }
-
   create({ dependencies }, callback) {
-    callback(null, new ContainerEntryModule(dependencies[0], this.expose));
+    callback(null, new ContainerEntryModule(dependencies[0]));
   }
 }
 
@@ -101,18 +97,15 @@ class ContainerPlugin {
   }
 
   apply(compiler) {
-    compiler.hooks.compilation.tap(PLUGIN_NAME, compilation => {
-      const containerEntryModuleFactory = new ContainerEntryModuleFactory(
-        this.options.expose
-      );
+    compiler.hooks.make.tap(PLUGIN_NAME, compilation => {
+      const containerEntryModuleFactory = new ContainerEntryModuleFactory();
       compilation.dependencyFactories.set(
         ContainerEntryDependency,
         containerEntryModuleFactory
       );
-
       compilation.addEntry(
         compilation.options.context ?? "./src/", // TODO: Figure out what the fallback is. Maybe webpack can give us a hint here
-        new ContainerEntryDependency(),
+        new ContainerEntryDependency(this.options.expose),
         this.options.name,
         (error, entryModule) => {}
       );
