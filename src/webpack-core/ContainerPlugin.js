@@ -1,6 +1,6 @@
 const Dependency = require("webpack/lib/Dependency");
 const Module = require("webpack/lib/Module");
-const { RawSource } = require("webpack-sources");
+const { ConcatSource } = require("webpack-sources");
 
 const PLUGIN_NAME = "ContainerPlugin";
 
@@ -22,9 +22,6 @@ class ContainerEntryDependency extends Dependency {
 class ContainerEntryModule extends Module {
   constructor(request, type, userRequest) {
     super("container entry");
-    // Info from Factory
-    this.request = request;
-    this.userRequest = userRequest;
   }
 
   identifier() {
@@ -38,25 +35,61 @@ class ContainerEntryModule extends Module {
   build(options, compilation, resolver, fs, callback) {
     this.buildInfo = {};
     this.buildMeta = {};
+
+    this._source = new ConcatSource();
+
+    // --- get
+
+    /*
+   export function get(module) {
+      switch(module) {
+        case "themes/dark":
+          return __webpack_require__.e(12).then(() => __webpack_require__(34));
+        case "Dashboard":
+          return Promise.all([__webpack_require__.e(23), __webpack_require__.e(24)]).then(() => __webpack_require__(56));
+        default:
+          return Promise.resolve().then(() => { throw new Error(...); });
+      }
+    };
+     */
+
+    compilation.hooks.seal.tap(PLUGIN_NAME, () => {
+      for (const mod of compilation.modules) {
+
+      }
+    });
+
+    this._source.add("console.log('hello world');");
+
+    // --- override
+
+    /*
+    export function override(module, getter) {
+      __webpack_require__.overrides[module] = getter;
+      // foreach child container, call override too
+    };
+     */
+
     callback();
   }
 
   getSourceTypes() {
-    return new Set(["javascript"]);
+    return new Set(["javascript/dynamic"]);
+  }
+
+  source() {
+    return this._source;
   }
 
   codeGeneration() {
     return {
-      sources: new Map([
-        "javascript",
-        new RawSource("console.log('hello world')")
-      ]),
+      sources: new Map(["javascript/dynamic", this._source]),
       runtimeRequirements: new Set()
     };
   }
 
   size() {
-    return 42;
+    return this._source.length;
   }
 }
 
@@ -68,7 +101,7 @@ class ContainerEntryModuleFactory {
 
 class ContainerPlugin {
   constructor(options) {
-    const name = options.name ?? "defualt"; // TODO: Can we assume this, or mark it as required?
+    const name = options.name ?? "remoteEntry"; // TODO: Can we assume this, or mark it as required?
 
     this.options = {
       overridable: options.overridable ?? null,
@@ -82,8 +115,6 @@ class ContainerPlugin {
   }
 
   apply(compiler) {
-    // TODO: _body_ of the plugin to come from ./webpack/X
-
     compiler.hooks.compilation.tap(PLUGIN_NAME, compilation => {
       const { mainTemplate, normalModuleFactory } = compilation;
       const containerEntryModuleFactory = new ContainerEntryModuleFactory();
@@ -93,21 +124,10 @@ class ContainerPlugin {
       );
 
       compilation.addEntry(
-        "./src",
+        compilation.options.context ?? "./src/", // TODO: Figure out what the fallback is. Maybe webpack can give us a hint here
         new ContainerEntryDependency(),
-        // this.entries.map((e, idx) => {
-        //   const dep = new SingleEntryDependency(e);
-        //   dep.loc = {
-        //     name: this.name,
-        //     index: idx
-        //   };
-        //   return dep;
-        // }),
-        // this.name
-        "remoteEntry",
-        () => {
-          return new ContainerEntryModule();
-        }
+        this.options.name,
+        () => {}
       );
     });
   }
