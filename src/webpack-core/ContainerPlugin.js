@@ -16,11 +16,10 @@ class ContainerEntryDependency extends Dependency {
   /**
    * @param {string} request request path which needs resolving
    */
-  constructor(request, expose) {
+  constructor(request) {
     super();
     this.request = request;
     this.userRequest = request;
-    this.expose = expose;
   }
 
   getResourceIdentifier() {
@@ -29,7 +28,7 @@ class ContainerEntryDependency extends Dependency {
 }
 
 class ContainerEntryModule extends Module {
-  constructor(dependencies, expose) {
+  constructor(dependencies) {
     super("container entry");
   }
 
@@ -47,6 +46,7 @@ class ContainerEntryModule extends Module {
     this.buildInfo = {
       builtTime: Date.now()
     };
+    console.log(this);
 
     Object.entries(this.expose).forEach(([name, request]) => {
       this.addDependency(new ContainerExposedDependency(name, request));
@@ -107,8 +107,8 @@ class ContainerPlugin {
         compilation.options.context ?? "./src/", // TODO: Figure out what the fallback is. Maybe webpack can give us a hint here
         new ContainerEntryDependency(this.options.expose),
         this.options.name,
-        (error, entryModule) => {
-          callback();
+        error => {
+          if (error) return callback(error);
         }
       );
     });
