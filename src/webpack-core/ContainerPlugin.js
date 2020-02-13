@@ -109,6 +109,7 @@ class ContainerPlugin {
         this.options.name,
         error => {
           if (error) return callback(error);
+          return callback();
         }
       );
     });
