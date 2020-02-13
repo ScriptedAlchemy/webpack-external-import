@@ -57,6 +57,8 @@ class ContainerEntryModule extends Module {
       for (const mod of compilation.modules) {
 
       }
+
+      callback();
     });
 
     this._source.add("console.log('hello world');");
@@ -69,8 +71,6 @@ class ContainerEntryModule extends Module {
       // foreach child container, call override too
     };
      */
-
-    callback();
   }
 
   getSourceTypes() {
