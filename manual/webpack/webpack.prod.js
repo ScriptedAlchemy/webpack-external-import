@@ -7,7 +7,7 @@ module.exports = commonPaths => ({
   mode: "production",
   entry: commonPaths.entry,
   output: {
-    filename: `${commonPaths.jsFolder}/[name].[hash].js`,
+    filename: `${commonPaths.jsFolder}/[name].[fullhash].js`,
     path: commonPaths.outputPath,
     chunkFilename: `${commonPaths.jsFolder}/[name].[chunkhash].js`
   },
@@ -49,6 +49,5 @@ module.exports = commonPaths => ({
       "Access-Control-Allow-Headers": "*"
     }
   },
-  plugins: [new WriteFilePlugin(), new CleanWebpackPlugin()],
   devtool: "inline-source-map"
 });

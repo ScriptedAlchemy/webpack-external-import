@@ -1,6 +1,6 @@
 const Dependency = require("webpack/lib/Dependency");
 const Module = require("webpack/lib/Module");
-const { RawSource } = require("webpack-sources");
+const { RawSource, ConcatSource } = require("webpack-sources");
 
 const PLUGIN_NAME = "ContainerPlugin";
 
@@ -28,8 +28,9 @@ class ContainerEntryDependency extends Dependency {
 }
 
 class ContainerEntryModule extends Module {
-  constructor() {
+  constructor(dependencies, expose) {
     super("container entry");
+    this.expose = expose;
   }
 
   identifier() {
@@ -47,7 +48,9 @@ class ContainerEntryModule extends Module {
       builtTime: Date.now()
     };
 
-    this.addDependency( new ContainerExposedDependency("Header", "./src/scenes/index.tsx"););
+    Object.entries(this.expose).forEach((name, request) => {
+      this.addDependency(new ContainerExposedDependency(name, request));
+    });
 
     callback();
   }
@@ -57,6 +60,7 @@ class ContainerEntryModule extends Module {
   }
 
   codeGeneration() {
+    console.log(this)
     return {
       sources: new Map([
         "javascript",
@@ -67,13 +71,17 @@ class ContainerEntryModule extends Module {
   }
 
   size() {
-    return 105;
+    return 42;
   }
 }
 
 class ContainerEntryModuleFactory {
+  constructor(expose) {
+    this.expose = expose;
+  }
+
   create({ dependencies }, callback) {
-    callback(null, new ContainerEntryModule(dependencies[0]));
+    callback(null, new ContainerEntryModule(dependencies[0], this.expose));
   }
 }
 
@@ -94,7 +102,9 @@ class ContainerPlugin {
 
   apply(compiler) {
     compiler.hooks.compilation.tap(PLUGIN_NAME, compilation => {
-      const containerEntryModuleFactory = new ContainerEntryModuleFactory();
+      const containerEntryModuleFactory = new ContainerEntryModuleFactory(
+        this.options.expose
+      );
       compilation.dependencyFactories.set(
         ContainerEntryDependency,
         containerEntryModuleFactory
