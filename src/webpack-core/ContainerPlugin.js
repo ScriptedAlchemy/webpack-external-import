@@ -98,7 +98,6 @@ class ContainerPlugin {
 
   apply(compiler) {
     compiler.hooks.make.tapAsync(PLUGIN_NAME, (compilation, callback) => {
-      console.log(args);
       const containerEntryModuleFactory = new ContainerEntryModuleFactory();
       compilation.dependencyFactories.set(
         ContainerEntryDependency,
