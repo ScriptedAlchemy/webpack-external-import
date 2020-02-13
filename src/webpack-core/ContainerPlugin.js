@@ -97,7 +97,8 @@ class ContainerPlugin {
   }
 
   apply(compiler) {
-    compiler.hooks.make.tap(PLUGIN_NAME, compilation => {
+    compiler.hooks.make.tapAsync(PLUGIN_NAME, (compilation, callback) => {
+      console.log(args);
       const containerEntryModuleFactory = new ContainerEntryModuleFactory();
       compilation.dependencyFactories.set(
         ContainerEntryDependency,
@@ -107,7 +108,9 @@ class ContainerPlugin {
         compilation.options.context ?? "./src/", // TODO: Figure out what the fallback is. Maybe webpack can give us a hint here
         new ContainerEntryDependency(this.options.expose),
         this.options.name,
-        (error, entryModule) => {}
+        (error, entryModule) => {
+          callback();
+        }
       );
     });
   }
