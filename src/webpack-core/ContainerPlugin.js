@@ -1,8 +1,16 @@
 const Dependency = require("webpack/lib/Dependency");
 const Module = require("webpack/lib/Module");
-const { ConcatSource } = require("webpack-sources");
+const { RawSource } = require("webpack-sources");
 
 const PLUGIN_NAME = "ContainerPlugin";
+
+class ContainerExposedDependency extends Dependency {
+  constructor(name, request) {
+    super();
+    this.request = request;
+    this.userRequest = request;
+  }
+}
 
 class ContainerEntryDependency extends Dependency {
   /**
@@ -39,43 +47,27 @@ class ContainerEntryModule extends Module {
       builtTime: Date.now()
     };
 
+    this.addDependency( new ContainerExposedDependency("Header", "./src/scenes/index.tsx"););
+
     callback();
   }
 
-  source() {
-    this._source = new ConcatSource();
+  getSourceTypes() {
+    return new Set(["javascript"]);
+  }
 
-    // --- get
-
-    /*
-	   export function get(module) {
-		  switch(module) {
-			case "themes/dark":
-			  return __webpack_require__.e(12).then(() => __webpack_require__(34));
-			case "Dashboard":
-			  return Promise.all([__webpack_require__.e(23), __webpack_require__.e(24)]).then(() => __webpack_require__(56));
-			default:
-			  return Promise.resolve().then(() => { throw new Error(...); });
-		  }
-		};
-	    */
-
-    this._source.add("console.log('hello world');");
-
-    // --- override
-
-    /*
-		export function override(module, getter) {
-		  __webpack_require__.overrides[module] = getter;
-		  // foreach child container, call override too
-		};
-	    */
-
-    return this._source;
+  codeGeneration() {
+    return {
+      sources: new Map([
+        "javascript",
+        new RawSource("console.log('hello world')")
+      ]),
+      runtimeRequirements: new Set("RuntimeGlobals.require")
+    };
   }
 
   size() {
-    return this._source.length;
+    return 105;
   }
 }
 
