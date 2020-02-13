@@ -18,8 +18,6 @@ module.exports = commonPaths => ({
     ]
   },
   optimization: {
-    namedModules: true,
-    namedChunks: true,
     runtimeChunk: {
       name: "webpackRuntime"
     },
