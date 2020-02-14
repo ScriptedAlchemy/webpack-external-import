@@ -27,6 +27,7 @@ class ContainerEntryDependency extends Dependency {
   constructor(dependencies, name) {
     super();
     this.exposedDependencies = dependencies;
+    this.optional = true;
     this.loc = { name };
   }
 }
@@ -60,10 +61,10 @@ class ContainerEntryModule extends Module {
   build(options, compilation, resolver, fs, callback) {
     this.buildMeta = {};
     this.buildInfo = {
-      strict: true,
-      builtTime: Date.now(),
-      expose: new Map()
+      strict: true
     };
+
+    this.clearDependenciesAndBlocks();
 
     for (const dep of this.expose) {
       const block = new AsyncDependenciesBlock(
@@ -73,8 +74,6 @@ class ContainerEntryModule extends Module {
       );
       block.addDependency(dep);
       this.addBlock(block);
-
-      this.buildInfo.expose.set(dep.exposedName, block);
     }
 
     callback();
@@ -82,21 +81,36 @@ class ContainerEntryModule extends Module {
 
   codeGeneration({ moduleGraph, chunkGraph, runtimeTemplate }) {
     const sources = new Map();
-    const runtimeRequirements = new Set([RuntimeGlobals.exports]);
+    const runtimeRequirements = new Set([
+      RuntimeGlobals.exports,
+      RuntimeGlobals.require
+    ]);
 
     const source = new ConcatSource();
     sources.set("javascript", source);
 
     const getters = [];
 
-    for (const [name, block] of this.buildInfo.expose) {
+    for (const block of this.blocks) {
+      const {
+        dependencies: [dep]
+      } = block;
+      const name = dep.exposedName;
+      const mod = moduleGraph.getModule(dep);
+
+      if (!mod) continue; // TODO: Perhaps we log something in non production builds?
+
+      const moduleId = JSON.stringify(mod.id); // TODO: This is temp, `.id` will be gone in v6?
+
+      const require_statement = runtimeTemplate.blockPromise({
+        block,
+        message: `${dep.userRequest}`, // TODO: Should we use the request here?
+        chunkGraph,
+        runtimeRequirements
+      });
+
       getters.push(
-        `case "${name}":\nreturn ${runtimeTemplate.blockPromise({
-          block,
-          message: `${name}`, // TODO: Should we use the request here?
-          chunkGraph,
-          runtimeRequirements
-        })};`
+        `case "${name}":\nreturn ${require_statement}.then(() => ${RuntimeGlobals.require}(${moduleId}));`
       );
     }
 
@@ -109,8 +123,6 @@ class ContainerEntryModule extends Module {
         }
       }
     `);
-
-    this.clearDependenciesAndBlocks();
 
     return {
       sources,
