@@ -21,11 +21,11 @@ module.exports = commonPaths => ({
     runtimeChunk: {
       name: "webpackRuntime"
     },
-    splitChunks: {
-      chunks: "all",
-      maxInitialRequests: Infinity,
-      minSize: 0,
-    }
+  //   splitChunks: {
+  //     chunks: "all",
+  //     maxInitialRequests: Infinity,
+  //     minSize: 0,
+  //   }
   },
   devServer: {
     contentBase: commonPaths.outputPath,

@@ -4,6 +4,7 @@ const webpackMerge = require("webpack-merge");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const path = require("path");
 const WriteFilePlugin = require("write-file-webpack-plugin");
+const SpeedMeasurePlugin = require("speed-measure-webpack-plugin");
 const common = require("./webpack.common");
 const paths = require("./paths");
 const { ContainerPlugin } = require("../../");
@@ -16,7 +17,6 @@ const envs = {
 /* eslint-disable global-require,import/no-dynamic-require */
 const env = envs[process.env.NODE_ENV || "development"];
 const envConfig = require(`./webpack.${env}.js`);
-const SpeedMeasurePlugin = require("speed-measure-webpack-plugin");
 
 module.exports = (siteId, options) => {
   const commonPaths = paths(siteId);
@@ -32,7 +32,7 @@ module.exports = (siteId, options) => {
     {
       plugins: [
         new ContainerPlugin({
-          manifestName,
+          name: "remoteEntry",
           expose: {
             Title: "src/components/Title/index.js"
           }

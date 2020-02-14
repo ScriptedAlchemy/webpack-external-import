@@ -16,8 +16,8 @@ class ContainerEntryDependency extends Dependency {
   /**
    * @param {string} request request path which needs resolving
    */
-  constructor(request) {
-    super();
+    constructor(request) {
+    super(request);
     this.request = request;
     this.userRequest = request;
   }
@@ -46,7 +46,6 @@ class ContainerEntryModule extends Module {
     this.buildInfo = {
       builtTime: Date.now()
     };
-    console.log(this);
 
     Object.entries(this.expose).forEach(([name, request]) => {
       this.addDependency(new ContainerExposedDependency(name, request));
@@ -60,7 +59,6 @@ class ContainerEntryModule extends Module {
   }
 
   codeGeneration() {
-    console.log(this);
     return {
       sources: new Map([
         "javascript",
@@ -97,7 +95,17 @@ class ContainerPlugin {
   }
 
   apply(compiler) {
+    console.clear();
+    compiler.hooks.compilation.tap(PLUGIN_NAME, (compilation) => {
+      compilation.hooks.finishAssets.tap(
+        PLUGIN_NAME,
+        (assets) => {
+          console.log(assets);
+        }
+      );
+    });
     compiler.hooks.make.tapAsync(PLUGIN_NAME, (compilation, callback) => {
+
       const containerEntryModuleFactory = new ContainerEntryModuleFactory();
       compilation.dependencyFactories.set(
         ContainerEntryDependency,

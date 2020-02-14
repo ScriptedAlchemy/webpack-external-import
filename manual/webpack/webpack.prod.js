@@ -4,7 +4,7 @@ const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 
 module.exports = commonPaths => ({
-  mode: "production",
+  mode: "development",
   entry: commonPaths.entry,
   output: {
     filename: `${commonPaths.jsFolder}/[name].[fullhash].js`,
@@ -12,23 +12,9 @@ module.exports = commonPaths => ({
     chunkFilename: `${commonPaths.jsFolder}/[name].[chunkhash].js`
   },
   optimization: {
-    mergeDuplicateChunks: true,
-    minimizer: [
-      new TerserPlugin({
-        // Use multi-process parallel running to improve the build speed
-        // Default number of concurrent runs: os.cpus().length - 1
-        parallel: true,
-        // Enable file caching
-        cache: true,
-        sourceMap: true
-      }),
-      new OptimizeCSSAssetsPlugin()
-    ],
+    mergeDuplicateChunks: false,
     // Keep the runtime chunk seperated to enable long term caching
     // https://twitter.com/wSokra/status/969679223278505985
-    runtimeChunk: {
-      name: "webpackRuntime"
-    }
   },
 
   module: {
