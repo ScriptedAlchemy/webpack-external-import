@@ -34,7 +34,7 @@ module.exports = (siteId, options) => {
         new ContainerPlugin({
           name: "remoteEntry",
           expose: {
-            Title: "src/components/Title/index.js"
+            Title: "./src/components/Title/index.js"
           }
         })
         // new HtmlWebpackPlugin({
