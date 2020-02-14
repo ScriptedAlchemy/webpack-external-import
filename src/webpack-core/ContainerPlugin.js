@@ -105,7 +105,7 @@ class ContainerEntryModule extends Module {
         switch(module) {
             ${getters.join("\n")}
           default:
-            return Promise.resolve().then(() => { throw new Error(...); });
+            return Promise.resolve().then(() => { throw new Error('Module ' + module + ' does not exist!'); });
         }
       }
     `);
