@@ -1,77 +1,84 @@
 const Dependency = require("webpack/lib/Dependency");
 const Module = require("webpack/lib/Module");
-const { RawSource, ConcatSource } = require("webpack-sources");
-const path = require("path");
+const ModuleDependency = require("webpack/lib/dependencies/ModuleDependency");
+const RuntimeGlobals = require("webpack/lib/RuntimeGlobals");
+const normalModuleFactory = require("webpack/lib/NormalModuleFactory");
+const { RawSource } = require("webpack-sources");
+
 const PLUGIN_NAME = "ContainerPlugin";
 
-class ContainerExposedDependency extends Dependency {
+class ContainerExposedDependency extends ModuleDependency {
   constructor(name, request) {
-    super();
-    this.request = request;
-    this.userRequest = request;
+    super(request);
+    this._name = name;
+  }
+
+  getResourceIdentifier() {
+    return `exposed dependency ${this._name}`;
   }
 }
 
 class ContainerEntryDependency extends Dependency {
-  constructor(exposeObject) {
+  constructor(dependencies) {
     super();
-    this.expose = exposeObject;
-  }
-
-  getResourceIdentifier() {
-    return `module${this.request}`;
+    this.exposedDependencies = dependencies;
   }
 }
 
 class ContainerEntryModule extends Module {
   constructor(dependency) {
-    super("container entry");
-    this.expose = dependency.expose;
+    super("javascript/dynamic", null);
+    this.expose = dependency.exposedDependencies;
+  }
+
+  getSourceTypes() {
+    return new Set(["javascript"]);
   }
 
   identifier() {
-    return "container";
+    return `container entry ${JSON.stringify(Object.keys(this.expose))}`;
   }
 
   readableIdentifier() {
-    return "container";
+    return "container entry";
+  }
+
+  needBuild(context, callback) {
+    debugger;
+    return callback(null, !this.buildMeta);
   }
 
   build(options, compilation, resolver, fs, callback) {
     this.buildMeta = {};
     this.buildInfo = {
+      strict: true,
       builtTime: Date.now()
     };
 
-    Object.entries(this.expose).forEach(([name, request]) => {
-      this.addDependency(new ContainerExposedDependency(name, request));
-    });
+    debugger;
 
     callback();
   }
 
-  getSourceTypes() {
-    return new Set(["javascript/dynamic"]);
-  }
-
-  codeGeneration() {
+  codeGeneration({ runtimeTemplate, moduleGraph, chunkGraph }) {
+    debugger;
     return {
       sources: new Map([
-        "javascript/dynamic",
+        "javascript",
         new RawSource("console.log('hello world')")
       ]),
-      runtimeRequirements: new Set("RuntimeGlobals.require")
+      runtimeRequirements: new Set([RuntimeGlobals.module])
     };
   }
 
-  size() {
+  size(type) {
     return 42;
   }
 }
 
 class ContainerEntryModuleFactory {
-  create({ dependencies }, callback) {
-    callback(null, new ContainerEntryModule(dependencies[0]));
+  create({ dependencies: [dependencie] }, callback) {
+    callback(null, new ContainerEntryModule(dependencie));
   }
 }
 
@@ -91,30 +98,45 @@ class ContainerPlugin {
   }
 
   apply(compiler) {
-    console.clear();
-    compiler.hooks.compilation.tap(PLUGIN_NAME, (compilation) => {
-      compilation.hooks.finishAssets.tap(
-        PLUGIN_NAME,
-        (assets) => {
-          console.log(assets);
-        }
-      );
-    });
-    compiler.hooks.make.tapAsync(PLUGIN_NAME, (compilation, callback) => {
-
-      const containerEntryModuleFactory = new ContainerEntryModuleFactory();
+    compiler.hooks.compilation.tap(PLUGIN_NAME, compilation => {
       compilation.dependencyFactories.set(
         ContainerEntryDependency,
-        containerEntryModuleFactory
+        new ContainerEntryModuleFactory()
       );
+      compilation.dependencyFactories.set(
+        ContainerExposedDependency,
+        normalModuleFactory
+      );
+
+      // TODO: DEBUGGERS - REMOVE BELOW
+      compilation.hooks.finishAssets.tap(PLUGIN_NAME, assets => {
+        debugger;
+      });
+
+      compilation.hooks.finishModules.tap(PLUGIN_NAME, x => {
+        debugger;
+      });
+
+      compilation.hooks.buildModule.tap(PLUGIN_NAME, module => {
+        debugger;
+      });
+    });
+
+    compiler.hooks.make.tapAsync(PLUGIN_NAME, (compilation, callback) => {
       compilation.addEntry(
-        compilation.context ?? "/src/", // TODO: Figure out what the fallback is. Maybe webpack can give us a hint here
-        new ContainerEntryDependency(this.options.expose),
+        compilation.context,
+        new ContainerEntryDependency(
+          Object.entries(this.options.expose).map(([name, request], idx) => {
+            const dep = new ContainerExposedDependency(name, request);
+            dep.loc = {
+              name,
+              index: idx
+            };
+            return dep;
+          })
+        ),
         this.options.name,
-        error => {
-          if (error) return callback(error);
-          return callback();
-        }
+        callback
       );
     });
   }
