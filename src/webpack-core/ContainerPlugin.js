@@ -1,9 +1,10 @@
 const Dependency = require("webpack/lib/Dependency");
 const Module = require("webpack/lib/Module");
 const ModuleDependency = require("webpack/lib/dependencies/ModuleDependency");
+const AsyncDependenciesBlock = require("webpack/lib/AsyncDependenciesBlock");
 const RuntimeGlobals = require("webpack/lib/RuntimeGlobals");
-const normalModuleFactory = require("webpack/lib/NormalModuleFactory");
-const { RawSource } = require("webpack-sources");
+const ModuleFactory = require("webpack/lib/ModuleFactory");
+const { ConcatSource } = require("webpack-sources");
 
 const PLUGIN_NAME = "ContainerPlugin";
 
@@ -13,17 +14,24 @@ class ContainerExposedDependency extends ModuleDependency {
     this._name = name;
   }
 
+  get exposedName() {
+    return this._name;
+  }
+
   getResourceIdentifier() {
     return `exposed dependency ${this._name}`;
   }
 }
 
 class ContainerEntryDependency extends Dependency {
-  constructor(dependencies) {
+  constructor(dependencies, name) {
     super();
     this.exposedDependencies = dependencies;
+    this.loc = { name };
   }
 }
+
+const CONTAINER_ENTRY_MODULE_TYPES = new Set(["javascript"]);
 
 class ContainerEntryModule extends Module {
   constructor(dependency) {
@@ -32,19 +40,20 @@ class ContainerEntryModule extends Module {
   }
 
   getSourceTypes() {
-    return new Set(["javascript"]);
+    return CONTAINER_ENTRY_MODULE_TYPES;
   }
 
   identifier() {
-    return `container entry ${JSON.stringify(Object.keys(this.expose))}`;
+    return `container entry ${JSON.stringify(
+      this.expose.map(item => item.getResourceIdentifier())
+    )}`;
   }
 
   readableIdentifier() {
-    return "container entry";
+    return `container entry`;
   }
 
   needBuild(context, callback) {
-    debugger;
     return callback(null, !this.buildMeta);
   }
 
@@ -52,22 +61,60 @@ class ContainerEntryModule extends Module {
     this.buildMeta = {};
     this.buildInfo = {
       strict: true,
-      builtTime: Date.now()
+      builtTime: Date.now(),
+      expose: new Map()
     };
 
-    debugger;
+    for (const dep of this.expose) {
+      const block = new AsyncDependenciesBlock(
+        undefined,
+        dep.loc,
+        dep.userRequest
+      );
+      block.addDependency(dep);
+      this.addBlock(block);
+
+      this.buildInfo.expose.set(dep.exposedName, block);
+    }
 
     callback();
   }
 
-  codeGeneration({ runtimeTemplate, moduleGraph, chunkGraph }) {
-    debugger;
+  codeGeneration({ moduleGraph, chunkGraph, runtimeTemplate }) {
+    const sources = new Map();
+    const runtimeRequirements = new Set([RuntimeGlobals.exports]);
+
+    const source = new ConcatSource();
+    sources.set("javascript", source);
+
+    const getters = [];
+
+    for (const [name, block] of this.buildInfo.expose) {
+      getters.push(
+        `case "${name}":\nreturn ${runtimeTemplate.blockPromise({
+          block,
+          message: `${name}`, // TODO: Should we use the request here?
+          chunkGraph,
+          runtimeRequirements
+        })};`
+      );
+    }
+
+    source.add(`
+      exports["get"] = function get(module) {
+        switch(module) {
+            ${getters.join("\n")}
+          default:
+            return Promise.resolve().then(() => { throw new Error(...); });
+        }
+      }
+    `);
+
+    this.clearDependenciesAndBlocks();
+
     return {
-      sources: new Map([
-        "javascript",
-        new RawSource("console.log('hello world')")
-      ]),
-      runtimeRequirements: new Set([RuntimeGlobals.module])
+      sources,
+      runtimeRequirements
     };
   }
 
@@ -76,9 +123,11 @@ class ContainerEntryModule extends Module {
   }
 }
 
-class ContainerEntryModuleFactory {
-  create({ dependencies: [dependencie] }, callback) {
-    callback(null, new ContainerEntryModule(dependencie));
+class ContainerEntryModuleFactory extends ModuleFactory {
+  create({ dependencies: [dependency] }, callback) {
+    callback(null, {
+      module: new ContainerEntryModule(dependency)
+    });
   }
 }
 
@@ -98,29 +147,20 @@ class ContainerPlugin {
   }
 
   apply(compiler) {
-    compiler.hooks.compilation.tap(PLUGIN_NAME, compilation => {
-      compilation.dependencyFactories.set(
-        ContainerEntryDependency,
-        new ContainerEntryModuleFactory()
-      );
-      compilation.dependencyFactories.set(
-        ContainerExposedDependency,
-        normalModuleFactory
-      );
+    compiler.hooks.compilation.tap(
+      PLUGIN_NAME,
+      (compilation, { normalModuleFactory }) => {
+        compilation.dependencyFactories.set(
+          ContainerEntryDependency,
+          new ContainerEntryModuleFactory()
+        );
 
-      // TODO: DEBUGGERS - REMOVE BELOW
-      compilation.hooks.finishAssets.tap(PLUGIN_NAME, assets => {
-        debugger;
-      });
-
-      compilation.hooks.finishModules.tap(PLUGIN_NAME, x => {
-        debugger;
-      });
-
-      compilation.hooks.buildModule.tap(PLUGIN_NAME, module => {
-        debugger;
-      });
-    });
+        compilation.dependencyFactories.set(
+          ContainerExposedDependency,
+          normalModuleFactory
+        );
+      }
+    );
 
     compiler.hooks.make.tapAsync(PLUGIN_NAME, (compilation, callback) => {
       compilation.addEntry(
@@ -133,7 +173,8 @@ class ContainerPlugin {
               index: idx
             };
             return dep;
-          })
+          }),
+          this.options.name
         ),
         this.options.name,
         callback
