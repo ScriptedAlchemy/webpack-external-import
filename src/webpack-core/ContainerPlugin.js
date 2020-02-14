@@ -13,13 +13,9 @@ class ContainerExposedDependency extends Dependency {
 }
 
 class ContainerEntryDependency extends Dependency {
-  /**
-   * @param {string} request request path which needs resolving
-   */
-    constructor(request) {
-    super(request);
-    this.request = request;
-    this.userRequest = request;
+  constructor(exposeObject) {
+    super();
+    this.expose = exposeObject;
   }
 
   getResourceIdentifier() {
@@ -28,8 +24,9 @@ class ContainerEntryDependency extends Dependency {
 }
 
 class ContainerEntryModule extends Module {
-  constructor(dependencies) {
+  constructor(dependency) {
     super("container entry");
+    this.expose = dependency.expose;
   }
 
   identifier() {
@@ -41,7 +38,6 @@ class ContainerEntryModule extends Module {
   }
 
   build(options, compilation, resolver, fs, callback) {
-    this.built = true;
     this.buildMeta = {};
     this.buildInfo = {
       builtTime: Date.now()
@@ -55,13 +51,13 @@ class ContainerEntryModule extends Module {
   }
 
   getSourceTypes() {
-    return new Set(["javascript"]);
+    return new Set(["javascript/dynamic"]);
   }
 
   codeGeneration() {
     return {
       sources: new Map([
-        "javascript",
+        "javascript/dynamic",
         new RawSource("console.log('hello world')")
       ]),
       runtimeRequirements: new Set("RuntimeGlobals.require")
