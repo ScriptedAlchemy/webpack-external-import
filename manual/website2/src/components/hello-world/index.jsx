@@ -1,12 +1,10 @@
 import React, { Component } from "react";
-import Title from "../Title";
 
 const Test = props => <div>{props.title}</div>;
 
 const TestTwo = (props, state, actions) => <div>{state.title}</div>;
 
 export const externalFunction = () => {
-  console.log(Title.constructor);
   window.wasExternalFunctionCalled = true;
   console.log("some function thats externalized");
 };

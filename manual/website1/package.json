@@ -22,7 +22,7 @@
     "babel-core": "7.0.0-bridge.0",
     "babel-loader": "8.0.6",
     "react-hot-loader": "4.12.18",
-    "webpack": "4.41.5",
+    "webpack": "^5.0.0-beta.13",
     "webpack-cli": "3.3.10",
     "webpack-dev-server": "3.10.1",
     "write-file-webpack-plugin": "4.5.1"

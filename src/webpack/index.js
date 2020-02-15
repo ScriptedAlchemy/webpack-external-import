@@ -463,7 +463,7 @@ class URLImportPlugin {
               module.id = hashId.substr(0, len);
               usedIds.add(module.id);
             } else if (this.opts.debug) {
-              // console.log("Module with no ID", module);
+              console.log("Module with no ID", module);
             }
             const externalModule = hasExternalizedModuleViaJson(
               module.resource
