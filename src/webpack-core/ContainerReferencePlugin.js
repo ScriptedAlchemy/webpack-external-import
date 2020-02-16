@@ -1,8 +1,125 @@
+/*
+	MIT License http://www.opensource.org/licenses/mit-license.php
+	Author Tobias Koppers @sokra
+*/
+
+const util = require("util");
+const RemoteModule = require("./RemoteModule");
+
+const UNSPECIFIED_EXTERNAL_TYPE_REGEXP = /^[a-z0-9]+ /;
+const PLUGIN_NAME = "ContainerReferencePlugin";
+// TODO webpack 6 remove this
+const callDeprecatedExternals = util.deprecate(
+  (externalsFunction, context, request, cb) => {
+    externalsFunction.call(null, context, request, cb);
+  },
+  "The externals-function should be defined like ({context, request}, cb) => { ... }",
+  "DEP_WEBPACK_EXTERNALS_FUNCTION_PARAMETERS"
+);
+
+class RemoteModuleFactoryPlugin {
+  constructor(type, remotes) {
+    this.type = type;
+    this.remotes = remotes;
+  }
+
+  apply(normalModuleFactory) {
+    const globalType = this.type;
+    normalModuleFactory.hooks.factorize.tapAsync(
+      "RemoteModuleFactoryPlugin",
+      (data, callback) => {
+        const { context } = data;
+        const dependency = data.dependencies[0];
+
+        const handleExternal = (value, type, callback) => {
+          if (value === false) {
+            // Not externals, fallback to original factory
+            return callback();
+          }
+          /** @type {string} */
+          let externalConfig;
+          if (value === true) {
+            externalConfig = dependency.request;
+          } else {
+            externalConfig = value;
+          }
+          // When no explicit type is specified, extract it from the externalConfig
+          if (
+            type === undefined &&
+            UNSPECIFIED_EXTERNAL_TYPE_REGEXP.test(externalConfig)
+          ) {
+            const idx = externalConfig.indexOf(" ");
+            type = externalConfig.substr(0, idx);
+            externalConfig = externalConfig.substr(idx + 1);
+          }
+          callback(
+            null,
+            new RemoteModule(
+              externalConfig,
+              type || globalType,
+              dependency.request
+            )
+          );
+        };
+
+        const handleExternals = (remotes, callback) => {
+          if (typeof remotes === "string") {
+            const requestScope = data.request?.split("/")?.shift();
+            if (this.remotes.includes(requestScope)) {
+              console.log(dependency);
+              return handleExternal(dependency.request, undefined, callback);
+            }
+          } else if (Array.isArray(remotes)) {
+            let i = 0;
+            const next = () => {
+              let asyncFlag;
+              const handleExternalsAndCallback = (err, module) => {
+                if (err) return callback(err);
+                if (!module) {
+                  if (asyncFlag) {
+                    asyncFlag = false;
+                    return;
+                  }
+                  return next();
+                }
+                callback(null, module);
+              };
+
+              do {
+                asyncFlag = true;
+                if (i >= remotes.length) return callback();
+                handleExternals(remotes[i++], handleExternalsAndCallback);
+              } while (!asyncFlag);
+              asyncFlag = false;
+            };
+
+            next();
+            return;
+          } else if (
+            typeof remotes === "object" &&
+            Object.prototype.hasOwnProperty.call(remotes, dependency.request)
+          ) {
+            return handleExternal(
+              remotes[dependency.request],
+              undefined,
+              callback
+            );
+          }
+          callback();
+        };
+
+        handleExternals(this.remotes, callback);
+      }
+    );
+  }
+}
+
 export default class ContainerReferencePlugin {
   constructor(options) {
+    console.clear();
     this.options = {
       remoteType: options.remoteType ?? null, // TODO: Mark this as required?
-      remote: options.remote ?? [],
+      remotes: options.remotes ?? [],
       override: options.override ?? {}
     };
 
@@ -10,8 +127,11 @@ export default class ContainerReferencePlugin {
   }
 
   apply(compiler) {
-    throw new Error("Plugin not implemented yet");
-
-    // TODO: _body_ of the plugin to come from ./webpack/X
+    const { remotes, remoteType } = this.options;
+    compiler.hooks.compile.tap(PLUGIN_NAME, ({ normalModuleFactory }) => {
+      new RemoteModuleFactoryPlugin(remoteType, remotes).apply(
+        normalModuleFactory
+      );
+    });
   }
 }

@@ -31,7 +31,7 @@
     "compile": "babel src -d dist/",
     "test": "yarn lint",
     "lint": "eslint --ext .js,.ts,.tsx src --fix",
-    "kill-ports": "lsof -ti:3001 | xargs kill -9; lsof -ti:3002 | xargs kill -9; lsof -ti:3003 | xargs kill -9",
+    "kill-ports": "lsof -ti:3001 | xargs kill -9; lsof -ti:3002 | xargs kill -9; lsof -ti:3003 | xargs kill -9; lsof -ti:3004 | xargs kill -9",
     "demo:one": "cd manual/website1; yarn manual:dev",
     "demo:one:prod": "cd manual/website1; yarn manual:prod",
     "demo:one:debug": "cd manual/website1; yarn manual:debug",
