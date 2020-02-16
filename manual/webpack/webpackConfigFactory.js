@@ -7,7 +7,6 @@ const WriteFilePlugin = require("write-file-webpack-plugin");
 const SpeedMeasurePlugin = require("speed-measure-webpack-plugin");
 const common = require("./webpack.common");
 const paths = require("./paths");
-const { ContainerPlugin } = require("../../");
 
 const envs = {
   development: "dev",
@@ -31,12 +30,7 @@ module.exports = (siteId, options) => {
     envConfig(commonPaths),
     {
       plugins: [
-        new ContainerPlugin({
-          name: "remoteEntry",
-          expose: {
-            Title: "./src/components/Title/index.js"
-          }
-        })
+
         // new HtmlWebpackPlugin({
         //   template: templatePath,
         //   inject: true
