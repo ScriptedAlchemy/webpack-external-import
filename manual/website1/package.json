@@ -9,7 +9,7 @@
   "license": "GPL-3.0-only",
   "scripts": {
     "manual:prod": "cross-env NODE_ENV=production webpack && cp serve.json  dist/serve.json && serve dist -l 3001",
-    "manual:dev": "cross-env NODE_ENV=development node ../node_modules/webpack-dev-server/bin/webpack-dev-server.js"
+    "manual:dev": "cross-env NODE_ENV=development node --inspect ../node_modules/webpack-dev-server/bin/webpack-dev-server.js"
   },
   "devDependencies": {
     "@babel/cli": "7.8.4",
