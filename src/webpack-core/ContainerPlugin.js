@@ -159,6 +159,10 @@ class ContainerPlugin {
   }
 
   apply(compiler) {
+    const { name } = this.options;
+    // set jsonpFunction to namespace of plugin
+    compiler.options.output.jsonpFunction = name;
+
     compiler.hooks.compilation.tap(
       PLUGIN_NAME,
       (compilation, { normalModuleFactory }) => {

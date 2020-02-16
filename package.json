@@ -48,7 +48,8 @@
     "demo:fast": "yarn compile && yarn demo:one:fast | yarn demo:two:fast",
     "prepare": "cross-env BABEL_ENV=production yarn compile",
     "semantic-release": "semantic-release",
-    "commit": "npx git-cz"
+    "commit": "npx git-cz",
+    "debug": "yarn compile &&  yarn kill-ports && yarn demo:four:debug"
   },
   "license": "BSD-3-Clause",
   "devDependencies": {
