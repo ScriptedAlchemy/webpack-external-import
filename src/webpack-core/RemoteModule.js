@@ -8,7 +8,7 @@ const getSourceForGlobalVariableExternal = (variableName, type) => {
     // make it an array as the look up works the same basically
     variableName = [variableName];
   }
-
+  console.log("getSourceForGlobalVariableExternal");
   // needed for e.g. window["some"]["thing"]
   const objectLookup = variableName.map(r => `[${JSON.stringify(r)}]`).join("");
   return `(function() { module.exports = ${type}${objectLookup}; }());`;
@@ -19,6 +19,7 @@ const getSourceForGlobalVariableExternal = (variableName, type) => {
  * @returns {string} the generated source
  */
 const getSourceForCommonJsExternal = moduleAndSpecifiers => {
+  console.log("getSourceForCommonJsExternal");
   if (!Array.isArray(moduleAndSpecifiers)) {
     return `module.exports = require(${JSON.stringify(moduleAndSpecifiers)});`;
   }
@@ -57,7 +58,7 @@ const getSourceForAmdOrUmdExternal = (
   request,
   runtimeTemplate
 ) => {
-  const externalVariable = `__WEBPACK_EXTERNAL_MODULE_${Template.toIdentifier(
+  const externalVariable = `__WEBPACK_REMOTE_MODULE_${Template.toIdentifier(
     `${id}`
   )}__`;
   const missingModuleError = optional
@@ -67,6 +68,7 @@ const getSourceForAmdOrUmdExternal = (
         runtimeTemplate
       )
     : "";
+  console.log("getSourceForAmdOrUmdExternal");
   return `${missingModuleError}module.exports = ${externalVariable};`;
 };
 
@@ -76,21 +78,30 @@ const getSourceForAmdOrUmdExternal = (
  * @param {RuntimeTemplate} runtimeTemplate the runtime template
  * @returns {string} the generated source
  */
-const getSourceForDefaultCase = (optional, request, runtimeTemplate) => {
+const getSourceForDefaultCase = (
+  optional,
+  request,
+  runtimeTemplate,
+  requestScope
+) => {
   if (!Array.isArray(request)) {
     // make it an array as the look up works the same basically
     request = [request];
   }
 
-  const variableName = request[0];
+  // TODO: use this for error handling
   const missingModuleError = optional
-    ? checkExternalVariable(variableName, request.join("."), runtimeTemplate)
+    ? checkExternalVariable(requestScope, request.join("."), runtimeTemplate)
     : "";
-  const objectLookup = request
-    .slice(1)
-    .map(r => `[${JSON.stringify(r)}]`)
-    .join("");
-  return `${missingModuleError}module.exports = ${variableName}${objectLookup};`;
+
+  // refactor conditional into checkExternalVariable
+  Template.asString([
+    "module.exports = ",
+    `typeof ${requestScope} !== 'undefined' ? ${requestScope}.get('${request}') : `,
+    `new Promise.reject("Missing Federated Bundle: ${requestScope} cannot be found when trying to import ${request}")); `
+  ]);
+
+  return `module.exports = ${requestScope}.get('${request}')`;
 };
 
 const TYPES = new Set(["javascript"]);
@@ -100,9 +111,10 @@ class RemoteModule extends Module {
   constructor(request, type, userRequest) {
     super("javascript/dynamic", null);
 
+    this.requestScope = request?.split("/")?.shift?.();
     // Info from Factory
     /** @type {string | string[] | Record<string, string | string[]>} */
-    this.request = request;
+    this.request = request?.split(`${this.requestScope}/`)?.[1];
     /** @type {string} */
     this.externalType = type;
     /** @type {string} */
@@ -206,7 +218,8 @@ class RemoteModule extends Module {
         return getSourceForDefaultCase(
           this.isOptional(moduleGraph),
           request,
-          runtimeTemplate
+          runtimeTemplate,
+          this.requestScope
         );
     }
   }
@@ -231,7 +244,6 @@ class RemoteModule extends Module {
     } else {
       sources.set("javascript", new RawSource(sourceString));
     }
-    console.log(sources);
     return { sources, runtimeRequirements: RUNTIME_REQUIREMENTS };
   }
 
@@ -249,12 +261,12 @@ class RemoteModule extends Module {
    * @returns {void}
    */
   updateHash(hash, chunkGraph) {
-    hash.update(this.externalType);
+    // hash.update(this.externalType);
     hash.update(JSON.stringify(this.request));
-    hash.update(
-      JSON.stringify(Boolean(this.isOptional(chunkGraph.moduleGraph)))
-    );
-    super.updateHash(hash, chunkGraph);
+    // hash.update(
+    //   JSON.stringify(Boolean(this.isOptional(chunkGraph.moduleGraph)))
+    // );
+    // super.updateHash(hash, chunkGraph);
   }
 
   serialize(context) {
