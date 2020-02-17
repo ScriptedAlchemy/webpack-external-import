@@ -2,7 +2,6 @@ const { OriginalSource, RawSource } = require("webpack-sources");
 const Module = require("webpack/lib/Module");
 const RuntimeGlobals = require("webpack/lib/RuntimeGlobals");
 const Template = require("webpack/lib/Template");
-
 const getSourceForGlobalVariableExternal = (
   variableName,
   type,
@@ -25,7 +24,7 @@ const getSourceForGlobalVariableExternal = (
   return Template.asString([
     "(function() {",
     "module.exports =",
-    `typeof ${type}["${requestScope}"] !== 'undefined' ? ${type}["${requestScope}"].get(${objectLookup}) : `,
+    `typeof ${type}["${requestScope}"] !== 'undefined' ? ${RuntimeGlobals.compatGetDefaultExport}(${type}["${requestScope}"]).get(${objectLookup}) : `,
     `Promise.reject('Missing Remote Runtime: ${type}["${requestScope}"] cannot be found when trying to import ${objectLookup}'); `,
     "}());"
   ]);
@@ -91,7 +90,6 @@ const getSourceForAmdOrUmdExternal = (
         runtimeTemplate
       )
     : "";
-  console.log(`${missingModuleError}module.exports = ${externalVariable};`);
   return `${missingModuleError}module.exports = ${externalVariable};`;
 };
 
@@ -117,12 +115,13 @@ const getSourceForDefaultCase = (
     ? checkExternalVariable(requestScope, request.join("."), runtimeTemplate)
     : "";
 
+
   // refactor conditional into checkExternalVariable
-  return Template.asString([
+ return Template.asString([
     "module.exports = ",
-    `typeof ${requestScope} !== 'undefined' ? ${requestScope}.get('${request}') : `,
+    `typeof ${requestScope} !== 'undefined' ? ${requestScope}.get('${request}').then(${RuntimeGlobals.compatGetDefaultExport}) : `,
     `Promise.reject("Missing Remote Runtime: ${requestScope} cannot be found when trying to import ${request}"); `
-  ]);
+  ])
 };
 
 const TYPES = new Set(["javascript"]);
