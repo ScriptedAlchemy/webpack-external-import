@@ -4,7 +4,8 @@
     "website1",
     "website2",
     "website3",
-    "website4"
+    "website4",
+    "small-spa"
   ],
   "name": "external-import-demo",
   "version": "0.0.0-development",
