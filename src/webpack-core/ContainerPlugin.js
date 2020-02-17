@@ -1,12 +1,14 @@
-const Dependency = require("webpack/lib/Dependency");
-const Module = require("webpack/lib/Module");
-const ModuleDependency = require("webpack/lib/dependencies/ModuleDependency");
-const AsyncDependenciesBlock = require("webpack/lib/AsyncDependenciesBlock");
-const RuntimeGlobals = require("webpack/lib/RuntimeGlobals");
-const ModuleFactory = require("webpack/lib/ModuleFactory");
-const { ConcatSource } = require("webpack-sources");
-
-const PLUGIN_NAME = "ContainerPlugin";
+import AsyncDependenciesBlock from "webpack/lib/AsyncDependenciesBlock";
+import Dependency from "webpack/lib/Dependency";
+import JavascriptModulesPlugin from "webpack/lib/javascript/JavascriptModulesPlugin";
+import Module from "webpack/lib/Module";
+import ModuleDependency from "webpack/lib/dependencies/ModuleDependency";
+import ModuleFactory from "webpack/lib/ModuleFactory";
+import RuntimeGlobals from "webpack/lib/RuntimeGlobals";
+import Template from "webpack/lib/Template";
+import propertyAccess from "webpack/lib/util/propertyAccess";
+import validateOptions from "schema-utils";
+import { ConcatSource } from "webpack-sources";
 
 class ContainerExposedDependency extends ModuleDependency {
   constructor(name, request) {
@@ -46,7 +48,7 @@ class ContainerEntryModule extends Module {
 
   identifier() {
     return `container entry ${JSON.stringify(
-      this.expose.map(item => item.getResourceIdentifier())
+      this.expose.map(item => item.exposedName)
     )}`;
   }
 
@@ -82,12 +84,10 @@ class ContainerEntryModule extends Module {
   codeGeneration({ moduleGraph, chunkGraph, runtimeTemplate }) {
     const sources = new Map();
     const runtimeRequirements = new Set([
+      RuntimeGlobals.definePropertyGetters,
       RuntimeGlobals.exports,
-      RuntimeGlobals.require
+      RuntimeGlobals.returnExportsFromRuntime
     ]);
-
-    const source = new ConcatSource();
-    sources.set("javascript", source);
 
     const getters = [];
 
@@ -97,32 +97,55 @@ class ContainerEntryModule extends Module {
       } = block;
       const name = dep.exposedName;
       const mod = moduleGraph.getModule(dep);
+      const request = dep.userRequest;
 
-      if (!mod) continue; // TODO: Perhaps we log something in non production builds?
+      let str;
 
-      const moduleId = JSON.stringify(mod.id); // TODO: This is temp, `.id` will be gone in v6?
-
-      const require_statement = runtimeTemplate.blockPromise({
-        block,
-        message: `${dep.userRequest}`, // TODO: Should we use the request here?
-        chunkGraph,
-        runtimeRequirements
-      });
+      if (!mod) {
+        str = runtimeTemplate.throwMissingModuleErrorBlock({
+          request: dep.userRequest
+        });
+      } else {
+        str = `return ${runtimeTemplate.blockPromise({
+          block,
+          message: request,
+          chunkGraph,
+          runtimeRequirements
+        })}.then(${runtimeTemplate.basicFunction(
+          "",
+          `return ${runtimeTemplate.moduleRaw({
+            module: mod,
+            chunkGraph,
+            request,
+            weak: false,
+            runtimeRequirements
+          })}`
+        )});`;
+      }
 
       getters.push(
-        `case "${name}":\nreturn ${require_statement}.then(() => ${RuntimeGlobals.require}(${moduleId}));`
+        `[${Template.toNormalComment(
+          `[${name}] => ${request}`
+        )}"${name}", ${runtimeTemplate.basicFunction("", str)}]`
       );
     }
 
-    source.add(`
-      exports["get"] = function get(module) {
-        switch(module) {
-            ${getters.join("\n")}
-          default:
-            return Promise.resolve().then(() => { throw new Error('Module ' + module + ' does not exist!'); });
-        }
-      }
-    `);
+    sources.set(
+      "javascript",
+      new ConcatSource(
+        `const __MODULE_MAP__ = new Map([${getters.join(",")}]);`,
+        `const __GET_MODULE__ = ${runtimeTemplate.basicFunction(
+          ["module"],
+          `return __MODULE_MAP__.has(module) ? __MODULE_MAP__.get(module).apply(null) : Promise.reject(new Error('Module ' + module + ' does not exist.'))`
+        )};`,
+        `${
+          RuntimeGlobals.definePropertyGetters
+        }(exports, {get: ${runtimeTemplate.basicFunction(
+          "",
+          "return __GET_MODULE__"
+        )}});`
+      )
+    );
 
     return {
       sources,
@@ -144,27 +167,82 @@ class ContainerEntryModuleFactory extends ModuleFactory {
 }
 
 class ContainerPlugin {
+  static get name() {
+    return ContainerPlugin.constructor.name;
+  }
+
   constructor(options) {
-    const name = options.name ?? "remoteEntry"; // TODO: Can we assume this, or mark it as required?
+    const name = options.name ?? `remoteEntry`; // TODO: Can we assume this, or mark it as required?
+
+    validateOptions(
+      {
+        type: "object",
+        properties: {
+          overridable: {
+            type: "object"
+          },
+          expose: {
+            type: ["object", "array"]
+          },
+          name: {
+            type: "string",
+            default: name
+          },
+          library: {
+            type: "string",
+            default: name
+          },
+          libraryTarget: {
+            type: "string",
+            default: "var",
+            enum: [
+              "var",
+              "this",
+              "window",
+              "self",
+              "global",
+              "commonjs",
+              "commonjs2",
+              "amd",
+              "amd-require",
+              "umd",
+              "umd2",
+              "system"
+            ]
+          },
+          filename: {
+            anyOf: [{ type: "string" }, { instanceof: "Function" }]
+          }
+        },
+        additionalProperties: false
+      },
+      options,
+      { name: ContainerPlugin.name }
+    );
 
     this.options = {
       overridable: options.overridable ?? null,
       name,
       library: options.library ?? name,
       libraryTarget: options.libraryTarget ?? "var",
+      filename: options.filename ?? undefined, // Undefined means, use the default behaviour
       expose: options.expose ?? {}
     };
-
-    // TODO: Apply some validation around what was passed in.
   }
 
   apply(compiler) {
-    const { name } = this.options;
-    // set jsonpFunction to namespace of plugin
-    compiler.options.output.jsonpFunction = name;
+    if (compiler.options.optimization.runtimeChunk) {
+      throw new Error(
+        "This plugin cannot integrate with RuntimeChunk plugin, please remote `optimization.runtimeChunk`."
+      );
+    }
 
-    compiler.hooks.compilation.tap(
-      PLUGIN_NAME,
+    compiler.options.output.jsonpFunction = `${
+      compiler.options.output.jsonpFunction
+    }${compiler.name ?? ""}${this.options.name}`;
+
+    compiler.hooks.thisCompilation.tap(
+      ContainerPlugin.name,
       (compilation, { normalModuleFactory }) => {
         compilation.dependencyFactories.set(
           ContainerEntryDependency,
@@ -175,27 +253,97 @@ class ContainerPlugin {
           ContainerExposedDependency,
           normalModuleFactory
         );
+
+        const renderHooks = JavascriptModulesPlugin.getCompilationHooks(
+          compilation
+        );
+
+        renderHooks.render.tap(ContainerPlugin.name, (source, { chunk }) => {
+          if (chunk.name === this.options.name) {
+            const libName = Template.toIdentifier(
+              compilation.getPath(this.options.library, { chunk })
+            );
+
+            switch (this.options.libraryTarget) {
+              case "var": {
+                return new ConcatSource(`var ${libName} =`, source);
+              }
+              case "this":
+              case "window":
+              case "self":
+                return new ConcatSource(
+                  `${this.options.libraryTarget}${propertyAccess([libName])} =`,
+                  source
+                );
+              case "global":
+                return new ConcatSource(
+                  `${compiler.options.output.globalObject}${propertyAccess([
+                    libName
+                  ])} =`,
+                  source
+                );
+              case "commonjs":
+              case "commonjs2": {
+                return new ConcatSource(
+                  `exports${propertyAccess([libName])} =`,
+                  source
+                );
+              }
+              case "amd": // TODO: Solve this?
+              case "amd-require": // TODO: Solve this?
+              case "umd": // TODO: Solve this?
+              case "umd2": // TODO: Solve this?
+              case "system": // TODO: Solve this?
+              default:
+                throw new Error(
+                  `${this.options.libraryTarget} is not a valid Library target`
+                );
+            }
+          }
+        });
+
+        compilation.hooks.afterChunks.tap(ContainerPlugin.name, chunks => {
+          for (const chunk of chunks) {
+            if (chunk.name === this.options.name) {
+              chunk.preventIntegration = true; // TODO: Check that this is actually needed
+              chunk.filenameTemplate = this.options.filename;
+            }
+          }
+        });
       }
     );
 
-    compiler.hooks.make.tapAsync(PLUGIN_NAME, (compilation, callback) => {
-      compilation.addEntry(
-        compilation.context,
-        new ContainerEntryDependency(
-          Object.entries(this.options.expose).map(([name, request], idx) => {
-            const dep = new ContainerExposedDependency(name, request);
-            dep.loc = {
-              name,
-              index: idx
-            };
-            return dep;
-          }),
-          this.options.name
-        ),
-        this.options.name,
-        callback
-      );
-    });
+    compiler.hooks.make.tapAsync(
+      ContainerPlugin.name,
+      (compilation, callback) => {
+        let exposedMap = this.options.expose;
+
+        if (Array.isArray(this.options.expose)) {
+          exposedMap = {};
+          for (const exp of this.options.expose) {
+            // TODO: Check if this regex handles all cases
+            exposedMap[exp.replace(/(^(?:[^\w])+)/, "")] = exp;
+          }
+        }
+
+        compilation.addEntry(
+          compilation.context,
+          new ContainerEntryDependency(
+            Object.entries(exposedMap).map(([name, request], idx) => {
+              const dep = new ContainerExposedDependency(name, request);
+              dep.loc = {
+                name,
+                index: idx
+              };
+              return dep;
+            }),
+            this.options.name
+          ),
+          this.options.name,
+          callback
+        );
+      }
+    );
   }
 }
 
