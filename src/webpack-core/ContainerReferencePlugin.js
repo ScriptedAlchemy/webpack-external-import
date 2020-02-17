@@ -19,12 +19,12 @@ const callDeprecatedExternals = util.deprecate(
 
 class RemoteModuleFactoryPlugin {
   constructor(type, remotes) {
-    this.type = type;
+    this.remoteType = type;
     this.remotes = remotes;
   }
 
   apply(normalModuleFactory) {
-    const globalType = this.type;
+    const globalType = this.remoteType;
     normalModuleFactory.hooks.factorize.tapAsync(
       "RemoteModuleFactoryPlugin",
       (data, callback) => {
@@ -52,6 +52,12 @@ class RemoteModuleFactoryPlugin {
             type = externalConfig.substr(0, idx);
             externalConfig = externalConfig.substr(idx + 1);
           }
+          console.log({
+            externalConfig,
+            type,
+            globalType,
+            requiest: dependency.request
+          });
           callback(
             null,
             new RemoteModule(
@@ -117,6 +123,7 @@ class RemoteModuleFactoryPlugin {
 export default class ContainerReferencePlugin {
   constructor(options) {
     console.clear();
+
     this.options = {
       remoteType: options.remoteType ?? null, // TODO: Mark this as required?
       remotes: options.remotes ?? [],

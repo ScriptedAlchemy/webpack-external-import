@@ -5,7 +5,7 @@ const siteId = 4;
 module.exports = configFactory(siteId, {
   plugins: [
     new ContainerReferencePlugin({
-      remotesType: "var",
+      remoteType: "commonjs2",
       remotes: ["websiteTwo"],
       override: {
         react: "react"
