@@ -121,7 +121,7 @@ const getSourceForDefaultCase = (
   return Template.asString([
     "module.exports = ",
     `typeof ${requestScope} !== 'undefined' ? ${requestScope}.get('${request}') : `,
-    `Promise.reject("Missing Remote Runtime: ${requestScope} cannot be found when trying to import ${request}")); `
+    `Promise.reject("Missing Remote Runtime: ${requestScope} cannot be found when trying to import ${request}"); `
   ]);
 };
 
