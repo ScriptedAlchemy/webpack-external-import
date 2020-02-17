@@ -1,21 +1,7 @@
-/*
-	MIT License http://www.opensource.org/licenses/mit-license.php
-	Author Tobias Koppers @sokra
-*/
-
-const util = require("util");
 const RemoteModule = require("./RemoteModule");
 
 const UNSPECIFIED_EXTERNAL_TYPE_REGEXP = /^[a-z0-9]+ /;
 const PLUGIN_NAME = "ContainerReferencePlugin";
-// TODO webpack 6 remove this
-const callDeprecatedExternals = util.deprecate(
-  (externalsFunction, context, request, cb) => {
-    externalsFunction.call(null, context, request, cb);
-  },
-  "The externals-function should be defined like ({context, request}, cb) => { ... }",
-  "DEP_WEBPACK_EXTERNALS_FUNCTION_PARAMETERS"
-);
 
 class RemoteModuleFactoryPlugin {
   constructor(type, remotes) {
@@ -52,12 +38,7 @@ class RemoteModuleFactoryPlugin {
             type = externalConfig.substr(0, idx);
             externalConfig = externalConfig.substr(idx + 1);
           }
-          console.log({
-            externalConfig,
-            type,
-            globalType,
-            requiest: dependency.request
-          });
+
           callback(
             null,
             new RemoteModule(
