@@ -31,7 +31,7 @@ class RemoteModuleFactoryPlugin {
         const { context } = data;
         const dependency = data.dependencies[0];
 
-        const handleExternal = (value, type, callback) => {
+        const handleRemote = (value, type, callback) => {
           if (value === false) {
             // Not externals, fallback to original factory
             return callback();
@@ -64,10 +64,10 @@ class RemoteModuleFactoryPlugin {
 
         const handleExternals = (remotes, callback) => {
           if (typeof remotes === "string") {
-            const requestScope = data.request?.split("/")?.shift();
-            if (this.remotes.includes(requestScope)) {
-              console.log(dependency);
-              return handleExternal(dependency.request, undefined, callback);
+            const requestScope = data?.request?.split("/")?.shift?.();
+
+            if (this.remotes?.includes(requestScope)) {
+              return handleRemote(dependency.request, undefined, callback);
             }
           } else if (Array.isArray(remotes)) {
             let i = 0;
@@ -99,7 +99,7 @@ class RemoteModuleFactoryPlugin {
             typeof remotes === "object" &&
             Object.prototype.hasOwnProperty.call(remotes, dependency.request)
           ) {
-            return handleExternal(
+            return handleRemote(
               remotes[dependency.request],
               undefined,
               callback
@@ -128,6 +128,7 @@ export default class ContainerReferencePlugin {
 
   apply(compiler) {
     const { remotes, remoteType } = this.options;
+
     compiler.hooks.compile.tap(PLUGIN_NAME, ({ normalModuleFactory }) => {
       new RemoteModuleFactoryPlugin(remoteType, remotes).apply(
         normalModuleFactory
