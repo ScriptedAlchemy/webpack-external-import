@@ -3,15 +3,32 @@ const Module = require("webpack/lib/Module");
 const RuntimeGlobals = require("webpack/lib/RuntimeGlobals");
 const Template = require("webpack/lib/Template");
 
-const getSourceForGlobalVariableExternal = (variableName, type) => {
+const getSourceForGlobalVariableExternal = (
+  variableName,
+  type,
+  requestScope
+) => {
   if (!Array.isArray(variableName)) {
     // make it an array as the look up works the same basically
     variableName = [variableName];
   }
-  console.log("getSourceForGlobalVariableExternal");
-  // needed for e.g. window["some"]["thing"]
-  const objectLookup = variableName.map(r => `[${JSON.stringify(r)}]`).join("");
-  return `(function() { module.exports = ${type}${objectLookup}; }());`;
+
+  const objectLookup = variableName.map(r => `${JSON.stringify(r)}`).join("");
+
+  // will output the following:
+  // (function() {
+  //   module.exports =
+  //     typeof self["websiteTwo"] !== "undefined" ? self["websiteTwo"].get("Title") :
+  //       Promise.reject("Missing Remote Runtime: self[\"websiteTwo\"] cannot be found when trying to import \"Title\"");
+  // }());
+
+  return Template.asString([
+    "(function() {",
+    "module.exports =",
+    `typeof ${type}["${requestScope}"] !== 'undefined' ? ${type}["${requestScope}"].get(${objectLookup}) : `,
+    `Promise.reject('Missing Remote Runtime: ${type}["${requestScope}"] cannot be found when trying to import ${objectLookup}'); `,
+    "}());"
+  ]);
 };
 
 /**
@@ -19,15 +36,19 @@ const getSourceForGlobalVariableExternal = (variableName, type) => {
  * @returns {string} the generated source
  */
 const getSourceForCommonJsExternal = moduleAndSpecifiers => {
-  console.log("getSourceForCommonJsExternal");
   if (!Array.isArray(moduleAndSpecifiers)) {
-    return `module.exports = require(${JSON.stringify(moduleAndSpecifiers)});`;
+     console.log(`module.exports = require(${JSON.stringify(moduleAndSpecifiers)});`)
   }
   const moduleName = moduleAndSpecifiers[0];
   const objectLookup = moduleAndSpecifiers
     .slice(1)
     .map(r => `[${JSON.stringify(r)}]`)
     .join("");
+
+  console.log(`module.exports = require(${JSON.stringify(
+    moduleName
+  )})${objectLookup};`)
+
   return `module.exports = require(${JSON.stringify(
     moduleName
   )})${objectLookup};`;
@@ -95,13 +116,11 @@ const getSourceForDefaultCase = (
     : "";
 
   // refactor conditional into checkExternalVariable
-  Template.asString([
+  return Template.asString([
     "module.exports = ",
     `typeof ${requestScope} !== 'undefined' ? ${requestScope}.get('${request}') : `,
-    `new Promise.reject("Missing Federated Bundle: ${requestScope} cannot be found when trying to import ${request}")); `
+    `Promise.reject("Missing Remote Runtime: ${requestScope} cannot be found when trying to import ${request}")); `
   ]);
-
-  return `module.exports = ${requestScope}.get('${request}')`;
 };
 
 const TYPES = new Set(["javascript"]);
@@ -116,7 +135,7 @@ class RemoteModule extends Module {
     /** @type {string | string[] | Record<string, string | string[]>} */
     this.request = request?.split(`${this.requestScope}/`)?.[1];
     /** @type {string} */
-    this.externalType = type;
+    this.remoteType = type;
     /** @type {string} */
     this.userRequest = userRequest;
   }
@@ -186,19 +205,25 @@ class RemoteModule extends Module {
   }
 
   getSourceString(runtimeTemplate, moduleGraph, chunkGraph) {
+    console.log("getSourceString", this.remoteType);
     const request =
       typeof this.request === "object" && !Array.isArray(this.request)
-        ? this.request[this.externalType]
+        ? this.request[this.remoteType]
         : this.request;
-    switch (this.externalType) {
+    switch (this.remoteType) {
       case "this":
       case "window":
       case "self":
-        return getSourceForGlobalVariableExternal(request, this.externalType);
+        return getSourceForGlobalVariableExternal(
+          request,
+          this.remoteType,
+          this.requestScope
+        );
       case "global":
         return getSourceForGlobalVariableExternal(
           request,
-          runtimeTemplate.outputOptions.globalObject
+          runtimeTemplate.outputOptions.globalObject,
+          this.requestScope
         );
       case "commonjs":
       case "commonjs2":
@@ -212,7 +237,8 @@ class RemoteModule extends Module {
           chunkGraph.getModuleId(this),
           this.isOptional(moduleGraph),
           request,
-          runtimeTemplate
+          runtimeTemplate,
+          this.requestScope
         );
       default:
         return getSourceForDefaultCase(
@@ -261,7 +287,7 @@ class RemoteModule extends Module {
    * @returns {void}
    */
   updateHash(hash, chunkGraph) {
-    // hash.update(this.externalType);
+    // hash.update(this.remoteType);
     hash.update(JSON.stringify(this.request));
     // hash.update(
     //   JSON.stringify(Boolean(this.isOptional(chunkGraph.moduleGraph)))
@@ -273,7 +299,7 @@ class RemoteModule extends Module {
     const { write } = context;
 
     write(this.request);
-    write(this.externalType);
+    write(this.remoteType);
     write(this.userRequest);
 
     super.serialize(context);
@@ -283,7 +309,7 @@ class RemoteModule extends Module {
     const { read } = context;
 
     this.request = read();
-    this.externalType = read();
+    this.remoteType = read();
     this.userRequest = read();
 
     super.deserialize(context);
