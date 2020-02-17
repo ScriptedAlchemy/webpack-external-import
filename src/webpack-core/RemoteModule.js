@@ -33,25 +33,27 @@ const getSourceForGlobalVariableExternal = (
 
 /**
  * @param {string|string[]} moduleAndSpecifiers the module request
+ * @param {string|string[]} requestScope the module request namespace scope
  * @returns {string} the generated source
  */
-const getSourceForCommonJsExternal = moduleAndSpecifiers => {
+const getSourceForCommonJsExternal = (moduleAndSpecifiers, requestScope) => {
   if (!Array.isArray(moduleAndSpecifiers)) {
-     console.log(`module.exports = require(${JSON.stringify(moduleAndSpecifiers)});`)
+    // returns module.exports = require("websiteTwo").get("Title");
+    return `module.exports = require(${JSON.stringify(
+      requestScope
+    )}).get(${JSON.stringify(moduleAndSpecifiers)});`;
   }
+
   const moduleName = moduleAndSpecifiers[0];
   const objectLookup = moduleAndSpecifiers
     .slice(1)
     .map(r => `[${JSON.stringify(r)}]`)
     .join("");
 
-  console.log(`module.exports = require(${JSON.stringify(
-    moduleName
-  )})${objectLookup};`)
-
+  // returns module.exports = require("websiteTwo").get("Title")["default"];
   return `module.exports = require(${JSON.stringify(
-    moduleName
-  )})${objectLookup};`;
+    requestScope
+  )}).get(${JSON.stringify(moduleName)})${objectLookup};`;
 };
 
 /**
@@ -227,7 +229,7 @@ class RemoteModule extends Module {
         );
       case "commonjs":
       case "commonjs2":
-        return getSourceForCommonJsExternal(request);
+        return getSourceForCommonJsExternal(request, this.requestScope);
       case "amd":
       case "amd-require":
       case "umd":
