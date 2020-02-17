@@ -91,7 +91,7 @@ const getSourceForAmdOrUmdExternal = (
         runtimeTemplate
       )
     : "";
-  console.log("getSourceForAmdOrUmdExternal");
+  console.log(`${missingModuleError}module.exports = ${externalVariable};`);
   return `${missingModuleError}module.exports = ${externalVariable};`;
 };
 
@@ -235,6 +235,9 @@ class RemoteModule extends Module {
       case "umd":
       case "umd2":
       case "system":
+        throw new Error(
+          `${this.remoteType} is not supported with ContainerReferencePlugin`
+        );
         return getSourceForAmdOrUmdExternal(
           chunkGraph.getModuleId(this),
           this.isOptional(moduleGraph),
