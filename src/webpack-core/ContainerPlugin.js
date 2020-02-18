@@ -85,8 +85,7 @@ class ContainerEntryModule extends Module {
     const sources = new Map();
     const runtimeRequirements = new Set([
       RuntimeGlobals.definePropertyGetters,
-      RuntimeGlobals.exports,
-      RuntimeGlobals.returnExportsFromRuntime
+      RuntimeGlobals.exports
     ]);
 
     const getters = [];
