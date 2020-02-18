@@ -129,7 +129,7 @@ const RUNTIME_REQUIREMENTS = new Set([RuntimeGlobals.module]);
 
 class RemoteModule extends Module {
   constructor(request, type, userRequest) {
-    super("javascript/dynamic", null);
+    super("javascript/auto", null);
 
     this.requestScope = request?.split("/")?.shift?.();
     // Info from Factory
