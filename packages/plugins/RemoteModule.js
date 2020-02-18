@@ -25,7 +25,7 @@ const getSourceForGlobalVariableExternal = (
 	return Template.asString([
 		'(function() {',
 		'module.exports =',
-		`typeof ${type}["${requestScope}"] !== 'undefined' ? ${RuntimeGlobals.compatGetDefaultExport}(${type}["${requestScope}"]).get(${objectLookup}) : `,
+		`typeof ${type}["${requestScope}"] !== 'undefined' ? ${type}["${requestScope}"].get(${objectLookup}) : `,
 		`Promise.reject('Missing Remote Runtime: ${type}["${requestScope}"] cannot be found when trying to import ${objectLookup}'); `,
 		'}());',
 	]);
