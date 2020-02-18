@@ -36,6 +36,9 @@ module.exports = {
 		new ContainerReferencePlugin({
 			remoteType: 'global',
 			remotes: ['website2'],
+			shared: {
+				react: 'react'
+			},
 		}),
 		new HtmlWebpackPlugin({
 			template: './src/template.html',
