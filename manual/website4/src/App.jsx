@@ -12,7 +12,8 @@ class App extends Component {
   componentDidMount() {
     import("websiteTwo/Title")
       .then(Module => {
-        console.log(Module)
+        console.log('module',Module)
+        console.log('title',Module.Title)
         return Module.default;
       })
       .then(Module => {
