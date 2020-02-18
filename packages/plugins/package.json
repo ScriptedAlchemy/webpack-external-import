@@ -1,0 +1,36 @@
+{
+  "name": "webpack-external-import",
+  "description": "dynamic import() external urls!",
+  "main": "dist/webpack-external-import.cjs.js",
+  "module": "dist/webpack-external-import.esm.js",
+  "version": "0.0.0-development",
+  "author": "Zack Jackson <zack@ScriptedAlchemy.com> (https://github.com/ScriptedAlchemy)",
+  "keywords": [
+    "import url",
+    "dynamic imports url",
+    "over the wire",
+    "import() url",
+    "external url import",
+    "script injection",
+    "webpack import url",
+    "webpack",
+    "manifest",
+    "dynamic dll plugin",
+    "dll plugin",
+    "runtime"
+  ],
+  "license": "BSD-3-Clause",
+  "dependencies": {
+    "schema-utils": "2.6.1",
+    "webpack-sources": "^1.4.3"
+  },
+  "devDependencies": {
+    "webpack": "^5.0.0-beta.13"
+  },
+  "peerDependencies": {
+    "webpack": "^5.0.0-beta.13"
+  },
+  "preconstruct": {
+    "source": "index"
+  }
+}
