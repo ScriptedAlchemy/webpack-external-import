@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "concurrently --raw -k \"webpack --watch\" \"serve dist/ -p 3002\"",
-    "build": "webpack --mode production"
+    "build": "webpack"
   },
   "dependencies": {
     "react": "^16.12.0",

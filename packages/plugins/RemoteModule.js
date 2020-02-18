@@ -131,7 +131,7 @@ const getSourceForDefaultCase = (
 const TYPES = new Set(['javascript']);
 const RUNTIME_REQUIREMENTS = new Set([RuntimeGlobals.module]);
 
-class RemoteModule extends Module {
+export default class RemoteModule extends Module {
 	constructor(request, type, userRequest) {
 		super('javascript/dynamic', null);
 
@@ -325,5 +325,3 @@ class RemoteModule extends Module {
 		super.deserialize(context);
 	}
 }
-
-module.exports = RemoteModule;

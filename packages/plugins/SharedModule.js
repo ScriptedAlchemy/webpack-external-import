@@ -137,7 +137,7 @@ const getSourceForDefaultCase = (optional, request, runtimeTemplate) => {
 const TYPES = new Set(['javascript']);
 const RUNTIME_REQUIREMENTS = new Set([RuntimeGlobals.module]);
 
-class SharedModule extends Module {
+export default class SharedModule extends Module {
 	constructor(request, type, userRequest) {
 		super('javascript/dynamic', null);
 
@@ -323,5 +323,3 @@ class SharedModule extends Module {
 }
 
 makeSerializable(SharedModule, 'webpack/lib/SharedModule');
-
-module.exports = SharedModule;

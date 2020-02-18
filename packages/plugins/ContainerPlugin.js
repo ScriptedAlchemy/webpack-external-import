@@ -1,15 +1,12 @@
-import AsyncDependenciesBlock from 'webpack/lib/AsyncDependenciesBlock';
-import Dependency from 'webpack/lib/Dependency';
 import JavascriptModulesPlugin from 'webpack/lib/javascript/JavascriptModulesPlugin';
-import Module from 'webpack/lib/Module';
-import ModuleDependency from 'webpack/lib/dependencies/ModuleDependency';
-import ModuleFactory from 'webpack/lib/ModuleFactory';
-import RuntimeGlobals from 'webpack/lib/RuntimeGlobals';
 import Template from 'webpack/lib/Template';
 import propertyAccess from 'webpack/lib/util/propertyAccess';
 import validateOptions from 'schema-utils';
+import ContainerExposedDependency from './ContainerExposedDependency';
 import { ConcatSource } from 'webpack-sources';
 import SharedModule from './SharedModule';
+import ContainerEntryDependency from './ContainerEntryDependency';
+import ContainerEntryModuleFactory from './ContainerEntryModuleFactory';
 
 const UNSPECIFIED_EXTERNAL_TYPE_REGEXP = /^[a-z0-9]+ /;
 
@@ -127,169 +124,13 @@ class SharedModuleFactoryPlugin {
 	}
 }
 
-class ContainerExposedDependency extends ModuleDependency {
-	constructor(name, request) {
-		super(request);
-		this._name = name;
-	}
-
-	get exposedName() {
-		return this._name;
-	}
-
-	getResourceIdentifier() {
-		return `exposed dependency ${this._name}`;
-	}
-}
-
-class ContainerEntryDependency extends Dependency {
-	constructor(dependencies, name) {
-		super();
-		this.exposedDependencies = dependencies;
-		this.optional = true;
-		this.loc = { name };
-	}
-}
-
-const CONTAINER_ENTRY_MODULE_TYPES = new Set(['javascript']);
-
-class ContainerEntryModule extends Module {
-	constructor(dependency) {
-		super('javascript/dynamic', null);
-		this.expose = dependency.exposedDependencies;
-	}
-
-	getSourceTypes() {
-		return CONTAINER_ENTRY_MODULE_TYPES;
-	}
-
-	identifier() {
-		return `container entry ${JSON.stringify(
-			this.expose.map(item => item.exposedName),
-		)}`;
-	}
-
-	readableIdentifier() {
-		return `container entry`;
-	}
-
-	needBuild(context, callback) {
-		return callback(null, !this.buildMeta);
-	}
-
-	build(options, compilation, resolver, fs, callback) {
-		this.buildMeta = {};
-		this.buildInfo = {
-			strict: true,
-		};
-
-		this.clearDependenciesAndBlocks();
-
-		for (const dep of this.expose) {
-			const block = new AsyncDependenciesBlock(
-				undefined,
-				dep.loc,
-				dep.userRequest,
-			);
-			block.addDependency(dep);
-			this.addBlock(block);
-		}
-
-		callback();
-	}
-
-	codeGeneration({ moduleGraph, chunkGraph, runtimeTemplate }) {
-		const sources = new Map();
-		const runtimeRequirements = new Set([
-			RuntimeGlobals.definePropertyGetters,
-			RuntimeGlobals.exports,
-			RuntimeGlobals.returnExportsFromRuntime,
-		]);
-
-		const getters = [];
-
-		for (const block of this.blocks) {
-			const {
-				dependencies: [dep],
-			} = block;
-			const name = dep.exposedName;
-			const mod = moduleGraph.getModule(dep);
-			const request = dep.userRequest;
-
-			let str;
-
-			if (!mod) {
-				str = runtimeTemplate.throwMissingModuleErrorBlock({
-					request: dep.userRequest,
-				});
-			} else {
-				str = `return ${runtimeTemplate.blockPromise({
-					block,
-					message: request,
-					chunkGraph,
-					runtimeRequirements,
-				})}.then(${runtimeTemplate.basicFunction(
-					'',
-					`return ${runtimeTemplate.moduleRaw({
-						module: mod,
-						chunkGraph,
-						request,
-						weak: false,
-						runtimeRequirements,
-					})}`,
-				)});`;
-			}
-
-			getters.push(
-				`[${Template.toNormalComment(
-					`[${name}] => ${request}`,
-				)}"${name}", ${runtimeTemplate.basicFunction('', str)}]`,
-			);
-		}
-
-		sources.set(
-			'javascript',
-			new ConcatSource(
-				`const __MODULE_MAP__ = new Map([${getters.join(',')}]);`,
-				`const __GET_MODULE__ = ${runtimeTemplate.basicFunction(
-					['module'],
-					`return __MODULE_MAP__.has(module) ? __MODULE_MAP__.get(module).apply(null) : Promise.reject(new Error('Module ' + module + ' does not exist.'))`,
-				)};`,
-				`${
-					RuntimeGlobals.definePropertyGetters
-				}(exports, {get: ${runtimeTemplate.basicFunction(
-					'',
-					'return __GET_MODULE__',
-				)}});`,
-			),
-		);
-
-		return {
-			sources,
-			runtimeRequirements,
-		};
-	}
-
-	size(type) {
-		return 42;
-	}
-}
-
-class ContainerEntryModuleFactory extends ModuleFactory {
-	create({ dependencies: [dependency] }, callback) {
-		callback(null, {
-			module: new ContainerEntryModule(dependency),
-		});
-	}
-}
-
 export default class ContainerPlugin {
 	static get name() {
 		return ContainerPlugin.constructor.name;
 	}
 
 	constructor(options) {
-		const name = options.name ?? `remoteEntry`; // TODO: Can we assume this, or mark it as required?
+		const name = options.name ?? `remoteEntry`;
 
 		validateOptions(
 			{
@@ -311,7 +152,7 @@ export default class ContainerPlugin {
 					},
 					libraryTarget: {
 						type: 'string',
-						default: 'var',
+						default: 'global',
 						enum: [
 							'var',
 							'this',
@@ -341,7 +182,7 @@ export default class ContainerPlugin {
 			shared: options.shared ?? null,
 			name,
 			library: options.library ?? name,
-			libraryTarget: options.libraryTarget ?? 'var',
+			libraryTarget: options.libraryTarget ?? 'global',
 			filename: options.filename ?? undefined, // Undefined means, use the default behaviour
 			expose: options.expose ?? {},
 		};
@@ -477,16 +318,6 @@ export default class ContainerPlugin {
 					this.options.name,
 					callback,
 				);
-			},
-		);
-		// shared modules hooks
-		compiler.hooks.compile.tap(
-			ContainerPlugin.name,
-			({ normalModuleFactory }) => {
-				new SharedModuleFactoryPlugin(
-					compiler.options.libraryTarget,
-					this.options.shared,
-				).apply(normalModuleFactory);
 			},
 		);
 	}

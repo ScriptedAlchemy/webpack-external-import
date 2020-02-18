@@ -35,11 +35,9 @@ module.exports = {
 	plugins: [
 		new ContainerPlugin({
 			name: 'website2',
+			library: 'website2',
 			filename: 'remoteEntry.js',
 			libraryTarget: 'global',
-			shared: {
-				react: 'react',
-			},
 			expose: {
 				Title: './src/Title',
 			},

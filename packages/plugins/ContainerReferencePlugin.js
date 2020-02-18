@@ -1,7 +1,6 @@
-const RemoteModule = require('./RemoteModule');
+import RemoteModule from './RemoteModule';
 
 const UNSPECIFIED_EXTERNAL_TYPE_REGEXP = /^[a-z0-9]+ /;
-const PLUGIN_NAME = 'ContainerReferencePlugin';
 
 class RemoteModuleFactoryPlugin {
 	constructor(type, remotes) {
@@ -117,9 +116,13 @@ class RemoteModuleFactoryPlugin {
 }
 
 export default class ContainerReferencePlugin {
+	static get name() {
+		return ContainerReferencePlugin.constructor.name;
+	}
+
 	constructor(options) {
 		this.options = {
-			remoteType: options.remoteType ?? null, // TODO: Mark this as required?
+			remoteType: options.remoteType ?? 'global',
 			remotes: options.remotes ?? [],
 			override: options.override ?? {},
 		};
@@ -130,10 +133,13 @@ export default class ContainerReferencePlugin {
 	apply(compiler) {
 		const { remotes, remoteType } = this.options;
 
-		compiler.hooks.compile.tap(PLUGIN_NAME, ({ normalModuleFactory }) => {
-			new RemoteModuleFactoryPlugin(remoteType, remotes).apply(
-				normalModuleFactory,
-			);
-		});
+		compiler.hooks.compile.tap(
+			ContainerReferencePlugin.name,
+			({ normalModuleFactory }) => {
+				new RemoteModuleFactoryPlugin(remoteType, remotes).apply(
+					normalModuleFactory,
+				);
+			},
+		);
 	}
 }
