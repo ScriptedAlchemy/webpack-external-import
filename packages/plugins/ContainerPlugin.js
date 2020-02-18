@@ -11,13 +11,12 @@ import ContainerEntryModuleFactory from './ContainerEntryModuleFactory';
 const UNSPECIFIED_EXTERNAL_TYPE_REGEXP = /^[a-z0-9]+ /;
 
 class SharedModuleFactoryPlugin {
-	constructor(type, sharedModule) {
-		this.remoteType = type;
-		this.shared = sharedModule;
+	constructor(type, sharedModules) {
+		this.shared = sharedModules;
 	}
 
 	apply(normalModuleFactory) {
-		const globalType = this.remoteType;
+		/*const globalType = this.remoteType;
 		normalModuleFactory.hooks.factorize.tapAsync(
 			'SharedModuleFactoryPlugin',
 			(data, callback) => {
@@ -32,7 +31,7 @@ class SharedModuleFactoryPlugin {
 						return callback();
 					}
 
-					/** @type {string} */
+					/!** @type {string} *!/
 					let externalConfig;
 					if (value === true) {
 						externalConfig = dependency.request;
@@ -120,7 +119,7 @@ class SharedModuleFactoryPlugin {
 				};
 				handleExternals(this.shared, callback);
 			},
-		);
+		);*/
 	}
 }
 
@@ -199,9 +198,55 @@ export default class ContainerPlugin {
 			compiler.options.output.jsonpFunction
 		}${compiler.name ?? ''}${this.options.name}`;
 
+		compiler.hooks.make.tapAsync(
+			ContainerPlugin.name,
+			(compilation, callback) => {
+				let exposedMap = this.options.expose;
+
+				if (Array.isArray(this.options.expose)) {
+					exposedMap = {};
+					for (const exp of this.options.expose) {
+						// TODO: Check if this regex handles all cases
+						exposedMap[exp.replace(/(^(?:[^\w])+)/, '')] = exp;
+					}
+				}
+
+				compilation.addEntry(
+					compilation.context,
+					new ContainerEntryDependency(
+						Object.entries(exposedMap).map(
+							([name, request], idx) => {
+								const dep = new ContainerExposedDependency(
+									name,
+									request,
+								);
+								dep.loc = {
+									name,
+									index: idx,
+								};
+								return dep;
+							},
+						),
+						this.options.name,
+					),
+					this.options.name,
+					callback,
+				);
+			},
+		);
+
+		compiler.hooks.compile.tap(
+			ContainerPlugin.name,
+			({ normalModuleFactory }) => {
+				new SharedModuleFactoryPlugin(this.options.shared)
+					.apply(normalModuleFactory);
+			},
+		);
+
 		compiler.hooks.thisCompilation.tap(
 			ContainerPlugin.name,
 			(compilation, { normalModuleFactory }) => {
+
 				compilation.dependencyFactories.set(
 					ContainerEntryDependency,
 					new ContainerEntryModuleFactory(),
@@ -280,43 +325,6 @@ export default class ContainerPlugin {
 							}
 						}
 					},
-				);
-			},
-		);
-
-		compiler.hooks.make.tapAsync(
-			ContainerPlugin.name,
-			(compilation, callback) => {
-				let exposedMap = this.options.expose;
-
-				if (Array.isArray(this.options.expose)) {
-					exposedMap = {};
-					for (const exp of this.options.expose) {
-						// TODO: Check if this regex handles all cases
-						exposedMap[exp.replace(/(^(?:[^\w])+)/, '')] = exp;
-					}
-				}
-
-				compilation.addEntry(
-					compilation.context,
-					new ContainerEntryDependency(
-						Object.entries(exposedMap).map(
-							([name, request], idx) => {
-								const dep = new ContainerExposedDependency(
-									name,
-									request,
-								);
-								dep.loc = {
-									name,
-									index: idx,
-								};
-								return dep;
-							},
-						),
-						this.options.name,
-					),
-					this.options.name,
-					callback,
 				);
 			},
 		);

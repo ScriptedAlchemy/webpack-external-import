@@ -38,6 +38,9 @@ module.exports = {
 			library: 'website2',
 			filename: 'remoteEntry.js',
 			libraryTarget: 'global',
+			shared: {
+				react: 'react'
+			},
 			expose: {
 				Title: './src/Title',
 			},
