@@ -2,6 +2,7 @@ const { OriginalSource, RawSource } = require("webpack-sources");
 const Module = require("webpack/lib/Module");
 const RuntimeGlobals = require("webpack/lib/RuntimeGlobals");
 const Template = require("webpack/lib/Template");
+
 const getSourceForGlobalVariableExternal = (
   variableName,
   type,
@@ -115,13 +116,12 @@ const getSourceForDefaultCase = (
     ? checkExternalVariable(requestScope, request.join("."), runtimeTemplate)
     : "";
 
-
   // refactor conditional into checkExternalVariable
- return Template.asString([
+  return Template.asString([
     "module.exports = ",
-    `typeof ${requestScope} !== 'undefined' ? ${requestScope}.get('${request}').then(${RuntimeGlobals.compatGetDefaultExport}) : `,
+    `typeof ${requestScope} !== 'undefined' ? ${requestScope}.get('${request}') : `,
     `Promise.reject("Missing Remote Runtime: ${requestScope} cannot be found when trying to import ${request}"); `
-  ])
+  ]);
 };
 
 const TYPES = new Set(["javascript"]);
@@ -202,6 +202,7 @@ class RemoteModule extends Module {
     this.buildInfo = {
       strict: true
     };
+
     callback();
   }
 
