@@ -211,7 +211,6 @@ export default class RemoteModule extends Module {
 	}
 
 	getSourceString(runtimeTemplate, moduleGraph, chunkGraph) {
-		console.log('getSourceString', this.remoteType);
 		const request =
 			typeof this.request === 'object' && !Array.isArray(this.request)
 				? this.request[this.remoteType]

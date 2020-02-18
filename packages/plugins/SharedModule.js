@@ -110,28 +110,32 @@ const getSourceForAmdOrUmdExternal = (
  * @param {RuntimeTemplate} runtimeTemplate the runtime template
  * @returns {string} the generated source
  */
-const getSourceForDefaultCase = (optional, request, runtimeTemplate) => {
+const getSourceForDefaultCase = (
+	optional,
+	request,
+	runtimeTemplate,
+	requestScope,
+) => {
 	if (!Array.isArray(request)) {
 		// make it an array as the look up works the same basically
 		request = [request];
 	}
 
-	const variableName = request[0];
+	// TODO: use this for error handling
 	const missingModuleError = optional
 		? checkExternalVariable(
-				variableName,
-				request.join('.'),
-				runtimeTemplate,
-		  )
+			requestScope,
+			request.join('.'),
+			runtimeTemplate,
+		)
 		: '';
-	const objectLookup = request
-		.slice(1)
-		.map(r => `[${JSON.stringify(r)}]`)
-		.join('');
-	console.log(
-		`${missingModuleError}module.exports = ${variableName}${objectLookup};`,
-	);
-	return `${missingModuleError}module.exports = ${variableName}${objectLookup};`;
+
+	// refactor conditional into checkExternalVariable
+	return Template.asString([
+		'module.exports = ',
+		`(typeof ${requestScope} !== 'undefined') ? ${requestScope}.override('${request}') || Promise.resolve(DEP_WEBPACK_MAIN_TEMPLATE_REQUIRE_FN(${request})) : `,
+		`Promise.reject("Missing Shared Module: ${requestScope} cannot be found when trying to override ${request}"); `,
+	]);
 };
 
 const TYPES = new Set(['javascript']);
