@@ -118,8 +118,6 @@ class RemoteModuleFactoryPlugin {
 
 export default class ContainerReferencePlugin {
 	constructor(options) {
-		console.clear();
-
 		this.options = {
 			remoteType: options.remoteType ?? null, // TODO: Mark this as required?
 			remotes: options.remotes ?? [],

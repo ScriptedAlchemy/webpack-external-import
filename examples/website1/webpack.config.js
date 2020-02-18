@@ -34,7 +34,7 @@ module.exports = {
 
 	plugins: [
 		new ContainerReferencePlugin({
-			remoteType: 'global',
+			remoteType: 'var',
 			remotes: ['website2'],
 		}),
 		new HtmlWebpackPlugin({
