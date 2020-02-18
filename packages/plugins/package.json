@@ -20,11 +20,18 @@
     "runtime"
   ],
   "license": "BSD-3-Clause",
+  "scripts": {
+    "semantic-release": "semantic-release -e semantic-release-monorepo"
+  },
   "dependencies": {
     "schema-utils": "2.6.1",
     "webpack-sources": "^1.4.3"
   },
   "devDependencies": {
+    "@semantic-release/changelog": "^5.0.0",
+    "@semantic-release/git": "^9.0.0",
+    "semantic-release": "^17.0.4",
+    "semantic-release-monorepo": "^7.0.0",
     "webpack": "^5.0.0-beta.13"
   },
   "peerDependencies": {
@@ -32,5 +39,23 @@
   },
   "preconstruct": {
     "source": "index"
+  },
+  "release": {
+    "plugins": [
+      [
+        "@semantic-release/changelog",
+        {
+          "changelogFile": "CHANGELOG.md"
+        }
+      ],
+      [
+        "@semantic-release/git",
+        {
+          "assets": [
+            "CHANGELOG.md"
+          ]
+        }
+      ]
+    ]
   }
 }
