@@ -141,8 +141,6 @@ class SharedModule extends Module {
 	constructor(request, type, userRequest) {
 		super('javascript/dynamic', null);
 
-		console.log('Sharedmodule')
-
 		// Info from Factory
 		/** @type {string | string[] | Record<string, string | string[]>} */
 		this.request = request;
@@ -217,7 +215,6 @@ class SharedModule extends Module {
 	}
 
 	getSourceString(runtimeTemplate, moduleGraph, chunkGraph) {
-		console.log('zack');
 		const request =
 			typeof this.request === 'object' && !Array.isArray(this.request)
 				? this.request[this.externalType]
@@ -296,12 +293,12 @@ class SharedModule extends Module {
 	 * @returns {void}
 	 */
 	updateHash(hash, chunkGraph) {
-		hash.update(this.externalType);
-		hash.update(JSON.stringify(this.request));
-		hash.update(
-			JSON.stringify(Boolean(this.isOptional(chunkGraph.moduleGraph))),
-		);
-		super.updateHash(hash, chunkGraph);
+		// hash.update(this.externalType);
+		// hash.update(JSON.stringify(this.request));
+		// hash.update(
+		// 	JSON.stringify(Boolean(this.isOptional(chunkGraph.moduleGraph))),
+		// );
+		// super.updateHash(hash, chunkGraph);
 	}
 
 	serialize(context) {

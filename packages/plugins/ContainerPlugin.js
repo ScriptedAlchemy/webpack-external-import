@@ -11,6 +11,8 @@ import validateOptions from 'schema-utils';
 import { ConcatSource } from 'webpack-sources';
 import SharedModule from './SharedModule';
 
+const UNSPECIFIED_EXTERNAL_TYPE_REGEXP = /^[a-z0-9]+ /;
+
 class SharedModuleFactoryPlugin {
 	constructor(type, sharedModule) {
 		this.remoteType = type;
@@ -25,7 +27,7 @@ class SharedModuleFactoryPlugin {
 				const { context } = data;
 				const dependency = data.dependencies[0];
 
-				const handleRemote = (value, type, callback) => {
+				const handleShared = (value, type, callback) => {
 					console.log({ value, type, callback });
 
 					if (value === false) {
@@ -64,7 +66,7 @@ class SharedModuleFactoryPlugin {
 				const handleExternals = (shared, callback) => {
 					if (typeof shared === 'string') {
 						if (shared[dependency.request]) {
-							return handleRemote(
+							return handleShared(
 								dependency.request,
 								undefined,
 								callback,
@@ -110,7 +112,7 @@ class SharedModuleFactoryPlugin {
 						)
 					) {
 						if (shared[dependency.request]) {
-							return handleRemote(
+							return handleShared(
 								shared[dependency.request],
 								undefined,
 								callback,
