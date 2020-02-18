@@ -34,7 +34,7 @@ module.exports = {
 
 	plugins: [
 		new ContainerReferencePlugin({
-			remoteType: 'var',
+			remoteType: 'global',
 			remotes: ['website2'],
 			shared: {
 				react: 'react',
