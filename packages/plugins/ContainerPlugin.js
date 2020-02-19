@@ -115,28 +115,22 @@ export default class ContainerPlugin {
 			},
 		);
 
-		compiler.hooks.compile.tap(
-			ContainerPlugin.name,
-			({ normalModuleFactory }) => {
-				new SharedModuleFactoryPlugin(
-					compiler.options.libraryTarget,
-					this.options.shared,
-				).apply(normalModuleFactory);
-			},
-		);
+		// compiler.hooks.compile.tap(
+		// 	ContainerPlugin.name,
+		// 	({ normalModuleFactory }) => {
+		// 		new SharedModuleFactoryPlugin(
+		// 			compiler.options.libraryTarget,
+		// 			this.options.shared,
+		// 		).apply(normalModuleFactory);
+		// 	},
+		// );
 
 		compiler.hooks.compilation.tap(ContainerPlugin.name, ({ mainTemplate }) => {
 			mainTemplate.hooks.requireExtensions.tap('URLImportPlugin', source => {
-				console.log(source);
-
-				return source;
-
-				// return [addInterleaveExtension, addInterleaveRequire].reduce(
-				// 	(sourceCode, extension) => {
-				// 		return extension(sourceCode, mainTemplate.requireFn, this.opts);
-				// 	},
-				// 	source
-				// );
+				return Template.asString([
+					source,
+					'__webpack_require__.shared = __webpack_require__',
+				]);
 			});
 		});
 

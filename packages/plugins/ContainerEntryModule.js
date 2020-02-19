@@ -104,6 +104,11 @@ export default class ContainerEntryModule extends Module {
 			'javascript',
 			new ConcatSource(
 				Template.asString([
+					`exports.shared = ${runtimeTemplate.basicFunction(
+						['module', 'getter'],
+						'__webpack_require__.shared[module] = getter;',
+					)}`,
+					'',
 					`const __MODULE_MAP__ = new Map([${getters.join(',')}]);`,
 					'',
 					`const __GET_MODULE__ = ${runtimeTemplate.basicFunction(
@@ -115,14 +120,9 @@ export default class ContainerEntryModule extends Module {
 						`get: ${runtimeTemplate.basicFunction(
 							'',
 							'return __GET_MODULE__',
-						)}`,
+						)},`,
 					]),
 					`});`,
-					'',
-					`const __SHARED_MODULES__ = ${runtimeTemplate.basicFunction(
-						['module', 'getter'],
-						' __webpack_require__.shared[module] = getter;',
-					)}`,
 				]),
 			),
 		);
