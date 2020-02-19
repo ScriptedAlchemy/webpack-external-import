@@ -40,9 +40,7 @@ const getSourceForGlobalVariableExternal = (variableName, type) => {
 	}
 
 	// needed for e.g. window["some"]["thing"]
-	const objectLookup = variableName
-		.map(r => `[${JSON.stringify(r)}]`)
-		.join('');
+	const objectLookup = variableName.map(r => `[${JSON.stringify(r)}]`).join('');
 	return `(function() { module.exports = ${type}${objectLookup}; }());`;
 };
 
@@ -52,9 +50,7 @@ const getSourceForGlobalVariableExternal = (variableName, type) => {
  */
 const getSourceForCommonJsExternal = moduleAndSpecifiers => {
 	if (!Array.isArray(moduleAndSpecifiers)) {
-		return `module.exports = require(${JSON.stringify(
-			moduleAndSpecifiers,
-		)});`;
+		return `module.exports = require(${JSON.stringify(moduleAndSpecifiers)});`;
 	}
 	const moduleName = moduleAndSpecifiers[0];
 	const objectLookup = moduleAndSpecifiers
@@ -123,16 +119,13 @@ const getSourceForDefaultCase = (
 
 	// TODO: use this for error handling
 	const missingModuleError = optional
-		? checkExternalVariable(
-				request.join('.'),
-				runtimeTemplate,
-		  )
+		? checkExternalVariable(request.join('.'), runtimeTemplate)
 		: '';
-const requestScope = null
+	const requestScope = null;
 	// refactor conditional into checkExternalVariable
 	return Template.asString([
 		'module.exports = ',
-		`(typeof ${requestScope} !== 'undefined') ? __webpack_require__.override('${request}') || Promise.resolve(__webpack_require__(${moduleId})) : `,
+		`(typeof ${requestScope} !== 'undefined') ? __webpack_require__.shared('${request}') || Promise.resolve(__webpack_require__(${moduleId})) : `,
 		`Promise.reject("Missing Shared Module: ${requestScope} cannot be found when trying to override ${request}"); `,
 	]);
 };
@@ -228,10 +221,7 @@ export default class SharedModule extends Module {
 			case 'this':
 			case 'window':
 			case 'self':
-				return getSourceForGlobalVariableExternal(
-					request,
-					this.externalType,
-				);
+				return getSourceForGlobalVariableExternal(request, this.externalType);
 			case 'global':
 				return getSourceForGlobalVariableExternal(
 					request,

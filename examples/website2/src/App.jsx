@@ -2,7 +2,8 @@ import React, { lazy, Suspense } from 'react';
 
 const HelloWorld = lazy(() => import('./HelloWorld'));
 
-export default () =>
+export default () => (
 	<Suspense fallback={'fallback'}>
-		<HelloWorld/>
+		<HelloWorld />
 	</Suspense>
+);

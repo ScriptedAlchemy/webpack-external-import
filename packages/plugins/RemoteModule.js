@@ -113,11 +113,7 @@ const getSourceForDefaultCase = (
 
 	// TODO: use this for error handling
 	const missingModuleError = optional
-		? checkExternalVariable(
-				requestScope,
-				request.join('.'),
-				runtimeTemplate,
-		  )
+		? checkExternalVariable(requestScope, request.join('.'), runtimeTemplate)
 		: '';
 
 	// refactor conditional into checkExternalVariable

@@ -52,20 +52,13 @@ export default class SharedModuleFactoryPlugin {
 				const handleExternals = (shared, callback) => {
 					if (typeof shared === 'string') {
 						if (shared[dependency.request]) {
-							return handleShared(
-								dependency.request,
-								undefined,
-								callback,
-							);
+							return handleShared(dependency.request, undefined, callback);
 						}
 					} else if (Array.isArray(shared)) {
 						let i = 0;
 						const next = () => {
 							let asyncFlag;
-							const handleExternalsAndCallback = (
-								err,
-								module,
-							) => {
+							const handleExternalsAndCallback = (err, module) => {
 								if (err) return callback(err);
 								if (!module) {
 									if (asyncFlag) {
@@ -80,10 +73,7 @@ export default class SharedModuleFactoryPlugin {
 							do {
 								asyncFlag = true;
 								if (i >= shared.length) return callback();
-								handleExternals(
-									shared[i++],
-									handleExternalsAndCallback,
-								);
+								handleExternals(shared[i++], handleExternalsAndCallback);
 							} while (!asyncFlag);
 							asyncFlag = false;
 						};
@@ -92,10 +82,7 @@ export default class SharedModuleFactoryPlugin {
 						return;
 					} else if (
 						typeof shared === 'object' &&
-						Object.prototype.hasOwnProperty.call(
-							shared,
-							dependency.request,
-						)
+						Object.prototype.hasOwnProperty.call(shared, dependency.request)
 					) {
 						if (shared[dependency.request]) {
 							return handleShared(

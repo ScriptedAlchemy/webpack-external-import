@@ -50,25 +50,16 @@ class RemoteModuleFactoryPlugin {
 
 				const handleExternals = (remotes, callback) => {
 					if (typeof remotes === 'string') {
-						const requestScope = data?.request
-							?.split('/')
-							?.shift?.();
+						const requestScope = data?.request?.split('/')?.shift?.();
 
 						if (this.remotes?.includes(requestScope)) {
-							return handleRemote(
-								dependency.request,
-								undefined,
-								callback,
-							);
+							return handleRemote(dependency.request, undefined, callback);
 						}
 					} else if (Array.isArray(remotes)) {
 						let i = 0;
 						const next = () => {
 							let asyncFlag;
-							const handleExternalsAndCallback = (
-								err,
-								module,
-							) => {
+							const handleExternalsAndCallback = (err, module) => {
 								if (err) return callback(err);
 								if (!module) {
 									if (asyncFlag) {
@@ -83,10 +74,7 @@ class RemoteModuleFactoryPlugin {
 							do {
 								asyncFlag = true;
 								if (i >= remotes.length) return callback();
-								handleExternals(
-									remotes[i++],
-									handleExternalsAndCallback,
-								);
+								handleExternals(remotes[i++], handleExternalsAndCallback);
 							} while (!asyncFlag);
 							asyncFlag = false;
 						};
@@ -95,10 +83,7 @@ class RemoteModuleFactoryPlugin {
 						return;
 					} else if (
 						typeof remotes === 'object' &&
-						Object.prototype.hasOwnProperty.call(
-							remotes,
-							dependency.request,
-						)
+						Object.prototype.hasOwnProperty.call(remotes, dependency.request)
 					) {
 						return handleRemote(
 							remotes[dependency.request],

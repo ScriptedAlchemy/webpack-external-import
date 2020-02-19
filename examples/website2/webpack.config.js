@@ -39,7 +39,7 @@ module.exports = {
 			filename: 'remoteEntry.js',
 			libraryTarget: 'global',
 			shared: {
-				react: 'react'
+				react: 'react',
 			},
 			expose: {
 				Title: './src/Title',

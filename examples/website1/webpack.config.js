@@ -37,7 +37,7 @@ module.exports = {
 			remoteType: 'global',
 			remotes: ['website2'],
 			shared: {
-				react: 'react'
+				react: 'react',
 			},
 		}),
 		new HtmlWebpackPlugin({

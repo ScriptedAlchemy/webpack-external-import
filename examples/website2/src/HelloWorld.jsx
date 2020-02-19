@@ -2,8 +2,9 @@ import React, { lazy, Suspense } from 'react';
 
 const Title = lazy(() => import('./Title'));
 
-export default () =>
+export default () => (
 	<Suspense fallback={'fallback'}>
-		<Title/>
+		<Title />
 		<p>This app loads title directly, and also exposes it.</p>
 	</Suspense>
+);
