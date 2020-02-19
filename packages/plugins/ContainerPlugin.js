@@ -99,19 +99,14 @@ export default class ContainerPlugin {
 				compilation.addEntry(
 					compilation.context,
 					new ContainerEntryDependency(
-						Object.entries(exposedMap).map(
-							([name, request], idx) => {
-								const dep = new ContainerExposedDependency(
-									name,
-									request,
-								);
-								dep.loc = {
-									name,
-									index: idx,
-								};
-								return dep;
-							},
-						),
+						Object.entries(exposedMap).map(([name, request], idx) => {
+							const dep = new ContainerExposedDependency(name, request);
+							dep.loc = {
+								name,
+								index: idx,
+							};
+							return dep;
+						}),
 						this.options.name,
 					),
 					this.options.name,
@@ -130,6 +125,21 @@ export default class ContainerPlugin {
 			},
 		);
 
+		compiler.hooks.compilation.tap(ContainerPlugin.name, ({ mainTemplate }) => {
+			mainTemplate.hooks.requireExtensions.tap('URLImportPlugin', source => {
+				console.log(source);
+
+				return source;
+
+				// return [addInterleaveExtension, addInterleaveRequire].reduce(
+				// 	(sourceCode, extension) => {
+				// 		return extension(sourceCode, mainTemplate.requireFn, this.opts);
+				// 	},
+				// 	source
+				// );
+			});
+		});
+
 		compiler.hooks.thisCompilation.tap(
 			ContainerPlugin.name,
 			(compilation, { normalModuleFactory }) => {
@@ -147,71 +157,60 @@ export default class ContainerPlugin {
 					compilation,
 				);
 
-				renderHooks.render.tap(
-					ContainerPlugin.name,
-					(source, { chunk }) => {
+				renderHooks.render.tap(ContainerPlugin.name, (source, { chunk }) => {
+					if (chunk.name === this.options.name) {
+						const libName = Template.toIdentifier(
+							compilation.getPath(this.options.library, {
+								chunk,
+							}),
+						);
+
+						switch (this.options.libraryTarget) {
+							case 'var': {
+								return new ConcatSource(`var ${libName} =`, source);
+							}
+							case 'this':
+							case 'window':
+							case 'self':
+								return new ConcatSource(
+									`${this.options.libraryTarget}${propertyAccess([libName])} =`,
+									source,
+								);
+							case 'global':
+								return new ConcatSource(
+									`${compiler.options.output.globalObject}${propertyAccess([
+										libName,
+									])} =`,
+									source,
+								);
+							case 'commonjs':
+							case 'commonjs2': {
+								return new ConcatSource(
+									`exports${propertyAccess([libName])} =`,
+									source,
+								);
+							}
+							case 'amd': // TODO: Solve this?
+							case 'amd-require': // TODO: Solve this?
+							case 'umd': // TODO: Solve this?
+							case 'umd2': // TODO: Solve this?
+							case 'system': // TODO: Solve this?
+							default:
+								throw new Error(
+									`${this.options.libraryTarget} is not a valid Library target`,
+								);
+						}
+					}
+				});
+
+				compilation.hooks.afterChunks.tap(ContainerPlugin.name, chunks => {
+					for (const chunk of chunks) {
 						if (chunk.name === this.options.name) {
-							const libName = Template.toIdentifier(
-								compilation.getPath(this.options.library, {
-									chunk,
-								}),
-							);
-
-							switch (this.options.libraryTarget) {
-								case 'var': {
-									return new ConcatSource(
-										`var ${libName} =`,
-										source,
-									);
-								}
-								case 'this':
-								case 'window':
-								case 'self':
-									return new ConcatSource(
-										`${
-											this.options.libraryTarget
-										}${propertyAccess([libName])} =`,
-										source,
-									);
-								case 'global':
-									return new ConcatSource(
-										`${
-											compiler.options.output.globalObject
-										}${propertyAccess([libName])} =`,
-										source,
-									);
-								case 'commonjs':
-								case 'commonjs2': {
-									return new ConcatSource(
-										`exports${propertyAccess([libName])} =`,
-										source,
-									);
-								}
-								case 'amd': // TODO: Solve this?
-								case 'amd-require': // TODO: Solve this?
-								case 'umd': // TODO: Solve this?
-								case 'umd2': // TODO: Solve this?
-								case 'system': // TODO: Solve this?
-								default:
-									throw new Error(
-										`${this.options.libraryTarget} is not a valid Library target`,
-									);
-							}
+							chunk.preventIntegration = true; // TODO: Check that this is actually needed
+							chunk.filenameTemplate = this.options.filename;
 						}
-					},
-				);
-
-				compilation.hooks.afterChunks.tap(
-					ContainerPlugin.name,
-					chunks => {
-						for (const chunk of chunks) {
-							if (chunk.name === this.options.name) {
-								chunk.preventIntegration = true; // TODO: Check that this is actually needed
-								chunk.filenameTemplate = this.options.filename;
-							}
-						}
-					},
-				);
+					}
+				});
 			},
 		);
 	}
