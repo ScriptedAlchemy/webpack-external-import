@@ -111,10 +111,10 @@ const getSourceForAmdOrUmdExternal = (
  * @returns {string} the generated source
  */
 const getSourceForDefaultCase = (
+	moduleId,
 	optional,
 	request,
 	runtimeTemplate,
-	requestScope,
 ) => {
 	if (!Array.isArray(request)) {
 		// make it an array as the look up works the same basically
@@ -124,16 +124,15 @@ const getSourceForDefaultCase = (
 	// TODO: use this for error handling
 	const missingModuleError = optional
 		? checkExternalVariable(
-			requestScope,
-			request.join('.'),
-			runtimeTemplate,
-		)
+				request.join('.'),
+				runtimeTemplate,
+		  )
 		: '';
-
+const requestScope = null
 	// refactor conditional into checkExternalVariable
 	return Template.asString([
 		'module.exports = ',
-		`(typeof ${requestScope} !== 'undefined') ? ${requestScope}.override('${request}') || Promise.resolve(DEP_WEBPACK_MAIN_TEMPLATE_REQUIRE_FN(${request})) : `,
+		`(typeof ${requestScope} !== 'undefined') ? __webpack_require__.override('${request}') || Promise.resolve(__webpack_require__(${moduleId})) : `,
 		`Promise.reject("Missing Shared Module: ${requestScope} cannot be found when trying to override ${request}"); `,
 	]);
 };
@@ -223,6 +222,8 @@ export default class SharedModule extends Module {
 			typeof this.request === 'object' && !Array.isArray(this.request)
 				? this.request[this.externalType]
 				: this.request;
+
+		console.log('externalType', this.externalType);
 		switch (this.externalType) {
 			case 'this':
 			case 'window':
@@ -252,6 +253,7 @@ export default class SharedModule extends Module {
 				);
 			default:
 				return getSourceForDefaultCase(
+					chunkGraph.getModuleId(this),
 					this.isOptional(moduleGraph),
 					request,
 					runtimeTemplate,
@@ -269,7 +271,6 @@ export default class SharedModule extends Module {
 			moduleGraph,
 			chunkGraph,
 		);
-
 		const sources = new Map();
 		if (this.useSourceMap) {
 			sources.set(

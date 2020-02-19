@@ -4,124 +4,9 @@ import propertyAccess from 'webpack/lib/util/propertyAccess';
 import validateOptions from 'schema-utils';
 import ContainerExposedDependency from './ContainerExposedDependency';
 import { ConcatSource } from 'webpack-sources';
-import SharedModule from './SharedModule';
 import ContainerEntryDependency from './ContainerEntryDependency';
 import ContainerEntryModuleFactory from './ContainerEntryModuleFactory';
-
-const UNSPECIFIED_EXTERNAL_TYPE_REGEXP = /^[a-z0-9]+ /;
-
-class SharedModuleFactoryPlugin {
-	constructor(type, sharedModules) {
-		this.shared = sharedModules;
-	}
-
-	apply(normalModuleFactory) {
-		/*const globalType = this.remoteType;
-		normalModuleFactory.hooks.factorize.tapAsync(
-			'SharedModuleFactoryPlugin',
-			(data, callback) => {
-				const { context } = data;
-				const dependency = data.dependencies[0];
-
-				const handleShared = (value, type, callback) => {
-					console.log({ value, type, callback });
-
-					if (value === false) {
-						// Not externals, fallback to original factory
-						return callback();
-					}
-
-					/!** @type {string} *!/
-					let externalConfig;
-					if (value === true) {
-						externalConfig = dependency.request;
-					} else {
-						externalConfig = value;
-					}
-
-					// When no explicit type is specified, extract it from the externalConfig
-					if (
-						type === undefined &&
-						UNSPECIFIED_EXTERNAL_TYPE_REGEXP.test(externalConfig)
-					) {
-						const idx = externalConfig.indexOf(' ');
-						type = externalConfig.substr(0, idx);
-						externalConfig = externalConfig.substr(idx + 1);
-					}
-
-					callback(
-						null,
-						new SharedModule(
-							externalConfig,
-							type || globalType,
-							dependency.request,
-						),
-					);
-				};
-
-				const handleExternals = (shared, callback) => {
-					if (typeof shared === 'string') {
-						if (shared[dependency.request]) {
-							return handleShared(
-								dependency.request,
-								undefined,
-								callback,
-							);
-						}
-					} else if (Array.isArray(shared)) {
-						let i = 0;
-						const next = () => {
-							let asyncFlag;
-							const handleExternalsAndCallback = (
-								err,
-								module,
-							) => {
-								if (err) return callback(err);
-								if (!module) {
-									if (asyncFlag) {
-										asyncFlag = false;
-										return;
-									}
-									return next();
-								}
-								callback(null, module);
-							};
-
-							do {
-								asyncFlag = true;
-								if (i >= shared.length) return callback();
-								handleExternals(
-									shared[i++],
-									handleExternalsAndCallback,
-								);
-							} while (!asyncFlag);
-							asyncFlag = false;
-						};
-
-						next();
-						return;
-					} else if (
-						typeof shared === 'object' &&
-						Object.prototype.hasOwnProperty.call(
-							shared,
-							dependency.request,
-						)
-					) {
-						if (shared[dependency.request]) {
-							return handleShared(
-								shared[dependency.request],
-								undefined,
-								callback,
-							);
-						}
-					}
-					callback();
-				};
-				handleExternals(this.shared, callback);
-			},
-		);*/
-	}
-}
+import SharedModuleFactoryPlugin from './SharedModuleFactoryPlugin';
 
 export default class ContainerPlugin {
 	static get name() {
@@ -238,15 +123,16 @@ export default class ContainerPlugin {
 		compiler.hooks.compile.tap(
 			ContainerPlugin.name,
 			({ normalModuleFactory }) => {
-				new SharedModuleFactoryPlugin(this.options.shared)
-					.apply(normalModuleFactory);
+				new SharedModuleFactoryPlugin(
+					compiler.options.libraryTarget,
+					this.options.shared,
+				).apply(normalModuleFactory);
 			},
 		);
 
 		compiler.hooks.thisCompilation.tap(
 			ContainerPlugin.name,
 			(compilation, { normalModuleFactory }) => {
-
 				compilation.dependencyFactories.set(
 					ContainerEntryDependency,
 					new ContainerEntryModuleFactory(),

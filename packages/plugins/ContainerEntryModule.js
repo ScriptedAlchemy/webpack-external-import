@@ -103,17 +103,27 @@ export default class ContainerEntryModule extends Module {
 		sources.set(
 			'javascript',
 			new ConcatSource(
-				`const __MODULE_MAP__ = new Map([${getters.join(',')}]);`,
-				`const __GET_MODULE__ = ${runtimeTemplate.basicFunction(
-					['module'],
-					`return __MODULE_MAP__.has(module) ? __MODULE_MAP__.get(module).apply(null) : Promise.reject(new Error('Module ' + module + ' does not exist.'))`,
-				)};`,
-				`${
-					RuntimeGlobals.definePropertyGetters
-				}(exports, {get: ${runtimeTemplate.basicFunction(
+				Template.asString([
+					`const __MODULE_MAP__ = new Map([${getters.join(',')}]);`,
 					'',
-					'return __GET_MODULE__',
-				)}});`,
+					`const __GET_MODULE__ = ${runtimeTemplate.basicFunction(
+						['module'],
+						`return __MODULE_MAP__.has(module) ? __MODULE_MAP__.get(module).apply(null) : Promise.reject(new Error('Module ' + module + ' does not exist.'))`,
+					)};`,
+					`${RuntimeGlobals.definePropertyGetters}(exports, {`,
+					Template.indent([
+						`get: ${runtimeTemplate.basicFunction(
+							'',
+							'return __GET_MODULE__',
+						)}`,
+					]),
+					`});`,
+					'',
+					`const __SHARED_MODULES__ = ${runtimeTemplate.basicFunction(
+						['module', 'getter'],
+						' __webpack_require__.shared[module] = getter;',
+					)}`,
+				]),
 			),
 		);
 
