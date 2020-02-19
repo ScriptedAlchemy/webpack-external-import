@@ -1,0 +1,23 @@
+{
+  "name": "website2",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "concurrently --raw -k \"webpack --watch\" \"serve dist/ -p 3002\"",
+    "build": "webpack"
+  },
+  "dependencies": {
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0"
+  },
+  "devDependencies": {
+    "@babel/preset-react": "^7.8.3",
+    "babel-loader": "^8.0.6",
+    "concurrently": "^5.1.0",
+    "serve": "^11.3.0",
+    "html-webpack-plugin": "^4.0.0-beta.11",
+    "webpack": "^5.0.0-beta.13",
+    "webpack-cli": "^4.0.0-beta.3",
+    "webpack-external-import": "0.0.0-development"
+  }
+}
