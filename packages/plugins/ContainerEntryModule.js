@@ -103,7 +103,7 @@ export default class ContainerEntryModule extends Module {
 		sources.set(
 			'javascript',
 			new ConcatSource(
-				`\nconst __MODULE_MAP__ = {${getters.join(',')}};`,
+				`\n${runtimeTemplate.supportsConst() ? "const" : "var"} __MODULE_MAP__ = {${getters.join(',')}};`,
 				`\nconst __GET_MODULE__ = ${runtimeTemplate.basicFunction(
 					['module'],
 					`return typeof __MODULE_MAP__[module] ==='function' ? __MODULE_MAP__[module].apply(null : Promise.reject(new Error('Module ' + module + ' does not exist.'))`,
