@@ -3,7 +3,7 @@
   "description": "dynamic import() external urls!",
   "main": "dist/webpack-external-import.cjs.js",
   "module": "dist/webpack-external-import.esm.js",
-  "version": "3.0.0-beta.1",
+  "version": "3.0.0-beta.2",
   "author": "Zack Jackson <zack@ScriptedAlchemy.com> (https://github.com/ScriptedAlchemy)",
   "keywords": [
     "import url",
