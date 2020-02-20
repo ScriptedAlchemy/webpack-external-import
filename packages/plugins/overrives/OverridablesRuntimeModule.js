@@ -5,9 +5,9 @@
 
 "use strict";
 
-const RuntimeGlobals = require("../RuntimeGlobals");
-const RuntimeModule = require("../RuntimeModule");
-const Template = require("../Template");
+const RuntimeGlobals = require("webpack/lib/RuntimeGlobals");
+const RuntimeModule = require("webpack/lib/RuntimeModule");
+const Template = require("webpack/lib/Template");
 
 /** @typedef {import("./OverridableModule")} OverridableModule */
 

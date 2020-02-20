@@ -200,7 +200,6 @@ export default class ContainerPlugin {
 				compilation.hooks.afterChunks.tap(ContainerPlugin.name, chunks => {
 					for (const chunk of chunks) {
 						if (chunk.name === this.options.name) {
-							chunk.preventIntegration = true; // TODO: Check that this is actually needed
 							chunk.filenameTemplate = this.options.filename;
 						}
 					}

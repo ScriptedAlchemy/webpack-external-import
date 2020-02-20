@@ -94,36 +94,32 @@ export default class ContainerEntryModule extends Module {
 			}
 
 			getters.push(
-				`[${Template.toNormalComment(
+				`${Template.toNormalComment(
 					`[${name}] => ${request}`,
-				)}"${name}", ${runtimeTemplate.basicFunction('', str)}]`,
+				)}"${name}": ${runtimeTemplate.basicFunction('', str)}`,
 			);
 		}
 
 		sources.set(
 			'javascript',
 			new ConcatSource(
-				Template.asString([
-					`exports.shared = ${runtimeTemplate.basicFunction(
+				`\n${runtimeTemplate.supportsConst() ? "const" : "var"} __MODULE_MAP__ = {${getters.join(',')}};`,
+				`\nconst __GET_MODULE__ = ${runtimeTemplate.basicFunction(
+					['module'],
+					`return typeof __MODULE_MAP__[module] ==='function' ? __MODULE_MAP__[module].apply(null : Promise.reject(new Error('Module ' + module + ' does not exist.'))`,
+				)};`,
+				`\n\n${RuntimeGlobals.definePropertyGetters}(exports, {\n`,
+				Template.indent([
+					`get: ${runtimeTemplate.basicFunction(
+						'',
+						'return __GET_MODULE__',
+					)},`,
+					`shared: ${runtimeTemplate.basicFunction(
 						['module', 'getter'],
 						'__webpack_require__.shared[module] = getter;',
 					)}`,
-					'',
-					`const __MODULE_MAP__ = new Map([${getters.join(',')}]);`,
-					'',
-					`const __GET_MODULE__ = ${runtimeTemplate.basicFunction(
-						['module'],
-						`return __MODULE_MAP__.has(module) ? __MODULE_MAP__.get(module).apply(null) : Promise.reject(new Error('Module ' + module + ' does not exist.'))`,
-					)};`,
-					`${RuntimeGlobals.definePropertyGetters}(exports, {`,
-					Template.indent([
-						`get: ${runtimeTemplate.basicFunction(
-							'',
-							'return __GET_MODULE__',
-						)},`,
-					]),
-					`});`,
 				]),
+				`});`,
 			),
 		);
 

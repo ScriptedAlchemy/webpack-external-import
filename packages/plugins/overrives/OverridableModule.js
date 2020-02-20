@@ -6,11 +6,11 @@
 "use strict";
 
 const { RawSource } = require("webpack-sources");
-const AsyncDependenciesBlock = require("../AsyncDependenciesBlock");
-const Module = require("../Module");
-const RuntimeGlobals = require("../RuntimeGlobals");
-const Template = require("../Template");
-const makeSerializable = require("../util/makeSerializable");
+const AsyncDependenciesBlock = require("webpack/lib/AsyncDependenciesBlock");
+const Module = require("webpack/lib/Module");
+const RuntimeGlobals = require("webpack/lib/RuntimeGlobals");
+const Template = require("webpack/lib/Template");
+const makeSerializable = require("webpack/lib/util/makeSerializable");
 const OverridableOriginalDependency = require("./OverridableOriginalDependency");
 
 /** @typedef {import("../../declarations/WebpackOptions").WebpackOptionsNormalized} WebpackOptions */

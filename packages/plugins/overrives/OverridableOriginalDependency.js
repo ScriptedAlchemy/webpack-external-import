@@ -5,8 +5,8 @@
 
 "use strict";
 
-const Dependency = require("../Dependency");
-const makeSerializable = require("../util/makeSerializable");
+const Dependency = require("webpack/lib/Dependency");
+const makeSerializable = require("webpack/lib/util/makeSerializable");
 
 class OverridableOriginalDependency extends Dependency {
 	constructor(originalModule) {

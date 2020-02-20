@@ -5,7 +5,7 @@
 
 "use strict";
 
-const ModuleFactory = require("../ModuleFactory");
+const ModuleFactory = require("webpack/lib/ModuleFactory");
 
 /** @typedef {import("../ModuleFactory").ModuleFactoryCreateData} ModuleFactoryCreateData */
 /** @typedef {import("../ModuleFactory").ModuleFactoryResult} ModuleFactoryResult */

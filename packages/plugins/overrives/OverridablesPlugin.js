@@ -5,8 +5,8 @@
 
 "use strict";
 
-const ModuleNotFoundError = require("../ModuleNotFoundError");
-const RuntimeGlobals = require("../RuntimeGlobals");
+const ModuleNotFoundError = require("webpack/lib/ModuleNotFoundError");
+const RuntimeGlobals = require("webpack/lib/RuntimeGlobals");
 const OverridableModule = require("./OverridableModule");
 const OverridableOriginalDependency = require("./OverridableOriginalDependency");
 const OverridableOriginalModuleFactory = require("./OverridableOriginalModuleFactory");
