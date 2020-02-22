@@ -110,7 +110,7 @@ export default class ContainerReferencePlugin {
 		this.options = {
 			remoteType: options.remoteType ?? 'global',
 			remotes: options.remotes ?? [],
-			overridables: options.overridables ?? {},
+			shared: options.shared ?? {},
 		};
 
 		// TODO: Apply some validation around what was passed in.
@@ -122,7 +122,6 @@ export default class ContainerReferencePlugin {
 		compiler.hooks.compile.tap(
 			ContainerReferencePlugin.name,
 			({ normalModuleFactory }) => {
-
 				new RemoteModuleFactoryPlugin(remoteType, remotes).apply(
 					normalModuleFactory,
 				);
