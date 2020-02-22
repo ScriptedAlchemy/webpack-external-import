@@ -122,7 +122,6 @@ export default class ContainerReferencePlugin {
 		compiler.hooks.compile.tap(
 			ContainerReferencePlugin.name,
 			({ normalModuleFactory }) => {
-				new OverridablesPlugin(this.options.overridables).apply(compiler);
 
 				new RemoteModuleFactoryPlugin(remoteType, remotes).apply(
 					normalModuleFactory,

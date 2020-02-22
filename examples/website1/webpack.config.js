@@ -36,7 +36,7 @@ module.exports = {
 		new ContainerReferencePlugin({
 			remoteType: 'global',
 			remotes: ['website2'],
-			overridables: {
+			shared: {
 				react: 'react',
 			},
 		}),
