@@ -8,7 +8,7 @@
   "devDependencies": {
     "css-loader": "^3.4.2",
     "style-loader": "^1.1.3",
-    "webpack": "^5.0.0-beta.13",
+    "webpack": "git://github.com/webpack/webpack.git#container/override",
     "webpack-cli": "^4.0.0-beta.3",
     "webpack-external-import": "0.0.0-development"
   }

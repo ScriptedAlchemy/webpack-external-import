@@ -6,7 +6,7 @@ import ContainerExposedDependency from './ContainerExposedDependency';
 import { ConcatSource } from 'webpack-sources';
 import ContainerEntryDependency from './ContainerEntryDependency';
 import ContainerEntryModuleFactory from './ContainerEntryModuleFactory';
-import SharedModuleFactoryPlugin from './SharedModuleFactoryPlugin';
+import OverridablesPlugin from 'webpack/lib/container/OverridablesPlugin';
 
 export default class ContainerPlugin {
 	static get name() {
@@ -115,24 +115,16 @@ export default class ContainerPlugin {
 			},
 		);
 
+
 		// compiler.hooks.compile.tap(
 		// 	ContainerPlugin.name,
-		// 	({ normalModuleFactory }) => {
-		// 		new SharedModuleFactoryPlugin(
-		// 			compiler.options.libraryTarget,
+		// 	() => {
+		// 		new OverridablesPlugin(
 		// 			this.options.shared,
-		// 		).apply(normalModuleFactory);
+		// 		).apply(compiler);
 		// 	},
 		// );
 
-		compiler.hooks.compilation.tap(ContainerPlugin.name, ({ mainTemplate }) => {
-			mainTemplate.hooks.requireExtensions.tap('URLImportPlugin', source => {
-				return Template.asString([
-					source,
-					'__webpack_require__.shared = __webpack_require__',
-				]);
-			});
-		});
 
 		compiler.hooks.thisCompilation.tap(
 			ContainerPlugin.name,
@@ -146,6 +138,7 @@ export default class ContainerPlugin {
 					ContainerExposedDependency,
 					normalModuleFactory,
 				);
+
 
 				const renderHooks = JavascriptModulesPlugin.getCompilationHooks(
 					compilation,

@@ -1,4 +1,5 @@
 import RemoteModule from './RemoteModule';
+import OverridablesPlugin from 'webpack/lib/container/OverridablesPlugin';
 
 const UNSPECIFIED_EXTERNAL_TYPE_REGEXP = /^[a-z0-9]+ /;
 
@@ -109,7 +110,7 @@ export default class ContainerReferencePlugin {
 		this.options = {
 			remoteType: options.remoteType ?? 'global',
 			remotes: options.remotes ?? [],
-			override: options.override ?? {},
+			overridables: options.overridables ?? {},
 		};
 
 		// TODO: Apply some validation around what was passed in.
@@ -121,6 +122,8 @@ export default class ContainerReferencePlugin {
 		compiler.hooks.compile.tap(
 			ContainerReferencePlugin.name,
 			({ normalModuleFactory }) => {
+				new OverridablesPlugin(this.options.overridables).apply(compiler);
+
 				new RemoteModuleFactoryPlugin(remoteType, remotes).apply(
 					normalModuleFactory,
 				);

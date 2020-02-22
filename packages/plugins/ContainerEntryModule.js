@@ -114,12 +114,18 @@ export default class ContainerEntryModule extends Module {
 						'',
 						'return __GET_MODULE__',
 					)},`,
-					`shared: ${runtimeTemplate.basicFunction(
-						['module', 'getter'],
-						'__webpack_require__.shared[module] = getter;',
-					)}`,
+
+					`override: ${runtimeTemplate.basicFunction(
+						'',
+						`return __GET_MODULE__`,
+					)},`,
+					//  ${RuntimeGlobals.definePropertyGetters(
+					// 	['module', 'getter'],
+					// 	'__webpack_require__.shared[module] = getter;',
+					// )}`
 				]),
-				`});`,
+				`})`,
+				// `)`,
 			),
 		);
 
