@@ -24,6 +24,8 @@ const getSourceForGlobalVariableExternal = (
 
 	return Template.asString([
 		'(function() {',
+	`console.log(${type}["${requestScope}"])`,
+		// `console.log('shared',${type}["${requestScope}"])`,
 		'module.exports =',
 		`typeof ${type}["${requestScope}"] !== 'undefined' ? ${type}["${requestScope}"].get(${objectLookup}) : `,
 		`Promise.reject('Missing Remote Runtime: ${type}["${requestScope}"] cannot be found when trying to import ${objectLookup}'); `,
@@ -118,6 +120,7 @@ const getSourceForDefaultCase = (
 
 	// refactor conditional into checkExternalVariable
 	return Template.asString([
+		'console.log("zack");',
 		'module.exports = ',
 		`typeof ${requestScope} !== 'undefined' ? ${requestScope}.get('${request}') : `,
 		`Promise.reject("Missing Remote Runtime: ${requestScope} cannot be found when trying to import ${request}"); `,

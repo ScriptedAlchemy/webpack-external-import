@@ -11,6 +11,7 @@
     "format": "prettier --write \"{*,{packages,examples}/**/*}.+(js|json)\"",
     "predev": "preconstruct dev",
     "dev": "cross-env NODE_ENV=development concurrently --raw -k \"yarn workspace website1 start\" \"yarn workspace website2 start\"",
+    "serve": "cross-env NODE_ENV=development concurrently --raw -k \"yarn workspace website1 serve\" \"yarn workspace website2 serve\"",
     "semantic-release": "yarn workspace webpack-external-import semantic-release",
     "commit": "npx git-cz"
   },

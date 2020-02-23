@@ -6,7 +6,7 @@ import ContainerExposedDependency from './ContainerExposedDependency';
 import { ConcatSource } from 'webpack-sources';
 import ContainerEntryDependency from './ContainerEntryDependency';
 import ContainerEntryModuleFactory from './ContainerEntryModuleFactory';
-import SharedModuleFactoryPlugin from './SharedModuleFactoryPlugin';
+import OverridablesPlugin from 'webpack/lib/container/OverridablesPlugin';
 
 export default class ContainerPlugin {
 	static get name() {
@@ -115,30 +115,16 @@ export default class ContainerPlugin {
 			},
 		);
 
-		compiler.hooks.compile.tap(
-			ContainerPlugin.name,
-			({ normalModuleFactory }) => {
-				new SharedModuleFactoryPlugin(
-					compiler.options.libraryTarget,
-					this.options.shared,
-				).apply(normalModuleFactory);
-			},
-		);
 
-		compiler.hooks.compilation.tap(ContainerPlugin.name, ({ mainTemplate }) => {
-			mainTemplate.hooks.requireExtensions.tap('URLImportPlugin', source => {
-				console.log(source);
+		// compiler.hooks.compile.tap(
+		// 	ContainerPlugin.name,
+		// 	() => {
+		// 		new OverridablesPlugin(
+		// 			this.options.shared,
+		// 		).apply(compiler);
+		// 	},
+		// );
 
-				return source;
-
-				// return [addInterleaveExtension, addInterleaveRequire].reduce(
-				// 	(sourceCode, extension) => {
-				// 		return extension(sourceCode, mainTemplate.requireFn, this.opts);
-				// 	},
-				// 	source
-				// );
-			});
-		});
 
 		compiler.hooks.thisCompilation.tap(
 			ContainerPlugin.name,
@@ -152,6 +138,7 @@ export default class ContainerPlugin {
 					ContainerExposedDependency,
 					normalModuleFactory,
 				);
+
 
 				const renderHooks = JavascriptModulesPlugin.getCompilationHooks(
 					compilation,
@@ -206,7 +193,6 @@ export default class ContainerPlugin {
 				compilation.hooks.afterChunks.tap(ContainerPlugin.name, chunks => {
 					for (const chunk of chunks) {
 						if (chunk.name === this.options.name) {
-							chunk.preventIntegration = true; // TODO: Check that this is actually needed
 							chunk.filenameTemplate = this.options.filename;
 						}
 					}

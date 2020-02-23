@@ -31,11 +31,10 @@
     "@semantic-release/changelog": "^5.0.0",
     "@semantic-release/git": "^9.0.0",
     "semantic-release": "^17.0.4",
-    "semantic-release-monorepo": "^7.0.0",
-    "webpack": "^5.0.0-beta.13"
+    "semantic-release-monorepo": "^7.0.0"
   },
   "peerDependencies": {
-    "webpack": "^5.0.0-beta.13"
+    "webpack": "git://github.com/webpack/webpack.git#container/override"
   },
   "preconstruct": {
     "source": "index"
