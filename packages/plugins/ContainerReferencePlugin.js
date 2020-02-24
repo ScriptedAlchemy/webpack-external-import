@@ -127,5 +127,20 @@ export default class ContainerReferencePlugin {
 				);
 			},
 		);
+		compiler.hooks.thisCompilation.tap(
+			ContainerReferencePlugin.name,
+			(compilation, { normalModuleFactory }) => {
+				compilation.hooks.finishModules.tap(ContainerReferencePlugin.name, modules => {
+					console.log(modules);
+
+					//loop over shared modules by request, make
+					for (const module of modules) {
+						//if (chunk.name === this.options.name) {
+						//	chunk.preventIntegration = true; // TODO: Check that this is actually needed
+						//	chunk.filenameTemplate = this.options.filename;
+						//}
+					}
+				});
+			})
 	}
 }
