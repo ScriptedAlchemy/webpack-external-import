@@ -26,7 +26,7 @@
  <img src="docs/webpack-external-import.png" width="40%" alt="webpack-external-import" />
 </p>
 
-> This project has been proposed for implementation into the Webpack core (with some rewrites and refactors). Track the progress and share the issue for wider exposure if you are interested in seeing this become part of Webpack. I believe a system like this would offer great benefits for the JavaSciprt community. Fingers crossed! https://github.com/webpack/webpack/issues/10352
+> This project has been proposed for implementation into the Webpack core (with some rewrites and refactors). Track the progress and share the issue for wider exposure if you are interested in seeing this become part of Webpack. I believe a system like this would offer great benefits for the JavaScript community. Fingers crossed! https://github.com/webpack/webpack/issues/10352
 
 ```shell
 $ yarn add webpack-external-import
