@@ -117,7 +117,8 @@ export default class ContainerReferencePlugin {
 	}
 
 	apply(compiler) {
-		const { remotes, remoteType } = this.options;
+		const { remotes, remoteType, shared } = this.options;
+		const shareablesMap = new Map();
 
 		compiler.hooks.compile.tap(
 			ContainerReferencePlugin.name,
@@ -130,17 +131,22 @@ export default class ContainerReferencePlugin {
 		compiler.hooks.thisCompilation.tap(
 			ContainerReferencePlugin.name,
 			(compilation, { normalModuleFactory }) => {
-				compilation.hooks.finishModules.tap(ContainerReferencePlugin.name, modules => {
-					console.log(modules);
+				compilation.hooks.finishModules.tap(
+					ContainerReferencePlugin.name,
+					modules => {
+						console.log(modules);
 
-					//loop over shared modules by request, make
-					for (const module of modules) {
-						//if (chunk.name === this.options.name) {
-						//	chunk.preventIntegration = true; // TODO: Check that this is actually needed
-						//	chunk.filenameTemplate = this.options.filename;
-						//}
-					}
-				});
-			})
+						//loop over shared modules by request, make
+						for (const module of modules) {
+							if (shared[module.rawRequest]) {
+								console.log(module)
+								//shareablesMap.set(shared[module.rawRequest], module.id);
+							}
+						}
+						console.log(shareablesMap);
+					},
+				);
+			},
+		);
 	}
 }
