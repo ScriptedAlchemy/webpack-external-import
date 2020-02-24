@@ -1,5 +1,5 @@
 import RemoteModule from './RemoteModule';
-import OverridablesPlugin from 'webpack/lib/container/OverridablesPlugin';
+import ChunkGraph from 'webpack/lib/ChunkGraph';
 
 const UNSPECIFIED_EXTERNAL_TYPE_REGEXP = /^[a-z0-9]+ /;
 
@@ -130,20 +130,22 @@ export default class ContainerReferencePlugin {
 		);
 		compiler.hooks.thisCompilation.tap(
 			ContainerReferencePlugin.name,
-			(compilation, { normalModuleFactory }) => {
-				compilation.hooks.finishModules.tap(
+			(compilation, {normalModuleFactory}) => {
+
+				normalModuleFactory.hooks.module.tap(
 					ContainerReferencePlugin.name,
-					modules => {
-						console.log(modules);
+					module => {
+						console.log(module.id);
 
 						//loop over shared modules by request, make
-						for (const module of modules) {
+					//	for (const module of modules) {
 							if (shared[module.rawRequest]) {
-								console.log(module)
+							//	console.log(module)
+							//	console.log(ChunkGraph.getChunkGraphForModule.getModuleId(this))
 								//shareablesMap.set(shared[module.rawRequest], module.id);
 							}
-						}
-						console.log(shareablesMap);
+				//		}
+					//	console.log(shareablesMap);
 					},
 				);
 			},
