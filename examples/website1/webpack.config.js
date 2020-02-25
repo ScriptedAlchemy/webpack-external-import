@@ -1,4 +1,4 @@
-const { ContainerReferencePlugin } = require('webpack-external-import');
+const ContainerReferencePlugin = require('webpack/lib/container/ContainerReferencePlugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
