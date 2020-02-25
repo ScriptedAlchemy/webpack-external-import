@@ -406,7 +406,7 @@ A cache of key/value pairs to used to seed the manifest. This may include a set 
 
 Type: `Function(FileDescriptor): Boolean`
 
-### `options.test`
+### `options.testPath`
 
 Type: `Function(Object, FileDescriptor): Object`<br>
 Default: `src`
