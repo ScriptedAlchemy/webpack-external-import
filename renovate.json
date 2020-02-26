@@ -1,0 +1,20 @@
+{
+  "extends": [
+    ":combinePatchMinorReleases",
+    ":ignoreUnstable",
+    ":prImmediately",
+    ":semanticPrefixFixDepsChoreOthers",
+    ":updateNotScheduled",
+    ":automergeDisabled",
+    ":ignoreModulesAndTests",
+    ":maintainLockFilesDisabled",
+    ":autodetectPinVersions",
+    ":prHourlyLimit4",
+    ":prConcurrentLimit20",
+    "group:monorepos",
+    "group:recommended",
+    "helpers:disableTypesNodeMajor",
+    ":pinAllExceptPeerDependencies",
+    ":pinOnlyDevDependencies"
+  ]
+}
