@@ -3,7 +3,7 @@
 > **import() other chunks and modules from third parties, or other webpack builds themselves! At runtime!**
 
 <p align="center">
-    
+
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
   <a href="https://www.npmjs.com/package/webpack-external-import">
     <img src="https://img.shields.io/npm/v/webpack-external-import.svg" alt="Version" />
@@ -16,7 +16,7 @@
   <a href="https://www.npmjs.com/package/webpack-external-import">
     <img src="https://img.shields.io/npm/dm/webpack-external-import.svg" alt="License" />
   </a>
-  
+
   <a href="https://www.npmjs.com/package/webpack-external-import">
     <img src="https://img.shields.io/npm/l/webpack-external-import.svg" alt="License" />
   </a>
@@ -371,7 +371,7 @@ module.exports = {
 ### `options.fileName`
 
 Type: `String`<br>
-Default: `manifest.json`
+Default: `importManifest.js`
 
 The manifest filename in your output directory.
 
@@ -406,7 +406,7 @@ A cache of key/value pairs to used to seed the manifest. This may include a set 
 
 Type: `Function(FileDescriptor): Boolean`
 
-### `options.test`
+### `options.testPath`
 
 Type: `Function(Object, FileDescriptor): Object`<br>
 Default: `src`
