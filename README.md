@@ -28,13 +28,9 @@
 
 > This project has been proposed for implementation into the Webpack core (with some rewrites and refactors). Track the progress and share the issue for wider exposure if you are interested in seeing this become part of Webpack. I believe a system like this would offer great benefits for the JavaScript community. Fingers crossed! https://github.com/webpack/webpack/issues/10352
 
-```shell
-$ yarn add webpack-external-import
-```
+> ### ⚠️ This project is under active development ⚠️
 
-_This project is under active development_
-
-\*\*To jump to the _development_ section [click here](#development)
+\*\*To jump to the _development_ section [click here](#development--debugging)
 
 # Installation
 
@@ -209,7 +205,7 @@ The `interleave` object tells the plugin to make the module accessible through a
 For example:
 
 ```json
-// wbsite-two package.json
+// website-two package.json
 {
   "name": "some-package-name",
   "interleave": {
@@ -231,7 +227,7 @@ to allow for interleaving
 
 ## Working with Webpack Externals
 
-Its important to follow the instructions below if you are planning to use Webpack externals.
+It's important to follow the instructions below if you are planning to use Webpack externals.
 This plugin must be installed on all builds - it is intended that the build creating providing external is built by this plugin.
 Externals work best in scenarios where the "host" app should supplying dependencies to an interleaved one.
 
