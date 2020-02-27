@@ -1,13 +1,14 @@
-import React, { lazy, Suspense } from 'react';
+import React, { lazy, Suspense, useState } from 'react';
 
-const Title = lazy(() => import('website2/Title').then(mod => mod.default));
+const Title = lazy(() => import('website2/Title').then(mod => mod));
 
-export default () => (
+export default () => {
+	return (
 	<Suspense fallback={'fallback'}>
-		<Title />
+		<Title/>
 		<p>
 			This app loads the heading above from website2, and doesnt expose anything
 			itself.
 		</p>
 	</Suspense>
-);
+)}
