@@ -1,8 +1,4 @@
-import React, { lazy, Suspense } from 'react';
+import React from 'react';
+import HelloWorld from './HelloWorld';
 
-const HelloWorld = lazy(() => import('./HelloWorld'));
-export default () => (
-	<Suspense fallback={'fallback'}>
-		<HelloWorld />
-	</Suspense>
-);
+export default () => <HelloWorld />;
