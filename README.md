@@ -3,7 +3,7 @@
 > **import() other chunks and modules from third parties, or other webpack builds themselves! At runtime!**
 
 <p align="center">
-    
+
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
   <a href="https://www.npmjs.com/package/webpack-external-import">
     <img src="https://img.shields.io/npm/v/webpack-external-import.svg" alt="Version" />
@@ -16,7 +16,7 @@
   <a href="https://www.npmjs.com/package/webpack-external-import">
     <img src="https://img.shields.io/npm/dm/webpack-external-import.svg" alt="License" />
   </a>
-  
+
   <a href="https://www.npmjs.com/package/webpack-external-import">
     <img src="https://img.shields.io/npm/l/webpack-external-import.svg" alt="License" />
   </a>
@@ -26,7 +26,7 @@
  <img src="docs/webpack-external-import.png" width="40%" alt="webpack-external-import" />
 </p>
 
-> This project has been proposed for implementation into the Webpack core (with some rewrites and refactors). Track the progress and share the issue for wider exposure if you are interested in seeing this become part of Webpack. I believe a system like this would offer great benefits for the JavaSciprt community. Fingers crossed! https://github.com/webpack/webpack/issues/10352
+> This project has been proposed for implementation into the Webpack core (with some rewrites and refactors). Track the progress and share the issue for wider exposure if you are interested in seeing this become part of Webpack. I believe a system like this would offer great benefits for the JavaSciprt community. Fingers crossed! https://github.com/ScriptedAlchemy/webpack/issues/10352
 
 ```shell
 $ yarn add webpack-external-import
@@ -400,7 +400,7 @@ If set to `true` will emit to build folder and memory in combination with `webpa
 Type: `Object`<br>
 Default: `{}`
 
-A cache of key/value pairs to used to seed the manifest. This may include a set of [custom key/value](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/manifest.json) pairs to include in your manifest or may be used to combine manifests across compilations in [multi-compiler mode](https://github.com/webpack/webpack/tree/master/examples/multi-compiler). To combine manifests, pass a shared seed object to each compiler's ManifestPlugin instance.
+A cache of key/value pairs to used to seed the manifest. This may include a set of [custom key/value](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/manifest.json) pairs to include in your manifest or may be used to combine manifests across compilations in [multi-compiler mode](https://github.com/ScriptedAlchemy/webpack/tree/master/examples/multi-compiler). To combine manifests, pass a shared seed object to each compiler's ManifestPlugin instance.
 
 ### `options.filter`
 

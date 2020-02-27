@@ -1,7 +1,6 @@
 import React, { lazy, Suspense, useState } from 'react';
 
 const Title = lazy(() => import('website2/Title'));
-
 export default () => {
 	return (
 		<Suspense fallback={'fallback'}>

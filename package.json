@@ -6,7 +6,7 @@
     "packages/*"
   ],
   "resoluttions": {
-    "webpack": "git://github.com/webpack/webpack.git#dev-1"
+    "webpack": "git://github.com/ScriptedAlchemy/webpack.git#fixing-overrides"
   },
   "scripts": {
     "postinstall": "preconstruct dev",

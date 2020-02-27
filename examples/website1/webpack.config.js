@@ -1,4 +1,5 @@
-const ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin');
+const ContainerReferencePlugin = require('webpack/lib/container/ContainerReferencePlugin');
+const ContainerPlugin = require('webpack/lib/container/ContainerPlugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
@@ -34,15 +35,37 @@ module.exports = {
 	},
 
 	plugins: [
-		new ModuleFederationPlugin({
-			name: 'website1',
-			library: { type: 'var', name: 'website1' },
-			filename: 'remoteEntry.js',
-			remotes: {
-				website2: 'website2',
-			},
-			shared: ['react'],
+		new ContainerPlugin({
+			overridables: ["react"],
+			name: "website1",
+			filename: "remoteEntry.js"
 		}),
+
+		// both these doesnt work.
+		// new ContainerReferencePlugin({
+		// 	remoteType: "var",
+		// 	remotes: {
+		// 		website2: "website2",
+		// 	},
+		// 	// overrides: ['somethingrandom']
+		// }),
+		// throws:
+// 		bootstrap:18 Uncaught TypeError: __webpack_modules__[moduleId] is not a function
+// at __webpack_require__ (bootstrap:18)
+// at Object../src/index.jsx (main.js:37)
+// at __webpack_require__ (bootstrap:18)
+// at startup:4
+// at startup:4
+
+		// new ModuleFederationPlugin({
+		// 	name: 'website1',
+		// 	library: { type: 'var', name: 'website1' },
+		// 	filename: 'remoteEntry.js',
+		// 	remotes: {
+		// 		website2: 'website2',
+		// 	},
+		// 	shared: ['react'],
+		// }),
 		new HtmlWebpackPlugin({
 			template: './src/template.html',
 		}),
