@@ -4,7 +4,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 module.exports = {
 	entry: './src/index',
 	cache: false,
-devtool: 'source-map',
+	devtool: 'source-map',
 	mode: 'development',
 
 	optimization: {
@@ -39,14 +39,16 @@ devtool: 'source-map',
 			filename: 'remoteEntry.js',
 			exposes: {
 				Title: './src/Title',
+				Footer: './src/Footer',
 			},
 			remotes: {
 				website1: 'website1',
 			},
-			shared: ['react'],
+			shared: ['react', 'react-dom'],
 		}),
 		new HtmlWebpackPlugin({
 			template: './src/template.html',
+			chunks: ['main'],
 		}),
 	],
 };
