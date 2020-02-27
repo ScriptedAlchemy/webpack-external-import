@@ -1,11 +1,11 @@
-const { ContainerPlugin } = require('webpack-external-import');
+const ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
 	entry: './src/index',
 	cache: false,
-
-	mode: 'production',
+	devtool: 'source-map',
+	mode: 'development',
 
 	optimization: {
 		minimize: false,
@@ -33,20 +33,22 @@ module.exports = {
 	},
 
 	plugins: [
-		new ContainerPlugin({
+		new ModuleFederationPlugin({
 			name: 'website2',
-			library: 'website2',
+			library: { type: 'var', name: 'website2' },
 			filename: 'remoteEntry.js',
-			libraryTarget: 'global',
-			shared: {
-				react: 'react',
-			},
-			expose: {
+			exposes: {
 				Title: './src/Title',
+				Footer: './src/Footer',
 			},
+			remotes: {
+				website1: 'website1',
+			},
+			shared: ['react', 'react-dom'],
 		}),
 		new HtmlWebpackPlugin({
 			template: './src/template.html',
+			chunks: ['main'],
 		}),
 	],
 };

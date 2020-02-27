@@ -17,8 +17,8 @@
     "concurrently": "^5.1.0",
     "serve": "^11.3.0",
     "html-webpack-plugin": "^4.0.0-beta.11",
-    "webpack": "git://github.com/webpack/webpack.git#container/override",
-    "webpack-cli": "^4.0.0-beta.3",
+    "webpack": "git://github.com/ScriptedAlchemy/webpack.git#fixing-overrides",
+    "webpack-cli": "^3.3.11",
     "webpack-external-import": "0.0.0-development"
   }
 }

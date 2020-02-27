@@ -34,7 +34,7 @@
     "semantic-release-monorepo": "^7.0.0"
   },
   "peerDependencies": {
-    "webpack": "git://github.com/webpack/webpack.git#container/override"
+    "webpack": "git://github.com/ScriptedAlchemy/webpack.git#fixing-overrides"
   },
   "preconstruct": {
     "source": "index"
