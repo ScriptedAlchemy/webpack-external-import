@@ -24,7 +24,7 @@
     "semantic-release": "semantic-release -e semantic-release-monorepo"
   },
   "dependencies": {
-    "schema-utils": "2.6.1",
+    "schema-utils": "2.6.4",
     "webpack-sources": "^1.4.3"
   },
   "devDependencies": {
