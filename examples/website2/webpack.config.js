@@ -43,7 +43,7 @@ module.exports = {
 			remotes: {
 				website1: 'website1',
 			},
-			shared: ['react'],
+			// shared: ['react'],
 		}),
 		new HtmlWebpackPlugin({
 			template: './src/template.html',
