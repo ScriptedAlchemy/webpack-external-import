@@ -6,6 +6,7 @@ module.exports = {
 	cache: false,
 
 	mode: 'development',
+	devtool: 'source-map',
 
 	optimization: {
 		minimize: false,
@@ -40,7 +41,7 @@ module.exports = {
 			remotes: {
 				website2: 'website2',
 			},
-			// shared: ['react'],
+			shared: ['react'],
 		}),
 		new HtmlWebpackPlugin({
 			template: './src/template.html',

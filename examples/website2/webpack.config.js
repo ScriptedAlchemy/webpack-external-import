@@ -4,7 +4,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 module.exports = {
 	entry: './src/index',
 	cache: false,
-
+devtool: 'source-map',
 	mode: 'development',
 
 	optimization: {
@@ -43,7 +43,7 @@ module.exports = {
 			remotes: {
 				website1: 'website1',
 			},
-			// shared: ['react'],
+			shared: ['react'],
 		}),
 		new HtmlWebpackPlugin({
 			template: './src/template.html',
