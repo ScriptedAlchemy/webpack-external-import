@@ -2,8 +2,7 @@
   "name": "webpack-external-import",
   "private": true,
   "workspaces": [
-    "examples/*",
-    "packages/*"
+    "examples/*"
   ],
   "resoluttions": {
     "webpack": "git://github.com/ScriptedAlchemy/webpack.git#fixing-overrides"
