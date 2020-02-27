@@ -5,7 +5,7 @@
     "examples/*"
   ],
   "resoluttions": {
-    "webpack": "git://github.com/ScriptedAlchemy/webpack.git#fixing-overrides"
+    "webpack": "git://github.com/webpack/webpack.git#dev-1"
   },
   "scripts": {
     "postinstall": "preconstruct dev",
