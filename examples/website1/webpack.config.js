@@ -5,7 +5,7 @@ module.exports = {
 	entry: './src/index',
 	cache: false,
 
-	mode: 'production',
+	mode: 'development',
 
 	optimization: {
 		minimize: false,
