@@ -8,8 +8,7 @@
   "devDependencies": {
     "css-loader": "^3.4.2",
     "style-loader": "^1.1.3",
-    "webpack": "git://github.com/ScriptedAlchemy/webpack.git#fixing-overrides",
-    "webpack-cli": "^4.0.0-beta.3",
-    "webpack-external-import": "0.0.0-development"
+    "webpack": "git://github.com/webpack/webpack.git#dev-1",
+    "webpack-cli": "^4.0.0-beta.3"
   }
 }
