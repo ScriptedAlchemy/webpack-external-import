@@ -213,7 +213,7 @@ module.exports.requireInterleaveExtension = function() {
         finalResolve
       });
     }
-    if (console.endGroup) console.endGroup();
+    if (console.groupEnd) console.groupEnd();
     return finalPromise.then(function() {
       if (!isNested) return __webpack_require__(chunkId);
     });

@@ -106,7 +106,7 @@ export const addInterleaveExtension = (source, requireFn, { debug }) => {
           "}"
         ]),
         "})",
-        debug ? "console.endGroup();" : "",
+        debug ? "console.groupEnd();" : "",
         // resolve the promise
         `registeredResolver[0]();`
       ]),
