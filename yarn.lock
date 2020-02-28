@@ -8061,9 +8061,9 @@ webpack-sources@^1.4.3:
     source-list-map "^2.0.0"
     source-map "~0.6.1"
 
-"webpack@git://github.com/ScriptedAlchemy/webpack.git#fixing-overrides":
+"webpack@git://github.com/webpack/webpack.git#container/nested":
   version "5.0.0-beta.13"
-  resolved "git://github.com/ScriptedAlchemy/webpack.git#b3636206e8dff289d8e798faf3f5d7eec023f4db"
+  resolved "git://github.com/webpack/webpack.git#a2601eb5c8a68a4674c43b1796ac5d3a87828d74"
   dependencies:
     "@webassemblyjs/ast" "1.9.0"
     "@webassemblyjs/helper-module-context" "1.9.0"
