@@ -8,7 +8,6 @@
     "webpack": "git://github.com/webpack/webpack.git#dev-1"
   },
   "scripts": {
-    "postinstall": "preconstruct dev",
     "build": "preconstruct build",
     "format": "prettier --write \"{*,{packages,examples}/**/*}.+(js|json)\"",
     "predev": "preconstruct dev",
