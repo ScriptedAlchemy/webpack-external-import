@@ -17,7 +17,7 @@
     "concurrently": "^5.1.0",
     "html-webpack-plugin": "^4.0.0-beta.11",
     "serve": "^11.3.0",
-    "webpack": "git://github.com/ScriptedAlchemy/webpack.git#fixing-overrides",
+    "webpack": "git://github.com/webpack/webpack.git#dev-1",
     "webpack-cli": "^3.3.11"
   }
 }
