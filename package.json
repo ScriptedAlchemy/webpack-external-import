@@ -5,7 +5,7 @@
     "examples/*"
   ],
   "resoluttions": {
-    "webpack": "git://github.com/webpack/webpack.git#dev-1"
+    "webpack": "git://github.com/webpack/webpack.git#container/nested"
   },
   "scripts": {
     "build": "preconstruct build",

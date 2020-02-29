@@ -17,7 +17,7 @@
     "concurrently": "^5.1.0",
     "html-webpack-plugin": "git://github.com/ScriptedAlchemy/html-webpack-plugin#master",
     "serve": "^11.3.0",
-    "webpack": "git://github.com/webpack/webpack.git#dev-1",
+    "webpack": "git://github.com/webpack/webpack.git#container/nested",
     "webpack-cli": "^3.3.11"
   }
 }
