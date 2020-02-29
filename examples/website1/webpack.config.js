@@ -1,5 +1,5 @@
-const ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+
 
 module.exports = {
 	entry: './src/index',
