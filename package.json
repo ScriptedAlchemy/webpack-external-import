@@ -21,7 +21,7 @@
     "@babel/plugin-proposal-nullish-coalescing-operator": "7.8.3",
     "@babel/plugin-proposal-optional-chaining": "7.8.3",
     "@babel/preset-env": "7.8.6",
-    "@manypkg/cli": "^0.10.0",
+    "@manypkg/cli": "^0.11.0",
     "@preconstruct/cli": "^1.1.6",
     "prettier": "^1.19.1",
     "concurrently": "^5.1.0",
