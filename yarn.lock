@@ -789,10 +789,10 @@
     update-notifier "^2.2.0"
     yargs "^8.0.2"
 
-"@manypkg/cli@^0.10.0":
-  version "0.10.0"
-  resolved "https://registry.yarnpkg.com/@manypkg/cli/-/cli-0.10.0.tgz#16b4ce157146afa2f75eadf7d6e90b0a3c3d4bfd"
-  integrity sha512-8WU9uSD+myMMQpHoMt7em+PHPEx69cwaRb6RTW7J9qv+OshPycaXLQrUKWXEzluc/jKRApoI+4MTjAemZs/d5w==
+"@manypkg/cli@^0.11.0":
+  version "0.11.1"
+  resolved "https://registry.yarnpkg.com/@manypkg/cli/-/cli-0.11.1.tgz#1be7f661e0e1b7132809ff485f19694db4f29ce0"
+  integrity sha512-Ya4kKY8+VW4L0UXn0MfX7x6pezT5hgZeIVwwCnDMCjcR0RlRrpIk3NV6kX6A4QkZVe9ifA8ZRX6kCbjeXTY0Mg==
   dependencies:
     "@babel/runtime" "^7.5.5"
     chalk "^2.4.2"
@@ -802,7 +802,9 @@
     fs-extra "^8.1.0"
     get-workspaces "^0.6.0"
     meow "^5.0.0"
+    normalize-path "^3.0.0"
     p-limit "^2.2.1"
+    parse-github-url "^1.0.2"
     sembear "^0.5.0"
     semver "^6.3.0"
     spawndamnit "^2.0.0"
@@ -5917,6 +5919,11 @@ parent-module@^1.0.0:
   dependencies:
     callsites "^3.0.0"
 
+parse-github-url@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/parse-github-url/-/parse-github-url-1.0.2.tgz#242d3b65cbcdda14bb50439e3242acf6971db395"
+  integrity sha512-kgBf6avCbO3Cn6+RnzRGLkUsv4ZVqv/VfAYkRsyBcgkshNvVBkRn1FEZcW0Jb+npXQWm2vHPnnOqFteZxRRGNw==
+
 parse-glob@^3.0.4:
   version "3.0.4"
   resolved "https://registry.yarnpkg.com/parse-glob/-/parse-glob-3.0.4.tgz#b2c376cfb11f35513badd173ef0bb6e3a388391c"
@@ -8011,6 +8018,33 @@ webpack-sources@^1.4.3:
 "webpack@git://github.com/webpack/webpack.git#container/nested":
   version "5.0.0-beta.13"
   resolved "git://github.com/webpack/webpack.git#a2601eb5c8a68a4674c43b1796ac5d3a87828d74"
+  dependencies:
+    "@webassemblyjs/ast" "1.9.0"
+    "@webassemblyjs/helper-module-context" "1.9.0"
+    "@webassemblyjs/wasm-edit" "1.9.0"
+    "@webassemblyjs/wasm-parser" "1.9.0"
+    acorn "^7.0.0"
+    chrome-trace-event "^1.0.2"
+    enhanced-resolve "5.0.0-beta.4"
+    eslint-scope "^5.0.0"
+    events "^3.0.0"
+    glob-to-regexp "^0.4.1"
+    graceful-fs "^4.1.15"
+    json-parse-better-errors "^1.0.2"
+    loader-runner "^3.1.0"
+    loader-utils "^1.2.3"
+    mime-types "^2.1.26"
+    neo-async "^2.6.1"
+    pkg-dir "^4.2.0"
+    schema-utils "^2.5.0"
+    tapable "2.0.0-beta.9"
+    terser-webpack-plugin "^2.3.1"
+    watchpack "2.0.0-beta.13"
+    webpack-sources "2.0.0-beta.8"
+
+"webpack@git://github.com/webpack/webpack.git#dev-1":
+  version "5.0.0-beta.14"
+  resolved "git://github.com/webpack/webpack.git#3bc5a9e0b760b93e4d5e623fa0d9e648ed6ecfe9"
   dependencies:
     "@webassemblyjs/ast" "1.9.0"
     "@webassemblyjs/helper-module-context" "1.9.0"
