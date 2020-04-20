@@ -38,6 +38,6 @@
     "url": "https://github.com/ScriptedAlchemy/webpack-external-import.git"
   },
   "devDependencies": {
-    "semantic-release": "17.0.4"
+    "semantic-release": "17.0.6"
   }
 }
