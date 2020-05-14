@@ -1,7 +1,7 @@
 {
   "name": "webpack-external-import",
   "description": "dynamic import() external urls!",
-  "version": "0.0.0-development",
+  "version": "2.3.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/ScriptedAlchemy/webpack-external-import.git"
@@ -52,7 +52,7 @@
     "semantic-release": "semantic-release",
     "commit": "npx git-cz"
   },
-  "license": "BSD-3-Clause",
+  "license": "MIT",
   "devDependencies": {
     "@babel/cli": "7.8.4",
     "@babel/core": "7.8.4",

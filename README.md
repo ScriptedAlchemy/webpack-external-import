@@ -26,9 +26,10 @@
  <img src="docs/webpack-external-import.png" width="40%" alt="webpack-external-import" />
 </p>
 
-> This project has been proposed for implementation into the Webpack core (with some rewrites and refactors). Track the progress and share the issue for wider exposure if you are interested in seeing this become part of Webpack. I believe a system like this would offer great benefits for the JavaScript community. Fingers crossed! https://github.com/webpack/webpack/issues/10352
+> This project has been rewritten into the Webpack core. Its far more stable and available on npm webpack@5.0.0-beta.16 https://github.com/webpack/webpack/issues/10352
 
-> ### ⚠️ This project is under active development ⚠️
+> ### ⚠️ This project no longer under development as been enhanced in the webpack 5 core ⚠️
+> ### See the examples on module federation in webpack 5
 
 \*\*To jump to the _development_ section [click here](#development--debugging)
 
