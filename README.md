@@ -31,7 +31,7 @@
 > This Project has been incoporated into the Webpack 5 core. Track the progress
 > and share the issue for wider exposure. I believe a system like this would
 > offer great benefits for the JavaScript community.
-> https://github.com/ScriptedAlchemy/webpack/issues/10352
+> https://github.com/webpack/webpack/issues/10352
 
 Because this project is now based out of the Webpack 5 repo. It serves mostly as
 an example, testing ground, and documentation house.
