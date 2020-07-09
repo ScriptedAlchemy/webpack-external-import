@@ -14,3 +14,7 @@ overrides:
       printWidth: 999
       tabWidth: 2
       useTabs: false
+  - files: ['**/README.md']
+    options:
+      tabWidth: 2
+      useTabs: false
