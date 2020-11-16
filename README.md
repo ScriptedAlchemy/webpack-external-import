@@ -2,6 +2,8 @@
 
 > **import() other chunks and modules from third parties, or other webpack builds themselves! At runtime!**
 
+## This is now part of Webpack 5 - do not use external-import, read more here: http://module-federation.github.io/
+
 <p align="center">
 
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
