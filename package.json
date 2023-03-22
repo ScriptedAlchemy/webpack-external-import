@@ -99,7 +99,7 @@
     "regenerator-runtime": "0.13.3",
     "schema-utils": "2.6.4",
     "semantic-release": "17.0.4",
-    "source-map": "0.7.3",
+    "source-map": "0.7.4",
     "travis-github-status": "1.6.3",
     "webpack": "4.41.6",
     "webpack-cli": "3.3.11",
