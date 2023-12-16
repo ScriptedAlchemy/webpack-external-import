@@ -96,7 +96,7 @@
     "puppeteer": "2.1.1",
     "react": "16.8.6",
     "react-dom": "16.8.6",
-    "regenerator-runtime": "0.13.3",
+    "regenerator-runtime": "0.14.1",
     "schema-utils": "2.6.4",
     "semantic-release": "17.0.4",
     "source-map": "0.7.3",
