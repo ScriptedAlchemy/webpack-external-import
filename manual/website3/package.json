@@ -29,7 +29,7 @@
     "babel-loader": "8.0.6",
     "css-loader": "3.4.2",
     "extract-css-chunks-webpack-plugin": "4.7.4",
-    "node-sass": "4.13.1",
+    "node-sass": "7.0.0",
     "react-hot-loader": "4.12.18",
     "sass-loader": "8.0.2",
     "style-loader": "1.1.3",
