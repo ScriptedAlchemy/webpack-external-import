@@ -70,7 +70,7 @@
     "babel-loader": "8.0.6",
     "babel-plugin-transform-remove-console": "6.9.4",
     "babel-watch": "7.0.0",
-    "commitizen": "4.0.3",
+    "commitizen": "4.3.1",
     "concurrently": "5.1.0",
     "cross-env": "7.0.0",
     "cz-conventional-changelog": "3.1.0",
